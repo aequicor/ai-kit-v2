@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-violet-400;
+  }
+  .card-glass {
+    @apply bg-white border border-gray-200 shadow-sm rounded-2xl backdrop-blur-sm;
+    @apply dark:bg-white/5 dark:border-white/10 dark:shadow-none;
+  }
+}

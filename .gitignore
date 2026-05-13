@@ -15,6 +15,7 @@ gradle-app.setting
 # Kotlin
 *.class
 *.kotlin_module
+.kotlin
 
 # Claude Code
 .claude/settings.local.json
