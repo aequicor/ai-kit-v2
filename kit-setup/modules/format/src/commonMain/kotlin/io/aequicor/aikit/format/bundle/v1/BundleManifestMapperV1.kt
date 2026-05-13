@@ -47,10 +47,10 @@ internal class BundleManifestMapperV1(private val configParser: TargetConfigPars
         val skills = templates.filter { it.path.contains("/skills/") }
 
         val stub = when (targetFolder) {
-            "claude" -> buildClaudeCode(commands, skills, templates)
+            "claude-code" -> buildClaudeCode(commands, skills, templates)
             "opencode" -> buildOpenCode(commands, skills, templates)
-            "qwen" -> buildQwenCode(commands, skills, templates)
-            else -> throw FormatError.UnknownEnum(targetFolder, "targets[]", setOf("claude", "opencode", "qwen"))
+            "qwen-code" -> buildQwenCode(commands, skills, templates)
+            else -> throw FormatError.UnknownEnum(targetFolder, "targets[]", setOf("claude-code", "opencode", "qwen-code"))
         }
 
         if (configJson != null) {
@@ -64,7 +64,7 @@ internal class BundleManifestMapperV1(private val configParser: TargetConfigPars
         ClaudeCode(
             schemaVersion = 1, minVersion = null, mcpServers = emptyList(),
             commands = commands, skills = skills,
-            subagents = all.filter { it.path.contains("/agents/") },
+            subagents = all.filter { it.path.contains("/subagents/") },
             model = null, includeCoAuthoredBy = null, env = null, permissions = null, hooks = emptyMap(),
         )
 
@@ -82,7 +82,7 @@ internal class BundleManifestMapperV1(private val configParser: TargetConfigPars
         QwenCode(
             schemaVersion = 1, minVersion = null, mcpServers = emptyList(),
             commands = commands, skills = skills,
-            subagents = all.filter { it.path.contains("/agents/") },
+            subagents = all.filter { it.path.contains("/subagents/") },
             model = null, modelProviders = null, permissions = null, tools = null,
             general = null, context = null, telemetry = null, hooks = emptyMap(),
         )

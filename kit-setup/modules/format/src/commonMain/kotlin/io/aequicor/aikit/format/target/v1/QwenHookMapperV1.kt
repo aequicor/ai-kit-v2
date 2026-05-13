@@ -4,13 +4,6 @@ import io.aequicor.aikit.core.domain.targets.QwenHookEvent
 import io.aequicor.aikit.core.domain.targets.QwenHookGroup
 import io.aequicor.aikit.core.domain.targets.QwenHookHandler
 import io.aequicor.aikit.format.error.FormatError
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.booleanOrNull
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.intOrNull
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 
 internal object QwenHookMapperV1 {
 
@@ -36,46 +29,39 @@ internal object QwenHookMapperV1 {
     private fun mapGroup(dto: HookGroupDtoV1): QwenHookGroup = QwenHookGroup(
         matcher = dto.matcher,
         sequential = dto.sequential,
-        hooks = dto.hooks.map { mapHandler(it) },
+        hooks = listOf(mapHandler(dto)),
         condition = dto.`when`,
     )
 
-    private fun mapHandler(obj: JsonObject): QwenHookHandler {
-        val type = obj["type"]?.jsonPrimitive?.contentOrNull ?: "command"
-        val condition = obj["if"]?.jsonPrimitive?.contentOrNull
+    private fun mapHandler(dto: HookGroupDtoV1): QwenHookHandler {
+        val type = dto.type ?: inferType(dto)
         return when (type) {
-            "command" -> mapCommandHandler(obj, condition)
-            "http" -> mapHttpHandler(obj, condition)
+            "command" -> QwenHookHandler.Command(
+                condition = null,
+                command = dto.command
+                    ?: throw FormatError.MissingField("command", "qwen hook (type=command)"),
+                name = dto.name,
+                description = dto.description,
+                shell = dto.shell,
+                async = dto.async,
+                timeout = dto.timeout,
+                env = dto.env ?: emptyMap(),
+                statusMessage = dto.statusMessage,
+            )
+            "http" -> QwenHookHandler.Http(
+                condition = null,
+                url = dto.url ?: throw FormatError.MissingField("url", "qwen hook (type=http)"),
+                headers = dto.headers ?: emptyMap(),
+                allowedEnvVars = dto.allowedEnvVars ?: emptyList(),
+                timeout = dto.timeout,
+                once = dto.once,
+            )
             else -> throw FormatError.UnknownEnum(type, "qwen hook.type", setOf("command", "http"))
         }
     }
 
-    private fun mapCommandHandler(obj: JsonObject, condition: String?): QwenHookHandler.Command {
-        val command = obj["command"]?.jsonPrimitive?.contentOrNull
-            ?: throw FormatError.MissingField("command", "qwen hook (type=command)")
-        return QwenHookHandler.Command(
-            condition = condition,
-            command = command,
-            name = obj["name"]?.jsonPrimitive?.contentOrNull,
-            description = obj["description"]?.jsonPrimitive?.contentOrNull,
-            shell = obj["shell"]?.jsonPrimitive?.contentOrNull,
-            async = obj["async"]?.jsonPrimitive?.booleanOrNull ?: false,
-            timeout = obj["timeout"]?.jsonPrimitive?.intOrNull,
-            env = obj["env"]?.jsonObject?.mapValues { it.value.jsonPrimitive.content } ?: emptyMap(),
-            statusMessage = obj["statusMessage"]?.jsonPrimitive?.contentOrNull,
-        )
-    }
-
-    private fun mapHttpHandler(obj: JsonObject, condition: String?): QwenHookHandler.Http {
-        val url = obj["url"]?.jsonPrimitive?.contentOrNull
-            ?: throw FormatError.MissingField("url", "qwen hook (type=http)")
-        return QwenHookHandler.Http(
-            condition = condition,
-            url = url,
-            headers = obj["headers"]?.jsonObject?.mapValues { it.value.jsonPrimitive.content } ?: emptyMap(),
-            allowedEnvVars = obj["allowedEnvVars"]?.jsonArray?.map { it.jsonPrimitive.content } ?: emptyList(),
-            timeout = obj["timeout"]?.jsonPrimitive?.intOrNull,
-            once = obj["once"]?.jsonPrimitive?.booleanOrNull ?: false,
-        )
+    private fun inferType(dto: HookGroupDtoV1): String = when {
+        dto.url != null -> "http"
+        else -> "command"
     }
 }

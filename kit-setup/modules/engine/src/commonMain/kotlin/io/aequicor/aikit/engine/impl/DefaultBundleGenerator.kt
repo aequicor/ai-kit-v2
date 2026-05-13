@@ -80,9 +80,10 @@ internal class DefaultBundleGenerator(
     ) {
         val outputRoot = outputRoot(target, appPath)
         val allTemplates = collectTemplates(target)
+        val bundleFolder = bundleFolder(target)
 
         for (template in allTemplates) {
-            val relativePath = template.path.removePrefix("$targetFolder/")
+            val relativePath = template.path.removePrefix("$bundleFolder/")
             val outputPath = "$outputRoot/$relativePath"
             val renderedBytes = renderTemplate(template, inputs)
 
@@ -114,5 +115,11 @@ internal class DefaultBundleGenerator(
         is ClaudeCode -> "$appPath/.claude"
         is OpenCode -> "$appPath/.opencode"
         is QwenCode -> "$appPath/.qwen"
+    }
+
+    private fun bundleFolder(target: Target): String = when (target) {
+        is ClaudeCode -> "claude-code"
+        is OpenCode -> "opencode"
+        is QwenCode -> "qwen-code"
     }
 }

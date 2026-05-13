@@ -26,7 +26,7 @@ class BundleManifestParserTest {
               "name": "my-bundle",
               "version": "1.0.0",
               "description": "A test bundle",
-              "targets": ["claude"]
+              "targets": ["claude-code"]
             }
         """.trimIndent()
 
@@ -47,7 +47,7 @@ class BundleManifestParserTest {
               "name": "full",
               "version": "0.1.0",
               "description": "All input types",
-              "targets": ["claude"],
+              "targets": ["claude-code"],
               "inputs": [
                 { "id": "flag",  "type": "boolean",     "title": "Flag?",  "default": true },
                 { "id": "env",   "type": "select",      "title": "Env",    "options": ["dev","prod"], "default": "dev" },

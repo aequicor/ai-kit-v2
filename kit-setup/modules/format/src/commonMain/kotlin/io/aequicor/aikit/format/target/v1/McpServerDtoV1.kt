@@ -1,7 +1,6 @@
 package io.aequicor.aikit.format.target.v1
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonObject
 
 /**
  * DTO for a single MCP server entry in a bundle's `config.json`.
@@ -34,19 +33,47 @@ internal data class McpServerDtoV1(
 )
 
 /**
- * Raw hook-group entry in a bundle's `config.json` hooks map.
+ * Flat hook entry in a bundle's `config.json` hooks map.
  *
- * Each entry represents one group whose handler details live in [hooks]. The [matcher] controls
- * which tool invocations trigger the group. The [condition] is the raw AKEL `when` expression.
+ * Each entry simultaneously describes the group (via [matcher], [sequential], `when`) and
+ * its single handler (via [type] plus handler-specific fields). This flat format matches the
+ * spec; the mapper wraps it into a [io.aequicor.aikit.core.domain.targets.ClaudeHookGroup] or
+ * [io.aequicor.aikit.core.domain.targets.QwenHookGroup] containing one handler.
  *
- * The [hooks] list contains raw [JsonObject]s discriminated by the `"type"` field; the mapper
- * routes each one to the correct [io.aequicor.aikit.core.domain.targets.ClaudeHookHandler] or
- * [io.aequicor.aikit.core.domain.targets.QwenHookHandler] subtype.
+ * Handler type is determined by [type] when present, otherwise inferred from which key field
+ * is non-null: [command] → `"command"`, [url] → `"http"`, [server] → `"mcp_tool"`,
+ * [prompt] → `"prompt"` / `"agent"`.
  */
 @Serializable
 internal data class HookGroupDtoV1(
+    // group fields
     val matcher: String? = null,
     val sequential: Boolean = false,
-    val hooks: List<JsonObject> = emptyList(),
     val `when`: String? = null,
+    // handler type discriminator
+    val type: String? = null,
+    // command handler (Claude + Qwen)
+    val command: String? = null,
+    val args: List<String>? = null,
+    val shell: String? = null,
+    val async: Boolean = false,
+    val asyncRewake: Boolean = false,
+    val timeout: Int? = null,
+    val statusMessage: String? = null,
+    val once: Boolean = false,
+    // Qwen-specific command fields
+    val name: String? = null,
+    val description: String? = null,
+    val env: Map<String, String>? = null,
+    // http handler (Claude + Qwen)
+    val url: String? = null,
+    val headers: Map<String, String>? = null,
+    val allowedEnvVars: List<String>? = null,
+    // mcp_tool handler (Claude only)
+    val server: String? = null,
+    val tool: String? = null,
+    val input: Map<String, String>? = null,
+    // prompt / agent handler (Claude only)
+    val prompt: String? = null,
+    val model: String? = null,
 )

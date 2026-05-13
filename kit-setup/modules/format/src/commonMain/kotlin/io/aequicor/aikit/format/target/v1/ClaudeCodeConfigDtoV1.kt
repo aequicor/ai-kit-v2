@@ -7,9 +7,15 @@ import kotlinx.serialization.json.JsonElement
 @Serializable
 internal data class ClaudeCodeConfigDtoV1(
     val schemaVersion: Int = 1,
+    val agent: String? = null,
     val minVersion: String? = null,
+    val scope: String? = null,
     val settings: ClaudeSettingsDtoV1? = null,
+    val memory: List<FileRefDtoV1>? = null,
     val mcpServers: List<McpServerDtoV1>? = null,
+    val agents: List<FileRefDtoV1>? = null,
+    val commands: List<FileRefDtoV1>? = null,
+    val skills: List<FileRefDtoV1>? = null,
     val hooks: Map<String, List<HookGroupDtoV1>>? = null,
 )
 
@@ -29,4 +35,17 @@ internal data class ClaudePermissionsDtoV1(
     val deny: List<JsonElement>? = null,
     val ask: List<JsonElement>? = null,
     val additionalDirectories: List<String>? = null,
+)
+
+/**
+ * Declarative reference to a file inside the bundle, with an optional AKEL `when` condition.
+ *
+ * Used for `agents`, `commands`, `skills`, and `memory` entries in `config.json`.
+ * When `when` evaluates to `false` at generation time the entry is excluded entirely.
+ */
+@Serializable
+internal data class FileRefDtoV1(
+    val name: String,
+    val source: String,
+    val `when`: String? = null,
 )
