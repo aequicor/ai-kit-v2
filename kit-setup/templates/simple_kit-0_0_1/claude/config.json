@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "agent": "claude-code",
+  "minVersion": "1.0.0",
+  "scope": "project",
+
+  "settings": {
+    "includeCoAuthoredBy": false,
+    "permissions": {
+      "defaultMode": "acceptEdits",
+      "allow": [
+        { "value": "Read(./**)" },
+        { "value": "Bash(git status)" },
+        { "value": "Bash(git diff:*)" },
+        { "value": "Bash(git log:*)" }
+      ],
+      "deny": [
+        { "value": "Read(./.env)" },
+        { "value": "Read(./secrets/**)" },
+        { "value": "Bash(rm -rf:*)", "when": "${bundle.input.strict}" },
+        { "value": "Bash(git push --force:*)", "when": "${bundle.input.strict}" }
+      ]
+    }
+  },
+
+  "memory": [
+    { "name": "CLAUDE.md", "source": "CLAUDE.md" }
+  ],
+
+  "mcpServers": [
+    {
+      "when": "${bundle.input.githubMcp}",
+      "name": "github",
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"]
+    }
+  ],
+
+  "agents": [
+    {
+      "when": "'code-reviewer' in ${bundle.input.subagents}",
+      "name": "code-reviewer",
+      "source": "subagents/code-reviewer/code-reviewer.md"
+    },
+    {
+      "when": "'test-runner' in ${bundle.input.subagents}",
+      "name": "test-runner",
+      "source": "subagents/test-runner/test-runner.md"
+    }
+  ],
+
+  "commands": [
+    {
+      "when": "'review' in ${bundle.input.skills}",
+      "name": "review",
+      "source": "commands/review.md"
+    }
+  ],
+
+  "skills": [
+    {
+      "when": "'review' in ${bundle.input.skills}",
+      "name": "review",
+      "source": "skills/review/"
+    },
+    {
+      "when": "'security-review' in ${bundle.input.skills}",
+      "name": "security-review",
+      "source": "skills/security-review/"
+    }
+  ],
+
+  "hooks": {
+    "PreToolUse": [
+      {
+        "when": "${bundle.input.strict}",
+        "matcher": "Bash",
+        "command": ".claude/hooks/block-dangerous.sh"
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "command": ".claude/hooks/session-start.sh"
+      }
+    ]
+  }
+}

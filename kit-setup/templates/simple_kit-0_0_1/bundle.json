@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+
+  "name": "simple-kit",
+  "version": "0.0.1",
+  "description": "Минимальный AI-Kit стартер: CLAUDE.md, скилы, субагенты, базовые хуки и опциональный GitHub MCP",
+  "author": "AI-Kit",
+  "license": "MIT",
+
+  "targets": ["claude-code"],
+
+  "inputs": [
+    {
+      "id": "projectName",
+      "type": "string",
+      "title": "Имя проекта",
+      "description": "Подставляется в CLAUDE.md и описания скилов/субагентов",
+      "default": "${cwd.basename}",
+      "required": true
+    },
+    {
+      "id": "skills",
+      "type": "multiselect",
+      "title": "Какие скилы установить?",
+      "description": "Каждый скил — отдельный SKILL.md, который агент подхватывает по описанию",
+      "options": ["review", "security-review"],
+      "default": ["review"]
+    },
+    {
+      "id": "subagents",
+      "type": "multiselect",
+      "title": "Какие субагенты установить?",
+      "description": "Делегируемые задачи в собственном контекстном окне",
+      "options": ["code-reviewer", "test-runner"],
+      "default": ["code-reviewer"]
+    },
+    {
+      "id": "githubMcp",
+      "type": "boolean",
+      "title": "Подключить GitHub MCP?",
+      "description": "Включай, если проект хостится на GitHub. Даёт доступ к issues, PR и code search",
+      "default": false
+    },
+    {
+      "id": "strict",
+      "type": "boolean",
+      "title": "Strict-режим?",
+      "description": "Включает PreToolUse-хук, блокирующий опасные команды (rm -rf, force push)",
+      "default": true
+    }
+  ]
+}

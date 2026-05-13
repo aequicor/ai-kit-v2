@@ -20,7 +20,7 @@
   "description": "Описание бандла",
   "author": "Имя Автора <email@example.com>",
   "license": "MIT",
-  "agents": ["claude"],
+  "targets": ["claude-code"],
   "inputs": []
 }
 ```
