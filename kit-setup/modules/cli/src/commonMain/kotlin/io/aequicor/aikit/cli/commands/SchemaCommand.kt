@@ -1,7 +1,7 @@
 package io.aequicor.aikit.cli.commands
 
 import com.github.ajalt.clikt.core.CliktCommand
-import io.aequicor.aikit.core.api.SchemaProvider
+import io.aequicor.aikit.engine.api.SchemaProvider
 
 /** Prints the JSON schema for `.aikit/manifest.yaml` to stdout. */
 class SchemaCommand(private val provider: SchemaProvider) : CliktCommand(

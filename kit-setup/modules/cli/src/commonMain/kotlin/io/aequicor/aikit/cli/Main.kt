@@ -1,16 +1,15 @@
 package io.aequicor.aikit.cli
 
-import io.aequicor.aikit.core.api.BundleGenerator
-import io.aequicor.aikit.core.api.ManifestVerifier
-import io.aequicor.aikit.core.api.SchemaProvider
+import io.aequicor.aikit.engine.AiKitEngine
 
 /** Current CLI version; keep in sync with gradle.properties. */
-internal const val VERSION = "0.0.3"
+internal const val VERSION = "0.0.6"
 
 fun main(args: Array<String>) {
+    val engine = AiKitEngine.create()
     AiKitCli(
-        schemaProvider = SchemaProvider { TODO("SchemaProvider not yet implemented") },
-        verifier = ManifestVerifier { TODO("ManifestVerifier not yet implemented") },
-        generator = BundleGenerator { TODO("BundleGenerator not yet implemented") },
+        schemaProvider = engine.schemaProvider,
+        verifier = engine.verifier,
+        generator = engine.generator,
     ).main(args)
 }

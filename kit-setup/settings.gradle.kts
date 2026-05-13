@@ -12,4 +12,7 @@ include(
     ":modules:core",
     ":modules:cli",
     ":modules:akel",
+    ":modules:io",
+    ":modules:format",
+    ":modules:engine",
 )

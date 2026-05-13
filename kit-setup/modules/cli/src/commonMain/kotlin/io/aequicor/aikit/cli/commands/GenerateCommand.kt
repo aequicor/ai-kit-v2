@@ -3,7 +3,7 @@ package io.aequicor.aikit.cli.commands
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.parameters.arguments.argument
-import io.aequicor.aikit.core.api.BundleGenerator
+import io.aequicor.aikit.engine.api.BundleGenerator
 
 /** Resolves bundles from [manifest] and writes agent configuration files. */
 class GenerateCommand(private val generator: BundleGenerator) : CliktCommand(

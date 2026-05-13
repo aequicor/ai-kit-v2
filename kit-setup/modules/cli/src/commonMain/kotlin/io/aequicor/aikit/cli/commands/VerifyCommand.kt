@@ -3,7 +3,7 @@ package io.aequicor.aikit.cli.commands
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.parameters.arguments.argument
-import io.aequicor.aikit.core.api.ManifestVerifier
+import io.aequicor.aikit.engine.api.ManifestVerifier
 
 /** Validates the manifest at [manifest] and exits non-zero on any error. */
 class VerifyCommand(private val verifier: ManifestVerifier) : CliktCommand(

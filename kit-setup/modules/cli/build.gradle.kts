@@ -14,7 +14,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":modules:core"))
+            implementation(project(":modules:engine"))
             implementation(libs.clikt)
         }
     }
