@@ -29,7 +29,7 @@ internal object OpenCodeConfigMapperV1 {
         permission = dto.permission?.mapValues {
             parsePermissionLevel(it.value.jsonPrimitive.contentOrNull ?: "")
         },
-        agents = dto.agent?.mapValues { mapAgent(it.key, it.value) },
+        agents = dto.agent?.mapValues { mapAgent(it.value) },
         compaction = dto.compaction?.let {
             OpenCodeCompaction(it.auto, it.prune, it.reserved)
         },
@@ -58,7 +58,7 @@ internal object OpenCodeConfigMapperV1 {
         }
     }
 
-    private fun mapAgent(name: String, dto: OpenCodeAgentDtoV1): OpenCodeAgentDef = OpenCodeAgentDef(
+    private fun mapAgent(dto: OpenCodeAgentDtoV1): OpenCodeAgentDef = OpenCodeAgentDef(
         mode = parseAgentMode(dto.mode),
         description = dto.description,
         model = dto.model,

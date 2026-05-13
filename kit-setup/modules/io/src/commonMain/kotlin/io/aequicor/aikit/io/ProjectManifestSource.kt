@@ -1,6 +1,7 @@
 package io.aequicor.aikit.io
 
 import kotlinx.io.Source
+import kotlinx.io.files.Path
 
 /**
  * Abstract source of a user-project manifest (`.aikit/manifest.json`).
@@ -10,6 +11,9 @@ import kotlinx.io.Source
  * the concrete [BundleSource] for each reference is produced by [resolveBundleSource].
  */
 interface ProjectManifestSource {
+
+    /** Root directory of the user project (parent of the `.aikit/` folder). */
+    val projectRoot: Path
 
     /**
      * Open `.aikit/manifest.json` for reading.

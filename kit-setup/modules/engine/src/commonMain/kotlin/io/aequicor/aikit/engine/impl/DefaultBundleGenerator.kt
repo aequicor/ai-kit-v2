@@ -31,6 +31,7 @@ internal class DefaultBundleGenerator(
 
     override fun generate(manifestPath: String): Result<Unit> = runCatching {
         val manifestSource = FsProjectManifestSource(Path(manifestPath))
+        val projectRoot = manifestSource.projectRoot.toString()
 
         val rawManifest = manifestSource.openManifest()
             .mapCatching { format.parseProjectManifest(it).getOrThrow() }
@@ -66,7 +67,7 @@ internal class DefaultBundleGenerator(
                     val inputs = InputResolver.resolve(bundleManifest.inputs, rawTarget.inputs)
                         .getOrThrow()
 
-                    renderAndWrite(target, targetName, app.path, inputs)
+                    renderAndWrite(target, app.path, projectRoot, inputs)
                 }
             }
         }
@@ -74,11 +75,11 @@ internal class DefaultBundleGenerator(
 
     private fun renderAndWrite(
         target: Target,
-        targetFolder: String,
         appPath: String,
+        projectRoot: String,
         inputs: Map<String, AkelValue>,
     ) {
-        val outputRoot = outputRoot(target, appPath)
+        val outputRoot = outputRoot(target, appPath, projectRoot)
         val allTemplates = collectTemplates(target)
         val bundleFolder = bundleFolder(target)
 
@@ -111,10 +112,13 @@ internal class DefaultBundleGenerator(
         is QwenCode -> target.commands + target.skills + target.subagents
     }
 
-    private fun outputRoot(target: Target, appPath: String): String = when (target) {
-        is ClaudeCode -> "$appPath/.claude"
-        is OpenCode -> "$appPath/.opencode"
-        is QwenCode -> "$appPath/.qwen"
+    private fun outputRoot(target: Target, appPath: String, projectRoot: String): String {
+        val agentFolder = when (target) {
+            is ClaudeCode -> ".claude"
+            is OpenCode -> ".opencode"
+            is QwenCode -> ".qwen"
+        }
+        return Path(projectRoot, appPath, agentFolder).toString()
     }
 
     private fun bundleFolder(target: Target): String = when (target) {

@@ -23,7 +23,7 @@ import kotlinx.io.files.SystemFileSystem
  */
 class FsProjectManifestSource(
     private val manifestPath: Path,
-    private val projectRoot: Path = defaultProjectRoot(manifestPath),
+    override val projectRoot: Path = defaultProjectRoot(manifestPath),
     private val factory: BundleSourceFactory = BundleSourceFactory(),
 ) : ProjectManifestSource {
 
