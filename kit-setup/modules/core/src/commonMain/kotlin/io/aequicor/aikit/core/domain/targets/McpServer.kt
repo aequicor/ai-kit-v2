@@ -3,17 +3,13 @@ package io.aequicor.aikit.core.domain.targets
 /**
  * An MCP server entry in a [Target]'s `mcpServers` list.
  *
- * The active variant determines the transport protocol. Any entry may carry a [condition]
- * that gates its inclusion in the generated config; raw `${bundle.input.<id>}` placeholders in
+ * The active variant determines the transport protocol. Raw `${bundle.input.<id>}` placeholders in
  * string-valued fields are resolved by the linking layer, not by the domain model.
  */
 sealed interface McpServer {
 
     /** Server name used to identify it in the generated agent config. */
     val name: String
-
-    /** Raw AKEL expression; if non-null, this server is included only when it evaluates to `true`. */
-    val condition: String?
 
     /** If `false`, the server entry is written but disabled. `null` means agent default. */
     val enabled: Boolean?
@@ -30,7 +26,6 @@ sealed interface McpServer {
      */
     data class Stdio(
         override val name: String,
-        override val condition: String?,
         override val enabled: Boolean?,
         override val timeout: Int?,
         val command: String,
@@ -46,7 +41,6 @@ sealed interface McpServer {
      */
     data class Sse(
         override val name: String,
-        override val condition: String?,
         override val enabled: Boolean?,
         override val timeout: Int?,
         val url: String,

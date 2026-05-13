@@ -22,9 +22,20 @@ internal data class ClaudeCodeConfigDtoV1(
 @Serializable
 internal data class ClaudeSettingsDtoV1(
     val model: String? = null,
+    val effortLevel: String? = null,
+    val alwaysThinkingEnabled: Boolean? = null,
+    val availableModels: List<String>? = null,
+    val modelOverrides: Map<String, String>? = null,
     val includeCoAuthoredBy: Boolean? = null,
     val env: Map<String, String>? = null,
+    val attribution: ClaudeAttributionDtoV1? = null,
     val permissions: ClaudePermissionsDtoV1? = null,
+)
+
+@Serializable
+internal data class ClaudeAttributionDtoV1(
+    val commit: String? = null,
+    val pr: String? = null,
 )
 
 @Serializable

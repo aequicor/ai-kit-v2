@@ -7,7 +7,9 @@ import kotlinx.serialization.json.JsonElement
 @Serializable
 internal data class QwenCodeConfigDtoV1(
     val schemaVersion: Int = 1,
+    val agent: String? = null,
     val minVersion: String? = null,
+    val scope: String? = null,
     val model: QwenModelDtoV1? = null,
     val modelProviders: List<QwenModelProviderDtoV1>? = null,
     val mcpServers: List<McpServerDtoV1>? = null,
@@ -17,6 +19,10 @@ internal data class QwenCodeConfigDtoV1(
     val context: QwenContextDtoV1? = null,
     val telemetry: QwenTelemetryDtoV1? = null,
     val hooks: Map<String, List<HookGroupDtoV1>>? = null,
+    val memory: List<FileRefDtoV1>? = null,
+    val agents: List<FileRefDtoV1>? = null,
+    val commands: List<FileRefDtoV1>? = null,
+    val skills: List<FileRefDtoV1>? = null,
 )
 
 @Serializable

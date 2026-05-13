@@ -15,7 +15,6 @@ internal fun McpServerDtoV1.toDomain(): McpServer {
     return if (isStdio) {
         McpServer.Stdio(
             name = name,
-            condition = `when`,
             enabled = enabled,
             timeout = timeout,
             command = command ?: error("stdio MCP server '$name' missing 'command'"),
@@ -25,7 +24,6 @@ internal fun McpServerDtoV1.toDomain(): McpServer {
     } else {
         McpServer.Sse(
             name = name,
-            condition = `when`,
             enabled = enabled,
             timeout = timeout,
             url = url ?: httpUrl ?: error("MCP server '$name' missing 'url'"),
