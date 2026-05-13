@@ -7,5 +7,6 @@ package io.aequicor.aikit.engine.api
  * Returns [Result.success] on success, or [Result.failure] wrapping a descriptive error.
  */
 fun interface BundleGenerator {
+
     fun generate(manifestPath: String): Result<Unit>
 }
