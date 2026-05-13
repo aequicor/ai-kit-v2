@@ -1,0 +1,125 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-linux:
+    name: Build (Linux x64)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build Linux binary
+        working-directory: kit-setup
+        run: ./gradlew :modules:cli:linkReleaseExecutableLinuxX64
+
+      - name: Package
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          DIST="ai-kit-${VERSION}-linux-amd64"
+          mkdir -p "$DIST"
+          cp kit-setup/modules/cli/build/bin/linuxX64/releaseExecutable/cli.kexe "$DIST/ai-kit"
+          chmod +x "$DIST/ai-kit"
+          cp -r kit-setup/bundles "$DIST/bundles"
+          tar -czf "${DIST}.tar.gz" "$DIST"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-amd64
+          path: ai-kit-*-linux-amd64.tar.gz
+
+  build-macos:
+    name: Build (macOS ARM64)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build macOS binary
+        working-directory: kit-setup
+        run: ./gradlew :modules:cli:linkReleaseExecutableMacosArm64
+
+      - name: Package
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          DIST="ai-kit-${VERSION}-macos-arm64"
+          mkdir -p "$DIST"
+          cp kit-setup/modules/cli/build/bin/macosArm64/releaseExecutable/cli.kexe "$DIST/ai-kit"
+          chmod +x "$DIST/ai-kit"
+          cp -r kit-setup/bundles "$DIST/bundles"
+          tar -czf "${DIST}.tar.gz" "$DIST"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-arm64
+          path: ai-kit-*-macos-arm64.tar.gz
+
+  build-windows:
+    name: Build (Windows x64)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build Windows binary
+        working-directory: kit-setup
+        run: ./gradlew.bat :modules:cli:linkReleaseExecutableMingwX64
+
+      - name: Package
+        shell: pwsh
+        run: |
+          $VERSION = $env:GITHUB_REF_NAME -replace '^v', ''
+          $DIST = "ai-kit-${VERSION}-windows-amd64"
+          New-Item -ItemType Directory -Path $DIST | Out-Null
+          Copy-Item kit-setup/modules/cli/build/bin/mingwX64/releaseExecutable/cli.exe "$DIST/ai-kit.exe"
+          Copy-Item -Recurse kit-setup/bundles "$DIST/bundles"
+          Compress-Archive -Path $DIST -DestinationPath "${DIST}.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-amd64
+          path: ai-kit-*-windows-amd64.zip
+
+  release:
+    name: Create GitHub Release
+    needs: [build-linux, build-macos, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+          path: dist/
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
