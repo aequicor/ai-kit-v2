@@ -1,6 +1,13 @@
 package io.aequicor.aikit.core.api
 
-import io.aequicor.aikit.core.*
+import io.aequicor.aikit.core.Agent
+import io.aequicor.aikit.core.AgentId
+import io.aequicor.aikit.core.Bundle
+import io.aequicor.aikit.core.BundleName
+import io.aequicor.aikit.core.SchemaVersion
+import io.aequicor.aikit.core.TemplateId
+import io.aequicor.aikit.core.TemplateKind
+import io.aequicor.aikit.core.Version
 import io.aequicor.aikit.core.io.BundleSource
 
 data class ParsedManifest(
