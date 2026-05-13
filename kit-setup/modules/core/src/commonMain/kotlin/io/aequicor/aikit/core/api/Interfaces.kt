@@ -1,43 +1,16 @@
 package io.aequicor.aikit.core.api
 
-import io.aequicor.aikit.core.Agent
-import io.aequicor.aikit.core.AgentId
-import io.aequicor.aikit.core.Bundle
-import io.aequicor.aikit.core.BundleName
-import io.aequicor.aikit.core.SchemaVersion
-import io.aequicor.aikit.core.TemplateId
-import io.aequicor.aikit.core.TemplateKind
-import io.aequicor.aikit.core.Version
-import io.aequicor.aikit.core.io.BundleSource
-
-data class ParsedManifest(
-    val schemaVersion: SchemaVersion,
-    val name: BundleName,
-    val version: Version,
-    val agents: List<ParsedAgentSection>,
-)
-
-data class ParsedAgentSection(val agentId: AgentId, val templates: List<ParsedTemplate>)
-
-data class ParsedTemplate(val id: TemplateId, val kind: TemplateKind, val source: String)
-
-interface ManifestParser {
-    fun parse(bytes: ByteArray): Result<ParsedManifest>
+/** Returns the JSON schema for the `.aikit/manifest.yaml` format. */
+fun interface SchemaProvider {
+    fun schema(): String
 }
 
-interface BundleResolver {
-    fun resolve(source: BundleSource): Result<Bundle>
+/** Parses and validates the manifest at [manifestPath], returning errors on failure. */
+fun interface ManifestVerifier {
+    fun verify(manifestPath: String): Result<Unit>
 }
 
-interface Validator {
-    fun validate(bundle: Bundle): Result<Bundle>
-}
-
-interface AgentLayout {
-    fun destinationPath(agent: Agent, kind: TemplateKind, id: TemplateId): String
-}
-
-interface Generator {
-    /** targetDir — абсолютный путь к корню проекта пользователя */
-    fun write(bundle: Bundle, targetDir: String, force: Boolean): Result<Unit>
+/** Resolves bundles referenced by the manifest and writes agent configuration files. */
+fun interface BundleGenerator {
+    fun generate(manifestPath: String): Result<Unit>
 }

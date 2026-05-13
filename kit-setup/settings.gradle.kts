@@ -10,4 +10,5 @@ pluginManagement {
 
 include(
     ":modules:core",
+    ":modules:cli",
 )
