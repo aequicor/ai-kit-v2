@@ -11,4 +11,5 @@ pluginManagement {
 include(
     ":modules:core",
     ":modules:cli",
+    ":modules:akel",
 )

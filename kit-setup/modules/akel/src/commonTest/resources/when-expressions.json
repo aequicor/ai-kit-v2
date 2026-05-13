@@ -1,0 +1,117 @@
+[
+  {
+    "expr": "${bundle.input.profile} == 'trusted'",
+    "ctx": { "bundle.input.profile": "trusted" },
+    "expected": true
+  },
+  {
+    "expr": "${bundle.input.profile} == 'trusted'",
+    "ctx": { "bundle.input.profile": "ci" },
+    "expected": false
+  },
+  {
+    "expr": "!${bundle.input.allowSecrets}",
+    "ctx": { "bundle.input.allowSecrets": false },
+    "expected": true
+  },
+  {
+    "expr": "!${bundle.input.allowSecrets}",
+    "ctx": { "bundle.input.allowSecrets": true },
+    "expected": false
+  },
+  {
+    "expr": "${bundle.input.githubMcp}",
+    "ctx": { "bundle.input.githubMcp": true },
+    "expected": true
+  },
+  {
+    "expr": "${bundle.input.githubMcp}",
+    "ctx": { "bundle.input.githubMcp": false },
+    "expected": false
+  },
+  {
+    "expr": "${bundle.input.knowledgeOs}",
+    "ctx": { "bundle.input.knowledgeOs": true },
+    "expected": true
+  },
+  {
+    "expr": "${bundle.input.reviewer}",
+    "ctx": { "bundle.input.reviewer": true },
+    "expected": true
+  },
+  {
+    "expr": "${bundle.input.reviewer}",
+    "ctx": { "bundle.input.reviewer": false },
+    "expected": false
+  },
+  {
+    "expr": "${bundle.input.profile} == 'full'",
+    "ctx": { "bundle.input.profile": "full" },
+    "expected": true
+  },
+  {
+    "expr": "${bundle.input.profile} == 'full'",
+    "ctx": { "bundle.input.profile": "ci" },
+    "expected": false
+  },
+  {
+    "expr": "${bundle.input.profile} in ['ci','full']",
+    "ctx": { "bundle.input.profile": "ci" },
+    "expected": true
+  },
+  {
+    "expr": "${bundle.input.profile} in ['ci','full']",
+    "ctx": { "bundle.input.profile": "full" },
+    "expected": true
+  },
+  {
+    "expr": "${bundle.input.profile} in ['ci','full']",
+    "ctx": { "bundle.input.profile": "trusted" },
+    "expected": false
+  },
+  {
+    "expr": "${bundle.input.deploy}",
+    "ctx": { "bundle.input.deploy": true },
+    "expected": true
+  },
+  {
+    "expr": "${bundle.input.deploy}",
+    "ctx": { "bundle.input.deploy": false },
+    "expected": false
+  },
+  {
+    "expr": "'review' in ${bundle.input.skills}",
+    "ctx": { "bundle.input.skills": ["review", "security-review"] },
+    "expected": true
+  },
+  {
+    "expr": "'review' in ${bundle.input.skills}",
+    "ctx": { "bundle.input.skills": ["security-review"] },
+    "expected": false
+  },
+  {
+    "expr": "'review' in ${bundle.input.skills}",
+    "ctx": { "bundle.input.skills": [] },
+    "expected": false
+  },
+  {
+    "expr": "'security-review' in ${bundle.input.skills}",
+    "ctx": { "bundle.input.skills": ["review", "security-review"] },
+    "expected": true
+  },
+  {
+    "expr": "'security-review' in ${bundle.input.skills}",
+    "ctx": { "bundle.input.skills": ["review"] },
+    "expected": false
+  },
+  {
+    "expr": "${bundle.input.strict}",
+    "ctx": { "bundle.input.strict": true },
+    "expected": true
+  },
+  {
+    "expr": "${bundle.input.strict}",
+    "ctx": { "bundle.input.strict": false },
+    "expected": false
+  }
+]

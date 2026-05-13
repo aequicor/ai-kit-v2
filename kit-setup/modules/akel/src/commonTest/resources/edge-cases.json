@@ -1,0 +1,76 @@
+[
+  { "expr": "true",  "ctx": {}, "expected": true  },
+  { "expr": "false", "ctx": {}, "expected": false },
+  { "expr": "!true",  "ctx": {}, "expected": false },
+  { "expr": "!false", "ctx": {}, "expected": true  },
+
+  { "expr": "true && true",  "ctx": {}, "expected": true  },
+  { "expr": "true && false", "ctx": {}, "expected": false },
+  { "expr": "false || true", "ctx": {}, "expected": true  },
+  { "expr": "false || false","ctx": {}, "expected": false },
+
+  { "expr": "!(false || false)", "ctx": {}, "expected": true },
+  { "expr": "!(true && false)", "ctx": {}, "expected": true  },
+
+  { "expr": "1 == 1",  "ctx": {}, "expected": true  },
+  { "expr": "1 != 2",  "ctx": {}, "expected": true  },
+  { "expr": "1 < 2",   "ctx": {}, "expected": true  },
+  { "expr": "2 > 1",   "ctx": {}, "expected": true  },
+  { "expr": "1 <= 1",  "ctx": {}, "expected": true  },
+  { "expr": "1 >= 1",  "ctx": {}, "expected": true  },
+  { "expr": "2 < 1",   "ctx": {}, "expected": false },
+
+  { "expr": "-7 < 0",  "ctx": {}, "expected": true  },
+  { "expr": "-1 > -2", "ctx": {}, "expected": true  },
+
+  { "expr": "0.5 < 0.7", "ctx": {}, "expected": true  },
+  { "expr": "0.7 > 0.5", "ctx": {}, "expected": true  },
+  { "expr": "0.7 == 0.7","ctx": {}, "expected": true  },
+
+  { "expr": "'a' == 'a'", "ctx": {}, "expected": true  },
+  { "expr": "'a' != 'b'", "ctx": {}, "expected": true  },
+  { "expr": "'a' < 'b'",  "ctx": {}, "expected": true  },
+  { "expr": "'b' > 'a'",  "ctx": {}, "expected": true  },
+
+  { "expr": "'x' in ['x','y']", "ctx": {}, "expected": true  },
+  { "expr": "'z' in ['x','y']", "ctx": {}, "expected": false },
+  { "expr": "'x' in []",        "ctx": {}, "expected": false },
+
+  {
+    "expr": "${x}",
+    "ctx": { "x": true },
+    "expected": true
+  },
+  {
+    "expr": "${x} == 'hello'",
+    "ctx": { "x": "hello" },
+    "expected": true
+  },
+  {
+    "expr": "${x} > 10",
+    "ctx": { "x": 42 },
+    "expected": true
+  },
+  {
+    "expr": "${x} > 0.5",
+    "ctx": { "x": 0.7 },
+    "expected": true
+  },
+  {
+    "expr": "'a' in ${xs}",
+    "ctx": { "xs": ["a","b"] },
+    "expected": true
+  },
+
+  { "expr": "false && ${missing}", "ctx": {}, "expected": false },
+  { "expr": "true  || ${missing}", "ctx": {}, "expected": true  },
+
+  { "expr": "(true || false) && true",  "ctx": {}, "expected": true  },
+  { "expr": "true && (false || true)", "ctx": {}, "expected": true  },
+
+  {
+    "expr": "${a} || ${b} && false",
+    "ctx": { "a": true, "b": false },
+    "expected": true
+  }
+]
