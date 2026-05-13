@@ -10,10 +10,4 @@ pluginManagement {
 
 include(
     ":modules:core",
-    ":modules:parsing",
-    ":modules:agent-layout",
-    ":modules:validation",
-    ":modules:bundle-resolver",
-    ":modules:generation",
-    ":modules:cli",
 )
