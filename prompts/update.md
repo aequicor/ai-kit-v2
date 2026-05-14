@@ -34,16 +34,23 @@ If the command is **not found**, download and install it automatically before co
 1. **Detect platform and architecture:**
    - Linux/macOS: `uname -s` → `Linux` or `Darwin`; `uname -m` → `x86_64`, `aarch64`, `arm64`.
    - Windows: check `$env:PROCESSOR_ARCHITECTURE` → `AMD64` or `ARM64`.
-2. **Fetch the latest release metadata:**
-   ```bash
-   curl -fsSL -H "User-Agent: ai-kit-installer" -H "Accept: application/vnd.github+json" https://api.github.com/repos/aequicor/ai-kit-v2/releases/latest
-   ```
-   Parse the `assets` array for an asset whose `name` matches the current platform/arch. Asset names follow the pattern `kit-setup-<version>-<platform>-<arch>.<ext>`:
-   - Linux x64: `kit-setup-<version>-linux-amd64.tar.gz`
-   - macOS ARM64: `kit-setup-<version>-macos-arm64.tar.gz`
-   - Windows x64: `kit-setup-<version>-windows-amd64.zip`
+2. **Resolve the latest version** (no API key required — uses the redirect from the releases page):
 
-   Use the matching asset's `browser_download_url`.
+   Linux/macOS:
+   ```bash
+   VERSION=$(curl -fsSL -o /dev/null -w '%{url_effective}' https://github.com/aequicor/ai-kit-v2/releases/latest | sed 's|.*/tag/v||')
+   ```
+
+   Windows (PowerShell):
+   ```powershell
+   $response = Invoke-WebRequest -Uri "https://github.com/aequicor/ai-kit-v2/releases/latest" -MaximumRedirection 0 -ErrorAction SilentlyContinue
+   $VERSION = $response.Headers.Location -replace '.*/tag/v', ''
+   ```
+
+   Then build the download URL from the version and platform:
+   - Linux x64: `https://github.com/aequicor/ai-kit-v2/releases/download/v${VERSION}/kit-setup-${VERSION}-linux-amd64.tar.gz`
+   - macOS ARM64: `https://github.com/aequicor/ai-kit-v2/releases/download/v${VERSION}/kit-setup-${VERSION}-macos-arm64.tar.gz`
+   - Windows x64: `https://github.com/aequicor/ai-kit-v2/releases/download/v$VERSION/kit-setup-$VERSION-windows-amd64.zip`
 3. **Download and extract** the archive, then place the binary and bundled bundles:
 
    Linux/macOS:
