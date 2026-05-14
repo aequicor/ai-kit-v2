@@ -65,6 +65,20 @@
       "default": false
     },
     {
+      "id": "knowledgeOsMcp",
+      "type": "boolean",
+      "title": "Подключить KnowledgeOS MCP?",
+      "description": "Локальная база знаний / документации. Требует knowledge-docker-compose.yml в проекте и запущенного Docker.",
+      "default": false
+    },
+    {
+      "id": "knowledgeOsUrl",
+      "type": "string",
+      "title": "URL KnowledgeOS MCP",
+      "description": "SSE-эндпоинт сервера. Порт берётся из поля ports в knowledge-docker-compose.yml (формат HOST:8080 → http://localhost:HOST/sse).",
+      "default": "http://localhost:8080/sse"
+    },
+    {
       "id": "strict",
       "type": "boolean",
       "title": "Strict-режим?",

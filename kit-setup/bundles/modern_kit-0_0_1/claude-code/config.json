@@ -43,6 +43,12 @@
       "transport": "stdio",
       "command": "uvx",
       "args": ["--from", "serena", "serena", "--project-dir", "."]
+    },
+    {
+      "when": "${bundle.input.knowledgeOsMcp}",
+      "name": "knowledge-os",
+      "transport": "sse",
+      "url": "${bundle.input.knowledgeOsUrl}"
     }
   ],
 

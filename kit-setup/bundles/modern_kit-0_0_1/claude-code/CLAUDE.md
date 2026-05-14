@@ -137,6 +137,14 @@ presentation/ui  →  application (use cases)  →  domain (entities, ports)
 Доступен MCP-сервер `github` — используй его для работы с issues, PR и code search вместо `gh` где это удобнее.
 <!-- end -->
 
+<!-- when: ${bundle.input.knowledgeOsMcp} -->
+## KnowledgeOS MCP
+
+Доступен MCP-сервер `knowledge-os` — локальная база знаний и документации проекта.
+Инструменты: `search_docs`, `write_doc`, `update_doc`, `get_doc`, `list_docs`.
+Запускается через `knowledge-docker-compose.yml` в корне проекта (`docker compose -f knowledge-docker-compose.yml up -d`).
+<!-- end -->
+
 <!-- when: ('kotlin-specialist' in ${bundle.input.subagents}) || ('gradle-troubleshooter' in ${bundle.input.subagents}) || ('code-reviewer' in ${bundle.input.subagents}) || ('test-runner' in ${bundle.input.subagents}) -->
 ## Доступные субагенты
 
