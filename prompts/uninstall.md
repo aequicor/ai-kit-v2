@@ -40,33 +40,23 @@ If the command is **not found**, download and install it automatically before co
    $VERSION = $response.Headers.Location -replace '.*/tag/v', ''
    ```
 
-   Then build the download URL from the version and platform:
-   - Linux x64: `https://github.com/aequicor/ai-kit-v2/releases/download/v${VERSION}/kit-setup-${VERSION}-linux-amd64.tar.gz`
-   - macOS ARM64: `https://github.com/aequicor/ai-kit-v2/releases/download/v${VERSION}/kit-setup-${VERSION}-macos-arm64.tar.gz`
-   - Windows x64: `https://github.com/aequicor/ai-kit-v2/releases/download/v$VERSION/kit-setup-$VERSION-windows-amd64.zip`
-3. **Download and extract** the archive, then place the binary and bundled bundles:
+3. **Download the binary** directly into `.aikit/bin/`:
 
    Linux/macOS:
    ```bash
    mkdir -p .aikit/bin
-   curl -fsSL <browser_download_url> -o /tmp/kit-setup-archive.tar.gz
-   tar -xzf /tmp/kit-setup-archive.tar.gz -C /tmp
-   EXTRACTED=$(tar -tzf /tmp/kit-setup-archive.tar.gz | head -1 | cut -d/ -f1)
-   cp /tmp/$EXTRACTED/kit-setup .aikit/bin/kit-setup
+   # Linux x64:   kit-setup-${VERSION}-linux-amd64
+   # macOS ARM64: kit-setup-${VERSION}-macos-arm64
+   curl -fsSL "https://github.com/aequicor/ai-kit-v2/releases/download/v${VERSION}/kit-setup-${VERSION}-<platform>" \
+     -o .aikit/bin/kit-setup
    chmod +x .aikit/bin/kit-setup
-   cp -r /tmp/$EXTRACTED/bundles .aikit/bin/bundles
-   rm -rf /tmp/kit-setup-archive.tar.gz /tmp/$EXTRACTED
    ```
 
    Windows (PowerShell):
    ```powershell
    New-Item -ItemType Directory -Force -Path .aikit\bin | Out-Null
-   Invoke-WebRequest -Uri <browser_download_url> -OutFile "$env:TEMP\kit-setup-archive.zip"
-   Expand-Archive -Path "$env:TEMP\kit-setup-archive.zip" -DestinationPath "$env:TEMP\kit-setup-extracted" -Force
-   $extracted = Get-ChildItem "$env:TEMP\kit-setup-extracted" | Select-Object -First 1
-   Copy-Item "$($extracted.FullName)\kit-setup.exe" ".aikit\bin\kit-setup.exe"
-   Copy-Item -Recurse "$($extracted.FullName)\bundles" ".aikit\bin\bundles"
-   Remove-Item -Recurse -Force "$env:TEMP\kit-setup-archive.zip","$env:TEMP\kit-setup-extracted"
+   Invoke-WebRequest -Uri "https://github.com/aequicor/ai-kit-v2/releases/download/v$VERSION/kit-setup-$VERSION-windows-amd64.exe" `
+     -OutFile ".aikit\bin\kit-setup.exe"
    ```
 4. **Extend `PATH` for this session:**
    ```bash
