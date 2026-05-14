@@ -6,18 +6,18 @@ import kotlin.test.assertEquals
 class TemplatePreformatterTest {
 
     @Test
-    fun doubleNewlineCollapsed() {
-        assertEquals("a\nb", TemplatePreformatter.preformat("a\n\nb"))
+    fun doubleNewlineUnchanged() {
+        assertEquals("a\n\nb", TemplatePreformatter.preformat("a\n\nb"))
     }
 
     @Test
     fun tripleNewlineCollapsed() {
-        assertEquals("a\nb", TemplatePreformatter.preformat("a\n\n\nb"))
+        assertEquals("a\n\nb", TemplatePreformatter.preformat("a\n\n\nb"))
     }
 
     @Test
     fun manyNewlinesCollapsed() {
-        assertEquals("a\nb", TemplatePreformatter.preformat("a\n\n\n\n\nb"))
+        assertEquals("a\n\nb", TemplatePreformatter.preformat("a\n\n\n\n\nb"))
     }
 
     @Test
@@ -37,6 +37,6 @@ class TemplatePreformatterTest {
 
     @Test
     fun multipleGroupsCollapsed() {
-        assertEquals("a\nb\nc", TemplatePreformatter.preformat("a\n\nb\n\n\nc"))
+        assertEquals("a\n\nb\n\nc", TemplatePreformatter.preformat("a\n\nb\n\n\nc"))
     }
 }
