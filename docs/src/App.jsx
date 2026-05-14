@@ -175,6 +175,14 @@ const CLI_COMMANDS = [
   { cmd: '# 2. Verify manifest and generate agent config', comment: true },
   { cmd: 'kit-setup verify .aikit/manifest.json', comment: false },
   { cmd: 'kit-setup generate .aikit/manifest.json', comment: false },
+  { cmd: '', comment: false },
+  { cmd: '# 3. Apply manifest changes later (bump bundle, edit inputs, add/drop target)', comment: true },
+  { cmd: 'kit-setup update .aikit/manifest.json --dry-run   # preview diff', comment: false },
+  { cmd: 'kit-setup update .aikit/manifest.json             # apply', comment: false },
+  { cmd: '', comment: false },
+  { cmd: '# 4. Uninstall — removes only files tracked in manifest.lock.json', comment: true },
+  { cmd: 'kit-setup remove --dry-run', comment: false },
+  { cmd: 'kit-setup remove', comment: false },
 ]
 
 // ---------------------------------------------------------------------------

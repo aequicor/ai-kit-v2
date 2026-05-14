@@ -27,7 +27,8 @@ internal class DefaultManifestVerifier(private val format: AiKitFormat) : Manife
 
         for (app in rawManifest.applications) {
             for ((targetName, rawTarget) in app.targets) {
-                val bundleSource = manifestSource.resolveBundleSource(rawTarget.source)
+                val effectiveSource = if (rawTarget.source == "internal") "embedded:${rawTarget.bundle}" else rawTarget.source
+                val bundleSource = manifestSource.resolveBundleSource(effectiveSource)
                     .getOrElse {
                         throw EngineError.BundleLoadError(
                             rawTarget.source,

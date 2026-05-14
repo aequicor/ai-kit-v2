@@ -1,5 +1,5 @@
 plugins {
-    id("ai-kit.kotlin-module")
+    id("ai-kit.kotlin-serialization")
     id("ai-kit.detekt")
 }
 
@@ -10,6 +10,7 @@ kotlin {
             implementation(project(":modules:io"))
             implementation(project(":modules:format"))
             implementation(project(":modules:akel"))
+            implementation(libs.kotlinx.serialization.json)
         }
     }
 }
