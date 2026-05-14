@@ -39,7 +39,8 @@ cd kit-setup
 | Класс | Что проверяет |
 |---|---|
 | [`VersionAndSchemaTest`](src/test/kotlin/io/aequicor/aikit/e2e/VersionAndSchemaTest.kt) | `--version`, `schema bundle --list`, поля схемы `simple-kit`. |
-| [`HappyPathGenerateTest`](src/test/kotlin/io/aequicor/aikit/e2e/HappyPathGenerateTest.kt) | `verify` + `generate` на `simple-kit`; проверка layout, подстановки, условных файлов, `strict`/`githubMcp` вариантов. |
+| [`HappyPathGenerateTest`](src/test/kotlin/io/aequicor/aikit/e2e/HappyPathGenerateTest.kt) | `verify` + `generate` на `simple-kit`; проверка layout, условных файлов, `strict`/`githubMcp` вариантов. |
+| [`ContentValidationTest`](src/test/kotlin/io/aequicor/aikit/e2e/ContentValidationTest.kt) | Контент сгенерированных файлов: подстановки `${bundle.input.*}`, условные блоки `<!-- when: ... -->`, структура `settings.json` / `.mcp.json`, отсутствие остатков шаблонного синтаксиса. |
 | [`LifecycleTest`](src/test/kotlin/io/aequicor/aikit/e2e/LifecycleTest.kt) | Идемпотентность повторного `generate`; чистота после `remove`. |
 | [`NegativeTest`](src/test/kotlin/io/aequicor/aikit/e2e/NegativeTest.kt) | Битый JSON, неизвестный bundle, отсутствующий файл manifest'а. |
 | [`MultiAppTest`](src/test/kotlin/io/aequicor/aikit/e2e/MultiAppTest.kt) | Manifest с двумя `applications` в разных subdir, изоляция деревьев. |
