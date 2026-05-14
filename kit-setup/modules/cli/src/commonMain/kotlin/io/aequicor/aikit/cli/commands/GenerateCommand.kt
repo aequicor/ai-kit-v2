@@ -3,37 +3,67 @@ package io.aequicor.aikit.cli.commands
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.parameters.arguments.argument
+import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
+import io.aequicor.aikit.cli.util.resolveManifestOrFail
 import io.aequicor.aikit.engine.api.BundleGenerator
 import io.aequicor.aikit.engine.api.GenerateOptions
 import io.aequicor.aikit.engine.api.GenerateReport
+import io.aequicor.aikit.engine.api.ManifestResolver
 import io.aequicor.aikit.engine.error.EngineError
 
-/** Resolves bundles from [manifest], renders templates and writes agent configuration files. */
-class GenerateCommand(private val generator: BundleGenerator) : CliktCommand(
+/** Resolves bundles from the active manifest, renders templates and writes agent configuration files. */
+class GenerateCommand(
+    private val generator: BundleGenerator,
+    private val manifestResolver: ManifestResolver,
+) : CliktCommand(
     name = "generate",
     help = "Generate agent configuration from a manifest file",
 ) {
-    private val manifest by argument(
+    private val manifestArg by argument(
         name = "MANIFEST",
-        help = "Path to the manifest file (e.g. .aikit/manifest.json)",
-    )
+        help = "Path to the manifest file (default: resolved from .aikit/local.properties or .aikit/manifest.json)",
+    ).optional()
 
+    private val manifestOpt by option(
+        "--manifest",
+        help = "Explicit path to the manifest file (alternative to the positional argument)",
+    )
+    private val modeOpt by option(
+        "--mode",
+        help = "Shorthand for --manifest .aikit/manifest.<mode>.json (e.g. --mode autonomous)",
+    )
     private val dryRun by option("--dry-run", help = "Show the plan without writing or deleting files").flag()
     private val force by option(
         "--force",
         help = "Overwrite files that the user has changed since the last generation",
     ).flag()
+    private val clean by option(
+        "--clean",
+        help = "Wipe previously generated files before applying, even if the manifest has not changed",
+    ).flag()
 
     override fun run() {
-        val report = generator.generate(manifest, GenerateOptions(dryRun = dryRun, force = force))
+        val resolved = resolveManifestOrFail(
+            resolver = manifestResolver,
+            positionalArg = manifestArg,
+            manifestFlag = manifestOpt,
+            modeFlag = modeOpt,
+            echo = ::echo,
+        )
+        val report = generator.generate(resolved, GenerateOptions(dryRun = dryRun, force = force, clean = clean))
             .getOrElse { error -> throw CliktError(formatError(error), statusCode = 1) }
         printReport(report)
     }
 
+    @Suppress("CyclomaticComplexMethod")
     private fun printReport(report: GenerateReport) {
         val prefix = if (report.dryRun) "[dry-run] " else ""
+        if (report.wipedBefore) {
+            val prev = report.previousManifestRef?.let { " (was $it)" } ?: ""
+            echo("${prefix}Switched manifest$prev — previous installation wiped.")
+        }
         if (report.created.isNotEmpty()) {
             echo("${prefix}Created (${report.created.size}):")
             report.created.forEach { echo("  + $it") }
@@ -62,7 +92,7 @@ class GenerateCommand(private val generator: BundleGenerator) : CliktCommand(
 
     private fun formatError(error: Throwable): String = when (error) {
         is EngineError.ManifestLoadError ->
-            "Cannot load manifest '$manifest': ${error.cause?.message ?: error.message}"
+            "Cannot load manifest: ${error.cause?.message ?: error.message}"
         is EngineError.BundleLoadError ->
             "Bundle '${error.bundleRef}': ${error.message}"
         is EngineError.InputValidationError ->

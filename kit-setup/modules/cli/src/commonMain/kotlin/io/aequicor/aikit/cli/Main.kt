@@ -3,7 +3,7 @@ package io.aequicor.aikit.cli
 import io.aequicor.aikit.engine.AiKitEngine
 
 /** Current CLI version; keep in sync with gradle.properties. */
-internal const val VERSION = "0.0.9"
+internal const val VERSION = "0.1.0"
 
 fun main(args: Array<String>) {
     val engine = AiKitEngine.create(aikitVersion = VERSION)
@@ -14,6 +14,7 @@ fun main(args: Array<String>) {
         verifier = engine.verifier,
         generator = engine.generator,
         remover = engine.remover,
+        manifestResolver = engine.manifestResolver,
         currentVersion = VERSION,
     ).main(args)
 }

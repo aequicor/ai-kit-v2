@@ -17,13 +17,13 @@ All commands run from `kit-setup/`.
 ./gradlew build
 
 # Run tests (commonTest, runs on the host platform)
-./gradlew :modules:core:allTests
+./gradlew :modules:engine:allTests
 
 # Run a single test class
-./gradlew :modules:core:allTests --tests "io.aequicor.aikit.core.AgentTest"
+./gradlew :modules:engine:allTests --tests "io.aequicor.aikit.engine.manifest.FsManifestResolverTest"
 
 # Build native binary for the host platform (macOS arm64 → macosArm64)
-./gradlew :modules:core:linkDebugExecutableMacosArm64
+./gradlew :modules:cli:linkDebugExecutableMacosArm64
 ```
 
 There is no linter configured. Code style is enforced by `kotlin.code.style=official` in `gradle.properties`.
@@ -68,6 +68,7 @@ All interfaces return `Result<T>` — never throw. The domain layer has zero pla
 | [`CONFIG_JSON.md`](CONFIG_JSON.md) | `config.json` per agent — settings, MCP servers, hooks, etc.; AKEL expression language for `when` conditions |
 | [`TEMPLATE_MD.md`](TEMPLATE_MD.md) | `.md` template files — `${bundle.input.<id>}` substitution and `<!-- when: … -->…<!-- end -->` conditional blocks |
 | [`MANIFEST_JSON.md`](MANIFEST_JSON.md) | `.aikit/manifest.json` — user-project manifest referencing bundles and their `inputs` |
+| [`MODES.md`](MODES.md) | Multiple manifests, `.aikit/local.properties`, env vars, mode switching, plan-first wipe |
 
 ### Templates (`templates/`)
 

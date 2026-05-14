@@ -12,6 +12,7 @@ import io.aequicor.aikit.cli.commands.VerifyCommand
 import io.aequicor.aikit.engine.api.BundleGenerator
 import io.aequicor.aikit.engine.api.BundleSchemaProvider
 import io.aequicor.aikit.engine.api.EmbeddedBundleCatalog
+import io.aequicor.aikit.engine.api.ManifestResolver
 import io.aequicor.aikit.engine.api.ManifestVerifier
 import io.aequicor.aikit.engine.api.SchemaProvider
 import io.aequicor.aikit.engine.remove.ProjectRemover
@@ -25,16 +26,17 @@ class AiKitCli(
     verifier: ManifestVerifier,
     generator: BundleGenerator,
     remover: ProjectRemover,
+    manifestResolver: ManifestResolver,
     currentVersion: String,
 ) : CliktCommand(name = "kit-setup") {
     init {
         versionOption(currentVersion)
         subcommands(
             SchemaCommand(schemaProvider, bundleSchemaProvider, embeddedBundleCatalog),
-            VerifyCommand(verifier),
-            GenerateCommand(generator),
-            RemoveCommand(remover),
-            UpdateCommand(generator).subcommands(UpdateSelfSubcommand(currentVersion)),
+            VerifyCommand(verifier, manifestResolver),
+            GenerateCommand(generator, manifestResolver),
+            RemoveCommand(remover, manifestResolver),
+            UpdateCommand(generator, manifestResolver).subcommands(UpdateSelfSubcommand(currentVersion)),
         )
     }
 

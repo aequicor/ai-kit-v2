@@ -22,6 +22,12 @@ data class LockFile(
     val generatedAt: String,
     /** One entry per application from the project manifest. */
     val applications: List<LockApplication>,
+    /**
+     * Path of the manifest that produced this lock, relative to the project root.
+     * Used to detect manifest switches and trigger a clean wipe before the next generate.
+     * Null for locks produced before multi-manifest support was added.
+     */
+    val manifestRef: String? = null,
 )
 
 /** Per-application section of the lock — mirrors `applications[]` in `.aikit/manifest.json`. */

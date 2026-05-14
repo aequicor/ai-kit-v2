@@ -45,10 +45,12 @@ the uninstall instructions for this project.
 | Term | Description |
 |------|-------------|
 | Bundle | A zip or directory with `bundle.json`, a `config.json` per target, and template files |
-| Project manifest | `.aikit/manifest.json` — which bundles to apply with which inputs |
+| Project manifest | `.aikit/manifest.json` (or named variants) — which bundles to apply with which inputs |
 | Lock file | `.aikit/manifest.lock.json` — SHA-256 registry of every generated file |
 | Drift | A generated file edited by the user; skipped on update without `--force` |
 | AKEL | Expression language used in `when` conditions in templates and `config.json` |
+| Mode | Named manifest variant (e.g. `manifest.autonomous.json`) for different agent configurations |
+| local.properties | `.aikit/local.properties` — per-developer active-manifest config, not committed to git |
 
 ## Bundle manifest (`bundle.json`)
 
@@ -95,7 +97,7 @@ See [`kit-setup/BUNDLE_JSON.md`](kit-setup/BUNDLE_JSON.md) for the full specific
 
 ```json
 {
-  "aikitVersion": "0.0.13",
+  "aikitVersion": "0.1.0",
   "applications": [
     {
       "id": "root",
@@ -216,6 +218,30 @@ Strict typing — no implicit coercion. See [`kit-setup/CONFIG_JSON.md`](kit-set
 | MCP config | `.mcp.json` |
 | Hook script | path declared in `config.json` (relative to app root) |
 
+## Manifest switching (modes)
+
+Store one manifest per agent configuration and switch between them with a single line:
+
+```
+.aikit/
+├── manifest.interactive.json
+├── manifest.autonomous.json
+└── local.properties        ← per-developer, add to .gitignore
+```
+
+```properties
+# .aikit/local.properties
+manifest=.aikit/manifest.autonomous.json
+```
+
+Priority order (highest to lowest): explicit arg / `--manifest` → `--mode` → `AIKIT_MANIFEST` env → `AIKIT_MODE` env → `local.properties` → legacy `.aikit/manifest.json`.
+
+Switching manifests triggers a **plan-first wipe**: the new manifest is validated in memory first, then the previous installation is wiped, then the new one is applied. A broken new manifest never destroys the current working installation.
+
+Shorthand: `kit-setup generate --mode autonomous` expands to `.aikit/manifest.autonomous.json`.
+
+See [`kit-setup/MODES.md`](kit-setup/MODES.md) for full details, CI integration, and troubleshooting.
+
 ## CLI reference
 
 All commands operate relative to the current working directory.
@@ -247,43 +273,49 @@ Options:
 
 The resulting schema (JSON Schema draft 2020-12) can validate the `inputs` block of any `.aikit/manifest.json` target entry.
 
-### `kit-setup verify <MANIFEST>`
+### `kit-setup verify [MANIFEST]`
 
 Validates the project manifest and all referenced bundles. Writes nothing. Exits non-zero on error.
 
 ```bash
-kit-setup verify .aikit/manifest.json
+kit-setup verify                              # resolved from .aikit/local.properties or .aikit/manifest.json
+kit-setup verify .aikit/manifest.json         # explicit path
+kit-setup verify --mode autonomous            # .aikit/manifest.autonomous.json
+kit-setup verify --all                        # validate every manifest.*.json in .aikit/
 ```
 
-### `kit-setup generate <MANIFEST>`
+### `kit-setup generate [MANIFEST]`
 
 Renders templates and writes config files to the project. Saves `.aikit/manifest.lock.json` on success.
 
 ```bash
+kit-setup generate                            # resolved from .aikit/local.properties or .aikit/manifest.json
 kit-setup generate .aikit/manifest.json
-kit-setup generate .aikit/manifest.json --dry-run   # preview without writing
-kit-setup generate .aikit/manifest.json --force     # overwrite drifted files
+kit-setup generate --mode autonomous          # .aikit/manifest.autonomous.json
+kit-setup generate --dry-run                  # preview without writing
+kit-setup generate --force                    # overwrite drifted files
+kit-setup generate --clean                    # wipe previous installation before applying
 ```
 
-Files previously generated but no longer produced by the bundle (e.g. after removing an input option) are deleted, unless they have drifted.
+Files previously generated but no longer produced by the bundle are deleted, unless drifted.
 
-### `kit-setup update [<MANIFEST>]`
+When the active manifest changes from the previous generate, the CLI automatically wipes the previous installation (after validating the new manifest in memory) before applying.
 
-Re-renders from the current manifest and reports a diff against the lock file. Equivalent to `generate` with explicit change reporting.
+### `kit-setup update [MANIFEST]`
+
+Re-renders from the current manifest and reports a diff against the lock file.
 
 ```bash
+kit-setup update
 kit-setup update .aikit/manifest.json --dry-run
-kit-setup update .aikit/manifest.json
-kit-setup update .aikit/manifest.json --force
+kit-setup update --mode autonomous --force
 ```
-
-Default `MANIFEST` path: `.aikit/manifest.json`.
 
 ### `kit-setup update self [--check]`
 
 Prints the current CLI version and the platform-specific command to install the latest release (curl on Linux/macOS, PowerShell on Windows). `--check` limits output to the current version and a link to the latest release; it downloads nothing.
 
-### `kit-setup remove [<MANIFEST>]`
+### `kit-setup remove [MANIFEST]`
 
 Removes all files tracked in the lock file.
 
@@ -292,9 +324,8 @@ kit-setup remove --dry-run          # show what would be deleted
 kit-setup remove                    # delete tracked files, manifest, and lock
 kit-setup remove --keep-manifest    # delete generated files; keep manifest and lock
 kit-setup remove --force            # also delete drifted files
+kit-setup remove --mode autonomous  # resolve project root from .aikit/manifest.autonomous.json
 ```
-
-Default `MANIFEST` path: `.aikit/manifest.json`.
 
 ### `kit-setup --version` / `kit-setup --help`
 

@@ -6,30 +6,41 @@ import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
+import io.aequicor.aikit.cli.util.resolveManifestOrFail
 import io.aequicor.aikit.engine.api.BundleGenerator
 import io.aequicor.aikit.engine.api.GenerateOptions
 import io.aequicor.aikit.engine.api.GenerateReport
+import io.aequicor.aikit.engine.api.ManifestResolver
 import io.aequicor.aikit.engine.error.EngineError
-
-private const val DEFAULT_MANIFEST = ".aikit/manifest.json"
 
 /**
  * Apply changes to a previously installed AI-Kit project.
  *
- * Without a subcommand: regenerate from MANIFEST while reporting the diff against the existing
- * lock — used after bumping a bundle version, changing inputs, or adding/removing a target.
+ * Without a subcommand: regenerate from the active manifest while reporting the diff against the
+ * existing lock — used after bumping a bundle version, changing inputs, or adding/removing a target.
  * With `kit-setup update self`: print the current CLI version and instructions for upgrading.
  */
-class UpdateCommand(private val generator: BundleGenerator) : CliktCommand(
+class UpdateCommand(
+    private val generator: BundleGenerator,
+    private val manifestResolver: ManifestResolver,
+) : CliktCommand(
     name = "update",
     help = "Apply manifest changes (bundle version, inputs, targets) or update the CLI itself",
     invokeWithoutSubcommand = true,
 ) {
-    private val manifest by argument(
+    private val manifestArg by argument(
         name = "MANIFEST",
-        help = "Path to the manifest file (default: .aikit/manifest.json)",
+        help = "Path to the manifest file (default: resolved from .aikit/local.properties or .aikit/manifest.json)",
     ).optional()
 
+    private val manifestOpt by option(
+        "--manifest",
+        help = "Explicit path to the manifest file",
+    )
+    private val modeOpt by option(
+        "--mode",
+        help = "Shorthand for --manifest .aikit/manifest.<mode>.json",
+    )
     private val dryRun by option("--dry-run", help = "Show the planned diff without writing").flag()
     private val force by option(
         "--force",
@@ -39,9 +50,15 @@ class UpdateCommand(private val generator: BundleGenerator) : CliktCommand(
     override fun run() {
         if (currentContext.invokedSubcommand != null) return
 
-        val manifestPath = manifest ?: DEFAULT_MANIFEST
-        val report = generator.generate(manifestPath, GenerateOptions(dryRun = dryRun, force = force))
-            .getOrElse { error -> throw CliktError(formatError(error, manifestPath), statusCode = 1) }
+        val resolved = resolveManifestOrFail(
+            resolver = manifestResolver,
+            positionalArg = manifestArg,
+            manifestFlag = manifestOpt,
+            modeFlag = modeOpt,
+            echo = ::echo,
+        )
+        val report = generator.generate(resolved, GenerateOptions(dryRun = dryRun, force = force))
+            .getOrElse { error -> throw CliktError(formatError(error, resolved.manifestRef), statusCode = 1) }
         printDiff(report)
     }
 

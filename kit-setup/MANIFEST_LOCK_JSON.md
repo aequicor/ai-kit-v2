@@ -15,8 +15,9 @@ Lock-файл — служебный артефакт CLI. Пользовате�
 ```json
 {
   "lockVersion": "1",
-  "aikitVersion": "0.0.9",
+  "aikitVersion": "0.1.0",
   "generatedAt": "",
+  "manifestRef": ".aikit/manifest.autonomous.json",
   "applications": [
     {
       "id": "root",
@@ -44,6 +45,7 @@ Lock-файл — служебный артефакт CLI. Пользовате�
 | `lockVersion`  | string | Версия формата lock-файла. Сейчас всегда `"1"`. Поднимается отдельно от `aikitVersion`.        |
 | `aikitVersion` | string | Версия CLI, которая записала lock. Диагностика; на логику CLI не влияет.                       |
 | `generatedAt`  | string | ISO-8601 UTC временной метки. Может быть пустой строкой, если CLI не может определить время.   |
+| `manifestRef`  | string? | Путь манифеста (относительно корня проекта), из которого сделан generate. Используется для определения смены манифеста при следующем `generate`. `null` в lock'ах, созданных до v0.1.0. |
 | `applications` | array  | По одной записи на каждое application из проектного манифеста, в том же порядке.               |
 
 ### `applications[]`

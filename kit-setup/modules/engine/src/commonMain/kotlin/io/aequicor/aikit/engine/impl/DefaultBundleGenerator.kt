@@ -10,6 +10,10 @@ import io.aequicor.aikit.core.domain.targets.Target
 import io.aequicor.aikit.engine.api.BundleGenerator
 import io.aequicor.aikit.engine.api.GenerateOptions
 import io.aequicor.aikit.engine.api.GenerateReport
+import io.aequicor.aikit.engine.api.ManifestSource
+import io.aequicor.aikit.engine.api.ResolvedManifest
+import io.aequicor.aikit.engine.remove.ProjectRemover
+import io.aequicor.aikit.engine.remove.RemoveOptions
 import io.aequicor.aikit.engine.error.EngineError
 import io.aequicor.aikit.engine.lock.HashProvider
 import io.aequicor.aikit.engine.lock.LockApplication
@@ -43,21 +47,34 @@ private const val LOCK_RELATIVE_PATH = ".aikit/manifest.lock.json"
  *   created / updated / unchanged / drifted-skipped / orphan / drifted-orphan.
  * Step 3 (apply) — perform writes and deletes (skipped in dry-run); persist a fresh lock.
  */
+@Suppress("LongParameterList")
 internal class DefaultBundleGenerator(
     private val format: AiKitFormat,
     private val fileWriter: FileWriter,
     private val lockStore: LockStore,
     private val hashProvider: HashProvider,
     private val aikitVersion: String,
+    private val remover: ProjectRemover,
     private val now: () -> String = { "" },
 ) : BundleGenerator {
 
     private val nativeConfigBuilder = NativeConfigBuilder(Json { prettyPrint = true })
 
-    @Suppress("LongMethod", "CyclomaticComplexMethod")
     override fun generate(manifestPath: String, options: GenerateOptions): Result<GenerateReport> =
+        generate(
+            ResolvedManifest(
+                manifestPath = manifestPath,
+                manifestRef = manifestPath,
+                modeHint = null,
+                source = ManifestSource.EXPLICIT_ARG,
+            ),
+            options,
+        )
+
+    @Suppress("LongMethod", "CyclomaticComplexMethod")
+    override fun generate(resolved: ResolvedManifest, options: GenerateOptions): Result<GenerateReport> =
         runCatching {
-            val manifestSource = FsProjectManifestSource(Path(manifestPath))
+            val manifestSource = FsProjectManifestSource(Path(resolved.manifestPath))
             val projectRoot = manifestSource.projectRoot.toString()
             val cwdBasename = manifestSource.projectRoot.name
             val valueSourceReader = createDefaultValueSourceReader(projectRoot)
@@ -68,6 +85,7 @@ internal class DefaultBundleGenerator(
                     throw EngineError.ManifestLoadError("cannot load manifest: ${it.message}", it)
                 }
 
+            // ── Plan phase (pure in-memory, no disk writes) ──────────────────────────────
             val plan = mutableListOf<PlannedTarget>()
             for (app in rawManifest.applications) {
                 for ((targetName, rawTarget) in app.targets) {
@@ -84,6 +102,22 @@ internal class DefaultBundleGenerator(
             }
 
             val oldLock = lockStore.read(projectRoot).getOrNull()
+
+            // ── Wipe phase (only after a successful plan) ────────────────────────────────
+            // A broken new manifest never destroys the current installation because any
+            // exception thrown above escapes runCatching before we reach this point.
+            val shouldWipe = options.clean ||
+                (oldLock?.manifestRef != null && oldLock.manifestRef != resolved.manifestRef)
+
+            if (shouldWipe && !options.dryRun) {
+                remover.remove(
+                    projectRoot,
+                    RemoveOptions(force = options.force, keepManifest = true, dryRun = false),
+                )
+            }
+
+            // ── Diff phase ───────────────────────────────────────────────────────────────
+            val effectiveLock = if (shouldWipe && !options.dryRun) null else oldLock
             val plannedRelPaths = plan.flatMap { it.files.map(PlannedFile::relPath) }.toSet()
 
             val created = mutableListOf<String>()
@@ -93,7 +127,7 @@ internal class DefaultBundleGenerator(
             val deletedOrphans = mutableListOf<String>()
             val keptDriftedOrphans = mutableListOf<String>()
 
-            val oldByRelPath = oldLock?.applications
+            val oldByRelPath = effectiveLock?.applications
                 ?.flatMap { it.targets.values.flatMap(LockTarget::files) }
                 ?.associateBy(LockFileEntry::path)
                 .orEmpty()
@@ -142,7 +176,8 @@ internal class DefaultBundleGenerator(
                 }
             }
 
-            val newLock = buildLock(rawManifest, plan)
+            // ── Apply phase ──────────────────────────────────────────────────────────────
+            val newLock = buildLock(rawManifest, plan, resolved.manifestRef)
             if (!options.dryRun) {
                 lockStore.write(projectRoot, newLock).getOrElse {
                     throw EngineError.WriteError(
@@ -162,6 +197,9 @@ internal class DefaultBundleGenerator(
                 keptDriftedOrphans = keptDriftedOrphans,
                 dryRun = options.dryRun,
                 lockPath = LOCK_RELATIVE_PATH,
+                previousManifestRef = oldLock?.manifestRef,
+                currentManifestRef = resolved.manifestRef,
+                wipedBefore = shouldWipe && !options.dryRun,
             )
         }
 
@@ -295,6 +333,7 @@ internal class DefaultBundleGenerator(
     private fun buildLock(
         rawManifest: io.aequicor.aikit.format.projectManifest.RawProjectManifest,
         plan: List<PlannedTarget>,
+        manifestRef: String? = null,
     ): LockFile {
         val byApp = plan.groupBy { it.appId }
         val applications = rawManifest.applications.map { app ->
@@ -312,6 +351,7 @@ internal class DefaultBundleGenerator(
             aikitVersion = aikitVersion,
             generatedAt = now(),
             applications = applications,
+            manifestRef = manifestRef,
         )
     }
 
