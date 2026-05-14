@@ -4,6 +4,7 @@ import tailwindcss from 'tailwindcss'
 import autoprefixer from 'autoprefixer'
 
 export default defineConfig({
+  base: '/ai-kit-v2/',
   plugins: [react()],
   css: {
     postcss: {
