@@ -6,6 +6,9 @@ import autoprefixer from 'autoprefixer'
 export default defineConfig({
   base: '/ai-kit-v2/',
   plugins: [react()],
+  resolve: {
+    dedupe: ['react', 'react-dom', 'react-router-dom'],
+  },
   css: {
     postcss: {
       plugins: [
