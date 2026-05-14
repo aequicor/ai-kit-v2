@@ -36,7 +36,7 @@ If the command is **not found**, download and install it automatically before co
    - Windows: check `$env:PROCESSOR_ARCHITECTURE` → `AMD64` or `ARM64`.
 2. **Fetch the latest release metadata:**
    ```bash
-   curl -fsSL https://api.github.com/repos/aequicor/ai-kit-v2/releases/latest
+   curl -fsSL -H "User-Agent: ai-kit-installer" -H "Accept: application/vnd.github+json" https://api.github.com/repos/aequicor/ai-kit-v2/releases/latest
    ```
    Parse the `assets` array for an asset whose `name` matches the current platform/arch. Asset names follow the pattern `kit-setup-<version>-<platform>-<arch>.<ext>`:
    - Linux x64: `kit-setup-<version>-linux-amd64.tar.gz`
