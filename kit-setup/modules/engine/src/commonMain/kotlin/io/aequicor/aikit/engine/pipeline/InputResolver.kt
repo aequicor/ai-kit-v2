@@ -14,6 +14,9 @@ import kotlinx.serialization.json.intOrNull
 /**
  * Resolves raw JSON input values from the project manifest into typed [AkelValue]s,
  * applying defaults from the bundle's [InputSpec] when a value is absent.
+ *
+ * If a [ValueSourceReader] is provided, string values containing `${env:X}`,
+ * `${file:X}`, or `${envFile:path/file.env:KEY}` references are expanded first.
  */
 internal object InputResolver {
 
@@ -21,12 +24,35 @@ internal object InputResolver {
         specs: List<InputSpec>,
         rawInputs: Map<String, JsonElement>,
         cwdBasename: String = "",
+        reader: ValueSourceReader? = null,
     ): Result<Map<String, AkelValue>> = runCatching {
         buildMap {
             for (spec in specs) {
-                val value = coerce(spec, rawInputs[spec.id], cwdBasename)
+                val raw = expand(spec.id, rawInputs[spec.id], reader)
+                val value = coerce(spec, raw, cwdBasename)
                 if (value != null) put(spec.id, value)
             }
+        }
+    }
+
+    private fun expand(specId: String, raw: JsonElement?, reader: ValueSourceReader?): JsonElement? {
+        if (raw == null || reader == null) return raw
+        return when {
+            raw is JsonPrimitive && raw.isString -> {
+                val expanded = StringExpander.expand(raw.content, reader)
+                    .getOrElse { throw EngineError.InputValidationError(specId, "input '$specId': ${it.message}") }
+                JsonPrimitive(expanded)
+            }
+            raw is JsonArray -> JsonArray(raw.map { element ->
+                if (element is JsonPrimitive && element.isString) {
+                    val expanded = StringExpander.expand(element.content, reader)
+                        .getOrElse { throw EngineError.InputValidationError(specId, "input '$specId': ${it.message}") }
+                    JsonPrimitive(expanded)
+                } else {
+                    element
+                }
+            })
+            else -> raw
         }
     }
 
@@ -43,13 +69,16 @@ internal object InputResolver {
         default?.replace("\${cwd.basename}", cwdBasename)
 
     private fun coerceBool(spec: InputSpec.BoolInput, raw: JsonElement?): AkelValue? {
-        if (raw is JsonPrimitive && raw.booleanOrNull == null) {
+        val prim = raw as? JsonPrimitive
+        val b = prim?.booleanOrNull
+            ?: prim?.content?.lowercase()?.toBooleanStrictOrNull()
+            ?: spec.default
+        if (prim != null && b == null) {
             throw EngineError.InputValidationError(
                 spec.id,
-                "input '${spec.id}' must be a boolean (true/false), got: ${raw.content}",
+                "input '${spec.id}' must be a boolean (true/false), got: ${prim.content}",
             )
         }
-        val b = (raw as? JsonPrimitive)?.booleanOrNull ?: spec.default
         return b?.let { AkelValue.Bool(it) }
     }
 
@@ -89,7 +118,8 @@ internal object InputResolver {
     }
 
     private fun coerceInt(spec: InputSpec.IntInput, raw: JsonElement?): AkelValue? {
-        val n = (raw as? JsonPrimitive)?.intOrNull ?: spec.default
+        val prim = raw as? JsonPrimitive
+        val n = prim?.intOrNull ?: prim?.content?.toIntOrNull() ?: spec.default
         if (n == null && spec.required == true) {
             throw EngineError.InputValidationError(spec.id, "required input '${spec.id}' is missing")
         }
@@ -97,7 +127,8 @@ internal object InputResolver {
     }
 
     private fun coerceDouble(spec: InputSpec.DoubleInput, raw: JsonElement?): AkelValue? {
-        val d = (raw as? JsonPrimitive)?.doubleOrNull ?: spec.default
+        val prim = raw as? JsonPrimitive
+        val d = prim?.doubleOrNull ?: prim?.content?.toDoubleOrNull() ?: spec.default
         if (d == null && spec.required == true) {
             throw EngineError.InputValidationError(spec.id, "required input '${spec.id}' is missing")
         }

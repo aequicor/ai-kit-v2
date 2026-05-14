@@ -18,6 +18,7 @@ import io.aequicor.aikit.engine.lock.LockFileEntry
 import io.aequicor.aikit.engine.lock.LockStore
 import io.aequicor.aikit.engine.lock.LockTarget
 import io.aequicor.aikit.engine.pipeline.InputResolver
+import io.aequicor.aikit.engine.pipeline.createDefaultValueSourceReader
 import io.aequicor.aikit.engine.template.TemplatePreformatter
 import io.aequicor.aikit.engine.template.TemplateRenderer
 import io.aequicor.aikit.engine.write.FileWriter
@@ -59,6 +60,7 @@ internal class DefaultBundleGenerator(
             val manifestSource = FsProjectManifestSource(Path(manifestPath))
             val projectRoot = manifestSource.projectRoot.toString()
             val cwdBasename = manifestSource.projectRoot.name
+            val valueSourceReader = createDefaultValueSourceReader(projectRoot)
 
             val rawManifest = manifestSource.openManifest()
                 .mapCatching { format.parseProjectManifest(it).getOrThrow() }
@@ -76,6 +78,7 @@ internal class DefaultBundleGenerator(
                         rawTarget = rawTarget,
                         manifestSource = manifestSource,
                         cwdBasename = cwdBasename,
+                        valueSourceReader = valueSourceReader,
                     )
                 }
             }
@@ -170,6 +173,7 @@ internal class DefaultBundleGenerator(
         rawTarget: io.aequicor.aikit.format.projectManifest.RawBundleTarget,
         manifestSource: FsProjectManifestSource,
         cwdBasename: String,
+        valueSourceReader: io.aequicor.aikit.engine.pipeline.ValueSourceReader,
     ): PlannedTarget {
         val effectiveSource = resolveSource(rawTarget.source, rawTarget.bundle)
         val bundleSource = manifestSource.resolveBundleSource(effectiveSource)
@@ -205,8 +209,12 @@ internal class DefaultBundleGenerator(
                     "bundle '${rawTarget.bundle}' does not contain a '$targetName' target",
                 )
 
-            val inputs = InputResolver.resolve(parsedBundle.manifest.inputs, rawTarget.inputs, cwdBasename)
-                .getOrThrow()
+            val inputs = InputResolver.resolve(
+                parsedBundle.manifest.inputs,
+                rawTarget.inputs,
+                cwdBasename,
+                valueSourceReader,
+            ).getOrThrow()
 
             val bundleFolder = bundleFolder(target)
             val plan = parsedBundle.targetPlans[bundleFolder]
