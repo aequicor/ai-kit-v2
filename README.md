@@ -27,6 +27,10 @@
 
 Каждый поддерживаемый агент имеет собственный каталог `<bundle>/<agent>/` с файлом `config.json`, описывающим настройки, MCP-серверы, скилы, хуки и права инструментов для этого агента. Подробнее — в [`kit-setup/BUNDLE_JSON.md`](kit-setup/BUNDLE_JSON.md) и [`kit-setup/CONFIG_JSON.md`](kit-setup/CONFIG_JSON.md).
 
+## Установка через ИИ-агента
+
+Если у вас под рукой есть любой ИИ-агент с tool-use (Claude Code, Cursor, Codex, Windsurf и т.п.), запущенный в корне вашего проекта, можно не писать манифест вручную. Скопируйте содержимое [`prompts/install.md`](prompts/install.md) первым сообщением — агент сам уточнит язык диалога, исследует репозиторий, подберёт подходящие бандлы и параметры, создаст `.aikit/manifest.json` и запустит `kit-setup verify` + `generate`. Бинарь `kit-setup` должен быть в `PATH` (см. ниже).
+
 ## CLI: ручной запуск
 
 Готовые бинарники под Windows / Linux / macOS публикуются в [GitHub Releases](https://github.com/aequicor/ai-kit-v2/releases). Скачайте подходящий, сделайте исполняемым (`chmod +x kit-setup`) и положите в `PATH`. Локальная сборка: `cd kit-setup && ./gradlew :modules:cli:linkReleaseExecutableMacosArm64` (под нужный таргет) — бинарь окажется в `kit-setup/modules/cli/build/bin/<target>/releaseExecutable/cli.kexe`.
