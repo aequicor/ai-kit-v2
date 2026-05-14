@@ -95,7 +95,7 @@ See [`kit-setup/BUNDLE_JSON.md`](kit-setup/BUNDLE_JSON.md) for the full specific
 
 ```json
 {
-  "aikitVersion": "0.0.12",
+  "aikitVersion": "0.0.13",
   "applications": [
     {
       "id": "root",
@@ -122,7 +122,28 @@ See [`kit-setup/BUNDLE_JSON.md`](kit-setup/BUNDLE_JSON.md) for the full specific
 
 A project with multiple subprojects adds more entries to `applications`. Each entry may target different agents independently.
 
-See [`kit-setup/MANIFEST_JSON.md`](kit-setup/MANIFEST_JSON.md).
+### Reference values in inputs
+
+Input values can embed references to env vars and files using inline `${...}` syntax:
+
+```json
+"inputs": {
+  "projectName": "${env:PROJECT_NAME}",
+  "prefix":      "my-${env:NS}-${env:ENV}",
+  "dbPassword":  "${file:secrets/db.txt}",
+  "awsKey":      "${envFile:config/prod.env:AWS_ACCESS_KEY}"
+}
+```
+
+| Expression | Resolves to |
+|---|---|
+| `${env:VAR}` | Environment variable value |
+| `${file:relative/path}` | Trimmed file contents |
+| `${envFile:path/file.env:KEY}` | Value of KEY from a `.env` file |
+
+Paths must be relative (no `..` or absolute). Missing variables or keys fail with a clear error.
+
+See [`kit-setup/MANIFEST_JSON.md`](kit-setup/MANIFEST_JSON.md) for the full specification.
 
 ## Templates
 

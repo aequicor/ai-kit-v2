@@ -201,6 +201,10 @@ export const T = {
             title: 'Add a sub-agent',
             body: 'Describe the role in agents[] (e.g. review-agent), run generate — a new file appears under .claude/agents/ or .opencode/agents/.',
           },
+          {
+            title: 'Keep secrets out of the manifest',
+            body: 'Use ${env:VAR}, ${file:secrets/token.txt}, or ${envFile:config/prod.env:KEY} directly inside input values — secrets stay in env vars and are never committed to the manifest.',
+          },
         ],
       },
       cli: {
@@ -622,6 +626,10 @@ export const T = {
           {
             title: 'Добавить субагента',
             body: 'Описываешь роль в agents[] (например, review-agent), запускаешь generate — новый файл появляется в .claude/agents/ или .opencode/agents/.',
+          },
+          {
+            title: 'Держать секреты вне манифеста',
+            body: 'В значениях inputs пиши ${env:VAR}, ${file:secrets/token.txt} или ${envFile:config/prod.env:KEY} — секреты берутся из переменных среды и никогда не попадают в коммит.',
           },
         ],
       },
