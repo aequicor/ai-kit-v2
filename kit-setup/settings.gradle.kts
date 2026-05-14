@@ -16,4 +16,5 @@ include(
     ":modules:format",
     ":modules:layout",
     ":modules:engine",
+    ":modules:e2e",
 )

@@ -12,8 +12,47 @@ permissions:
   contents: write
 
 jobs:
+  test:
+    name: Test (unit + E2E on Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run unit tests (KMP allTests)
+        working-directory: kit-setup
+        run: ./gradlew allTests
+
+      - name: Build Linux release binary for E2E
+        working-directory: kit-setup
+        run: ./gradlew :modules:cli:linkReleaseExecutableLinuxX64
+
+      - name: Run E2E tests
+        working-directory: kit-setup
+        run: |
+          KIT_BIN="$(pwd)/modules/cli/build/bin/linuxX64/releaseExecutable/cli.kexe"
+          chmod +x "$KIT_BIN"
+          ./gradlew :modules:e2e:test -Pkit.binary="$KIT_BIN"
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            kit-setup/modules/*/build/reports/tests/
+            kit-setup/modules/*/build/test-results/
+
   build-linux:
     name: Build (Linux x64)
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -42,6 +81,7 @@ jobs:
 
   build-macos:
     name: Build (macOS ARM64)
+    needs: test
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
@@ -70,6 +110,7 @@ jobs:
 
   build-windows:
     name: Build (Windows x64)
+    needs: test
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
