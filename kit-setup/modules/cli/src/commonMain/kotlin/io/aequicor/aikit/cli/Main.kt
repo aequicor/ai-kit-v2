@@ -3,7 +3,7 @@ package io.aequicor.aikit.cli
 import io.aequicor.aikit.engine.AiKitEngine
 
 /** Current CLI version; keep in sync with gradle.properties. */
-internal const val VERSION = "0.0.7"
+internal const val VERSION = "0.0.8"
 
 fun main(args: Array<String>) {
     val engine = AiKitEngine.create(aikitVersion = VERSION)
