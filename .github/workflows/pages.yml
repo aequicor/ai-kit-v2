@@ -7,8 +7,6 @@ on:
     paths:
       - 'docs/**'
       - '.github/workflows/pages.yml'
-    tags:
-      - 'v*.*.*'
   workflow_dispatch:
 
 permissions:
@@ -29,7 +27,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: docs/package-lock.json
 
