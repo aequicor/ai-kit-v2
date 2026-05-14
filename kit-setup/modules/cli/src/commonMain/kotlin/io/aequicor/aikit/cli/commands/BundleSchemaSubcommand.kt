@@ -23,7 +23,7 @@ class BundleSchemaSubcommand(
 ) {
     private val ref by argument(
         name = "REF",
-        help = "Bundle reference: directory path, '<file>.zip', 'zip:<path>', or 'embedded:<name>'",
+        help = "Bundle reference: directory path, '<file>.zip', 'zip:<path>', or 'embedded:<name>[@<version>]'",
     ).optional()
 
     private val baseDir by option(
@@ -62,11 +62,9 @@ class BundleSchemaSubcommand(
         }
         val sorted = infos.sortedBy { it.name }
         for (info in sorted) {
-            val parts = listOfNotNull(
-                info.name,
-                info.version,
-                info.description,
-            )
+            val ref = if (info.version != null) "embedded:${info.name}@${info.version}"
+                      else "embedded:${info.name}"
+            val parts = listOfNotNull(ref, info.description)
             echo(parts.joinToString("  "))
         }
     }

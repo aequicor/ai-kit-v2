@@ -4,6 +4,7 @@ import io.aequicor.aikit.core.domain.bundle.BundleManifest
 import io.aequicor.aikit.format.bundle.BundleManifestParser
 import io.aequicor.aikit.format.bundle.renderBundleInputsSchema
 import io.aequicor.aikit.format.projectManifest.ProjectManifestParser
+import io.aequicor.aikit.format.projectManifest.renderManifestJsonSchema
 import io.aequicor.aikit.format.projectManifest.RawProjectManifest
 import io.aequicor.aikit.format.template.TemplateBodyParser
 import io.aequicor.aikit.format.template.TemplatePart
@@ -89,7 +90,7 @@ internal class DefaultAiKitFormat(private val json: Json) : AiKitFormat {
     override fun parseTemplateBody(text: String, path: String): Result<List<TemplatePart>> =
         templateParser.parse(text, path)
 
-    override fun manifestJsonSchema(): String = MANIFEST_JSON_SCHEMA
+    override fun manifestJsonSchema(): String = renderManifestJsonSchema(prettyJson)
 
     override fun bundleInputsJsonSchema(manifest: BundleManifest): String =
         renderBundleInputsSchema(manifest, prettyJson)
@@ -101,34 +102,3 @@ internal class DefaultAiKitFormat(private val json: Json) : AiKitFormat {
     }
 }
 
-private const val MANIFEST_JSON_SCHEMA = """{
-  "${'$'}schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object",
-  "required": ["aikitVersion", "applications"],
-  "properties": {
-    "aikitVersion": { "type": "string" },
-    "applications": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["id", "path", "targets"],
-        "properties": {
-          "id":      { "type": "string" },
-          "path":    { "type": "string" },
-          "targets": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "object",
-              "required": ["bundle", "source", "inputs"],
-              "properties": {
-                "bundle": { "type": "string" },
-                "source": { "type": "string" },
-                "inputs": { "type": "object" }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}"""

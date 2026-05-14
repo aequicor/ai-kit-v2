@@ -9,7 +9,7 @@ import kotlinx.io.files.Path
  * Chooses the right [BundleSource] implementation for a bundle reference string.
  *
  * Reference forms recognised:
- * - `embedded:<name>` — bundle compiled into the CLI binary.
+ * - `embedded:<name>` or `embedded:<name>@<version>` — bundle compiled into the CLI binary.
  * - `zip:<path>` or `<path>.zip` — packed bundle on disk.
  * - anything else — directory path on disk (resolved against [baseDir] if relative).
  */
@@ -23,7 +23,10 @@ class BundleSourceFactory {
      */
     fun create(ref: String, baseDir: Path): Result<BundleSource> = runCatching {
         when {
-            ref.startsWith(EMBEDDED_SCHEME) -> EmbeddedBundleSource(ref.removePrefix(EMBEDDED_SCHEME))
+            ref.startsWith(EMBEDDED_SCHEME) -> {
+                val nameWithVersion = ref.removePrefix(EMBEDDED_SCHEME)
+                EmbeddedBundleSource(nameWithVersion.substringBefore('@'))
+            }
             ref.startsWith(ZIP_SCHEME) -> ZipBundleSource(resolvePath(ref.removePrefix(ZIP_SCHEME), baseDir))
             ref.endsWith(ZIP_SUFFIX) -> ZipBundleSource(resolvePath(ref, baseDir))
             else -> FsBundleSource(resolvePath(ref, baseDir))
