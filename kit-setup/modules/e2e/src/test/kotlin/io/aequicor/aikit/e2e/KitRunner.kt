@@ -29,16 +29,18 @@ object KitRunner {
     fun run(
         vararg args: String,
         cwd: Path = Files.createTempDirectory("aikit-e2e-cwd-"),
+        env: Map<String, String> = emptyMap(),
         timeoutSeconds: Long = 60,
     ): KitResult {
         val cmd = buildList {
             add(binaryPath.absolutePathString())
             addAll(args)
         }
-        val process = ProcessBuilder(cmd)
+        val builder = ProcessBuilder(cmd)
             .directory(cwd.toFile())
             .redirectErrorStream(false)
-            .start()
+        if (env.isNotEmpty()) builder.environment().putAll(env)
+        val process = builder.start()
 
         val stdout = StringBuilder()
         val stderr = StringBuilder()
