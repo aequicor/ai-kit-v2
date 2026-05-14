@@ -14,16 +14,19 @@ package io.aequicor.aikit.core.domain.template
  * @property path Bundle-relative POSIX path to the source file (e.g. `claude/commands/review.md`).
  *   The engine writes the rendered result to this path inside the target installation root.
  * @property bytes Raw source content exactly as stored in the bundle.
+ * @property condition Optional AKEL expression (same syntax as `<!-- when: … -->`). When non-null,
+ *   the engine evaluates it against resolved inputs and skips writing the file if the result is falsy.
  */
 data class Template(
     val path: String,
     val bytes: ByteArray,
+    val condition: String? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Template) return false
-        return path == other.path && bytes.contentEquals(other.bytes)
+        return path == other.path && bytes.contentEquals(other.bytes) && condition == other.condition
     }
 
-    override fun hashCode(): Int = 31 * path.hashCode() + bytes.contentHashCode()
+    override fun hashCode(): Int = 31 * (31 * path.hashCode() + bytes.contentHashCode()) + condition.hashCode()
 }

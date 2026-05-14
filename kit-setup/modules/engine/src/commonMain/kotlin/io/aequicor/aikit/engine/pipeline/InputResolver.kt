@@ -20,39 +20,43 @@ internal object InputResolver {
     fun resolve(
         specs: List<InputSpec>,
         rawInputs: Map<String, JsonElement>,
+        cwdBasename: String = "",
     ): Result<Map<String, AkelValue>> = runCatching {
         buildMap {
             for (spec in specs) {
-                val value = coerce(spec, rawInputs[spec.id])
+                val value = coerce(spec, rawInputs[spec.id], cwdBasename)
                 if (value != null) put(spec.id, value)
             }
         }
     }
 
-    private fun coerce(spec: InputSpec, raw: JsonElement?): AkelValue? = when (spec) {
+    private fun coerce(spec: InputSpec, raw: JsonElement?, cwdBasename: String): AkelValue? = when (spec) {
         is InputSpec.BoolInput -> coerceBool(spec, raw)
-        is InputSpec.StringInput -> coerceString(spec, raw)
-        is InputSpec.SelectInput -> coerceSelect(spec, raw)
+        is InputSpec.StringInput -> coerceString(spec, raw, cwdBasename)
+        is InputSpec.SelectInput -> coerceSelect(spec, raw, cwdBasename)
         is InputSpec.MultiSelectInput -> coerceMultiSelect(spec, raw)
         is InputSpec.IntInput -> coerceInt(spec, raw)
         is InputSpec.DoubleInput -> coerceDouble(spec, raw)
     }
+
+    private fun resolveDefault(default: String?, cwdBasename: String): String? =
+        default?.replace("\${cwd.basename}", cwdBasename)
 
     private fun coerceBool(spec: InputSpec.BoolInput, raw: JsonElement?): AkelValue? {
         val b = (raw as? JsonPrimitive)?.booleanOrNull ?: spec.default
         return b?.let { AkelValue.Bool(it) }
     }
 
-    private fun coerceString(spec: InputSpec.StringInput, raw: JsonElement?): AkelValue? {
-        val s = (raw as? JsonPrimitive)?.content ?: spec.default
+    private fun coerceString(spec: InputSpec.StringInput, raw: JsonElement?, cwdBasename: String): AkelValue? {
+        val s = (raw as? JsonPrimitive)?.content ?: resolveDefault(spec.default, cwdBasename)
         if (s == null && spec.required == true) {
             throw EngineError.InputValidationError(spec.id, "required input '${spec.id}' is missing")
         }
         return s?.let { AkelValue.Str(it) }
     }
 
-    private fun coerceSelect(spec: InputSpec.SelectInput, raw: JsonElement?): AkelValue? {
-        val s = (raw as? JsonPrimitive)?.content ?: spec.default
+    private fun coerceSelect(spec: InputSpec.SelectInput, raw: JsonElement?, cwdBasename: String): AkelValue? {
+        val s = (raw as? JsonPrimitive)?.content ?: resolveDefault(spec.default, cwdBasename)
         if (s != null && s !in spec.options) {
             throw EngineError.InputValidationError(
                 spec.id,
@@ -67,6 +71,13 @@ internal object InputResolver {
             raw is JsonArray -> raw.map { (it as JsonPrimitive).content }
             raw == null || raw is JsonNull -> spec.default ?: emptyList()
             else -> throw EngineError.InputValidationError(spec.id, "input '${spec.id}' must be an array")
+        }
+        val invalid = list.filter { it !in spec.options }
+        if (invalid.isNotEmpty()) {
+            throw EngineError.InputValidationError(
+                spec.id,
+                "input '${spec.id}' contains invalid values $invalid; allowed: ${spec.options}",
+            )
         }
         return AkelValue.Lst(list.map { AkelValue.Str(it) })
     }

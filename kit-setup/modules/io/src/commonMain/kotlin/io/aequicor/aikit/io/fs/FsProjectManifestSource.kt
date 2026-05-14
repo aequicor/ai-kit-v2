@@ -35,7 +35,11 @@ class FsProjectManifestSource(
         factory.create(bundleRef, projectRoot)
 
     private companion object {
-        fun defaultProjectRoot(manifestPath: Path): Path =
-            manifestPath.parent?.parent ?: error("manifest path has no parent: $manifestPath")
+        fun defaultProjectRoot(manifestPath: Path): Path {
+            // For a relative path like ".aikit/manifest.json", parent?.parent can be null
+            // because Path(".aikit").parent has no separator. Fall back to "." (CWD) in
+            // that case — the project root IS the current directory.
+            return manifestPath.parent?.parent ?: Path(".")
+        }
     }
 }

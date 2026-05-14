@@ -1,5 +1,7 @@
 package io.aequicor.aikit.engine.impl
 
+import io.aequicor.aikit.akel.Akel
+import io.aequicor.aikit.akel.AkelContext
 import io.aequicor.aikit.akel.AkelValue
 import io.aequicor.aikit.core.domain.targets.ClaudeCode
 import io.aequicor.aikit.core.domain.targets.OpenCode
@@ -32,6 +34,7 @@ internal class DefaultBundleGenerator(
     override fun generate(manifestPath: String): Result<Unit> = runCatching {
         val manifestSource = FsProjectManifestSource(Path(manifestPath))
         val projectRoot = manifestSource.projectRoot.toString()
+        val cwdBasename = manifestSource.projectRoot.name
 
         val rawManifest = manifestSource.openManifest()
             .mapCatching { format.parseProjectManifest(it).getOrThrow() }
@@ -64,7 +67,7 @@ internal class DefaultBundleGenerator(
                             "bundle '${rawTarget.bundle}' does not contain a '$targetName' target",
                         )
 
-                    val inputs = InputResolver.resolve(bundleManifest.inputs, rawTarget.inputs)
+                    val inputs = InputResolver.resolve(bundleManifest.inputs, rawTarget.inputs, cwdBasename)
                         .getOrThrow()
 
                     renderAndWrite(target, app.path, projectRoot, inputs)
@@ -83,7 +86,14 @@ internal class DefaultBundleGenerator(
         val allTemplates = collectTemplates(target)
         val bundleFolder = bundleFolder(target)
 
+        val context = AkelContext.of(inputs.mapKeys { "bundle.input.${it.key}" })
         for (template in allTemplates) {
+            val condition = template.condition
+            if (condition != null) {
+                val include = Akel.evaluate(condition, context).getOrElse { false }
+                if (!include) continue
+            }
+
             val relativePath = template.path.removePrefix("$bundleFolder/")
             val outputPath = "$outputRoot/$relativePath"
             val renderedBytes = renderTemplate(template, inputs)
