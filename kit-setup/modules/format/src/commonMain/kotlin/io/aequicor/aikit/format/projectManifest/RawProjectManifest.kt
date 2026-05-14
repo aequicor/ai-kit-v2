@@ -25,7 +25,10 @@ data class RawApplicationEntry(
  * A single target within a [RawApplicationEntry], before bundle loading.
  *
  * @property bundle Bundle reference in `name@version` format.
- * @property source `"internal"` or a path to a zip / directory on disk.
+ * @property source Bundle source reference. Three forms are recognised:
+ *   - `embedded:<name>` or `embedded:<name>@<version>` — bundle baked into the binary;
+ *   - `zip:<path>` or any path ending in `.zip` — a zip archive on disk;
+ *   - anything else — treated as a path to a directory on disk.
  * @property inputs Raw JSON values for the bundle inputs. Types are not yet validated against
  *   the bundle's [InputSpec] — that happens in the engine's resolve stage.
  */

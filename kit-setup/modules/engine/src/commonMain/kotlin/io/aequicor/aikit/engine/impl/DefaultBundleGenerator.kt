@@ -131,7 +131,9 @@ internal class DefaultBundleGenerator(
             is OpenCode -> ".opencode"
             is QwenCode -> ".qwen"
         }
-        return Path(projectRoot, appPath, agentFolder).toString()
+        val appAbsolute = appPath.startsWith('/') || (appPath.length >= 2 && appPath[1] == ':')
+        return if (appAbsolute) Path(appPath, agentFolder).toString()
+        else Path(projectRoot, appPath, agentFolder).toString()
     }
 
     private fun bundleFolder(target: Target): String = when (target) {
