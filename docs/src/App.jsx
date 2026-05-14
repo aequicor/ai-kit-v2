@@ -168,13 +168,11 @@ const MANIFEST_JSON = `{
 }`
 
 const CLI_COMMANDS = [
-  { cmd: '# 1. Download the binary for your platform', comment: true },
-  { cmd: 'curl -L https://github.com/aequicor/ai-kit-v2/releases/download/v0.0.7/kit-setup-macos-arm64 -o kit-setup', comment: false },
+  { cmd: '# 1. Download and unpack (macOS ARM64 example)', comment: true },
+  { cmd: 'curl -L https://github.com/aequicor/ai-kit-v2/releases/download/v0.0.7/kit-setup-0.0.7-macos-arm64.tar.gz | tar -xz', comment: false },
+  { cmd: 'sudo mv kit-setup-0.0.7-macos-arm64/kit-setup /usr/local/bin/', comment: false },
   { cmd: '', comment: false },
-  { cmd: '# 2. Make it executable', comment: true },
-  { cmd: 'chmod +x kit-setup', comment: false },
-  { cmd: '', comment: false },
-  { cmd: '# 3. Verify manifest and generate agent config', comment: true },
+  { cmd: '# 2. Verify manifest and generate agent config', comment: true },
   { cmd: 'kit-setup verify .aikit/manifest.json', comment: false },
   { cmd: 'kit-setup generate .aikit/manifest.json', comment: false },
 ]

@@ -30,17 +30,17 @@ jobs:
       - name: Package
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          DIST="ai-kit-${VERSION}-linux-amd64"
+          DIST="kit-setup-${VERSION}-linux-amd64"
           mkdir -p "$DIST"
-          cp kit-setup/modules/cli/build/bin/linuxX64/releaseExecutable/cli.kexe "$DIST/ai-kit"
-          chmod +x "$DIST/ai-kit"
+          cp kit-setup/modules/cli/build/bin/linuxX64/releaseExecutable/cli.kexe "$DIST/kit-setup"
+          chmod +x "$DIST/kit-setup"
           cp -r kit-setup/bundles "$DIST/bundles"
           tar -czf "${DIST}.tar.gz" "$DIST"
 
       - uses: actions/upload-artifact@v4
         with:
           name: linux-amd64
-          path: ai-kit-*-linux-amd64.tar.gz
+          path: kit-setup-*-linux-amd64.tar.gz
 
   build-macos:
     name: Build (macOS ARM64)
@@ -63,17 +63,17 @@ jobs:
       - name: Package
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          DIST="ai-kit-${VERSION}-macos-arm64"
+          DIST="kit-setup-${VERSION}-macos-arm64"
           mkdir -p "$DIST"
-          cp kit-setup/modules/cli/build/bin/macosArm64/releaseExecutable/cli.kexe "$DIST/ai-kit"
-          chmod +x "$DIST/ai-kit"
+          cp kit-setup/modules/cli/build/bin/macosArm64/releaseExecutable/cli.kexe "$DIST/kit-setup"
+          chmod +x "$DIST/kit-setup"
           cp -r kit-setup/bundles "$DIST/bundles"
           tar -czf "${DIST}.tar.gz" "$DIST"
 
       - uses: actions/upload-artifact@v4
         with:
           name: macos-arm64
-          path: ai-kit-*-macos-arm64.tar.gz
+          path: kit-setup-*-macos-arm64.tar.gz
 
   build-windows:
     name: Build (Windows x64)
@@ -97,16 +97,16 @@ jobs:
         shell: pwsh
         run: |
           $VERSION = $env:GITHUB_REF_NAME -replace '^v', ''
-          $DIST = "ai-kit-${VERSION}-windows-amd64"
+          $DIST = "kit-setup-${VERSION}-windows-amd64"
           New-Item -ItemType Directory -Path $DIST | Out-Null
-          Copy-Item kit-setup/modules/cli/build/bin/mingwX64/releaseExecutable/cli.exe "$DIST/ai-kit.exe"
+          Copy-Item kit-setup/modules/cli/build/bin/mingwX64/releaseExecutable/cli.exe "$DIST/kit-setup.exe"
           Copy-Item -Recurse kit-setup/bundles "$DIST/bundles"
           Compress-Archive -Path $DIST -DestinationPath "${DIST}.zip"
 
       - uses: actions/upload-artifact@v4
         with:
           name: windows-amd64
-          path: ai-kit-*-windows-amd64.zip
+          path: kit-setup-*-windows-amd64.zip
 
   release:
     name: Create GitHub Release
