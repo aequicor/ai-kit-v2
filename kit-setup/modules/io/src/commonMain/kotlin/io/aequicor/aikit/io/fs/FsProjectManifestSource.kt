@@ -37,9 +37,10 @@ class FsProjectManifestSource(
     private companion object {
         fun defaultProjectRoot(manifestPath: Path): Path {
             // For a relative path like ".aikit/manifest.json", parent?.parent can be null
-            // because Path(".aikit").parent has no separator. Fall back to "." (CWD) in
-            // that case — the project root IS the current directory.
-            return manifestPath.parent?.parent ?: Path(".")
+            // because Path(".aikit").parent has no separator. Resolve to an absolute path
+            // so that .name returns the real directory name instead of ".".
+            val root = manifestPath.parent?.parent ?: Path(".")
+            return runCatching { SystemFileSystem.resolve(root) }.getOrDefault(root)
         }
     }
 }

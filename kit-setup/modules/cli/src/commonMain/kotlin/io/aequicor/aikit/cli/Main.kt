@@ -9,6 +9,8 @@ fun main(args: Array<String>) {
     val engine = AiKitEngine.create()
     AiKitCli(
         schemaProvider = engine.schemaProvider,
+        bundleSchemaProvider = engine.bundleSchemaProvider,
+        embeddedBundleCatalog = engine.embeddedBundleCatalog,
         verifier = engine.verifier,
         generator = engine.generator,
     ).main(args)

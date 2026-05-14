@@ -37,7 +37,7 @@ internal class DefaultManifestVerifier(private val format: AiKitFormat) : Manife
                     }
 
                 bundleSource.use { src ->
-                    val bundleManifest = format.parseBundleManifest(src)
+                    val parsedBundle = format.parseBundleManifest(src)
                         .getOrElse {
                             throw EngineError.BundleLoadError(
                                 rawTarget.source,
@@ -46,7 +46,15 @@ internal class DefaultManifestVerifier(private val format: AiKitFormat) : Manife
                             )
                         }
 
-                    val targetFound = bundleManifest.targets.any { it.matchesFolder(targetName) }
+                    val actualRef = "${parsedBundle.manifest.name}@${parsedBundle.manifest.version}"
+                    if (actualRef != rawTarget.bundle) {
+                        throw EngineError.BundleLoadError(
+                            rawTarget.bundle,
+                            "bundle version mismatch: expected '${rawTarget.bundle}', found '$actualRef'",
+                        )
+                    }
+
+                    val targetFound = parsedBundle.manifest.targets.any { it.matchesFolder(targetName) }
                     if (!targetFound) {
                         throw EngineError.BundleLoadError(
                             rawTarget.bundle,
@@ -54,7 +62,7 @@ internal class DefaultManifestVerifier(private val format: AiKitFormat) : Manife
                         )
                     }
 
-                    InputResolver.resolve(bundleManifest.inputs, rawTarget.inputs).getOrThrow()
+                    InputResolver.resolve(parsedBundle.manifest.inputs, rawTarget.inputs).getOrThrow()
                 }
             }
         }

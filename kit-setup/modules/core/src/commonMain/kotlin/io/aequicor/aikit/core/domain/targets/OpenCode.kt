@@ -10,16 +10,12 @@ import io.aequicor.aikit.core.domain.template.Template
  *
  * OpenCode unifies primary agents and subagents into a single map keyed by name, with a
  * `mode: primary | subagent | all` discriminator on each entry — agent definitions therefore
- * live inside [agents] rather than as a top-level subagent list. OpenCode has no declarative
- * lifecycle-hook system; hooks are expressed as JavaScript/TypeScript plugin modules under
- * `.opencode/plugins/`, shipped as raw [Template] files in [plugins]. Tool control is expressed
+ * live inside [agents] rather than as a top-level subagent list. Tool control is expressed
  * via [tools] and [permission].
  *
  * Model string format: `"provider/model-id"` (e.g. `"anthropic/claude-sonnet-4-5"`).
  *
- * @property plugins JavaScript/TypeScript plugin source files (`.js` / `.ts`) installed under
- *   `.opencode/plugins/`. Treated as opaque templates — the linker copies them verbatim or
- *   applies substitutions per [Template] rules.
+ * @property plugins JavaScript/TypeScript plugin source files installed under `.opencode/plugins/`.
  * @property model Primary model used for the main agent loop.
  * @property smallModel Lighter model used for cheap/fast sub-tasks. `null` = same as [model].
  * @property defaultAgent Name of the agent from [agents] to use by default. `null` = built-in coder.

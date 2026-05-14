@@ -1,9 +1,13 @@
 package io.aequicor.aikit.engine
 
 import io.aequicor.aikit.engine.api.BundleGenerator
+import io.aequicor.aikit.engine.api.BundleSchemaProvider
+import io.aequicor.aikit.engine.api.EmbeddedBundleCatalog
 import io.aequicor.aikit.engine.api.ManifestVerifier
 import io.aequicor.aikit.engine.api.SchemaProvider
 import io.aequicor.aikit.engine.impl.DefaultBundleGenerator
+import io.aequicor.aikit.engine.impl.DefaultBundleSchemaProvider
+import io.aequicor.aikit.engine.impl.DefaultEmbeddedBundleCatalog
 import io.aequicor.aikit.engine.impl.DefaultManifestVerifier
 import io.aequicor.aikit.engine.impl.DefaultSchemaProvider
 import io.aequicor.aikit.engine.write.FileWriter
@@ -17,11 +21,15 @@ import io.aequicor.aikit.format.AiKitFormat
  * public operations consumed by the CLI.
  *
  * @property schemaProvider Returns the JSON Schema for `.aikit/manifest.json`.
+ * @property bundleSchemaProvider Returns the JSON Schema for the `inputs` of a specific bundle.
+ * @property embeddedBundleCatalog Lists bundles compiled into the CLI binary.
  * @property verifier Validates a project manifest and its referenced bundles (no writes).
  * @property generator Full generate pipeline — reads, renders, and writes output files.
  */
 class AiKitEngine private constructor(
     val schemaProvider: SchemaProvider,
+    val bundleSchemaProvider: BundleSchemaProvider,
+    val embeddedBundleCatalog: EmbeddedBundleCatalog,
     val verifier: ManifestVerifier,
     val generator: BundleGenerator,
 ) {
@@ -35,6 +43,8 @@ class AiKitEngine private constructor(
             fileWriter: FileWriter = FsFileWriter(),
         ): AiKitEngine = AiKitEngine(
             schemaProvider = DefaultSchemaProvider(format),
+            bundleSchemaProvider = DefaultBundleSchemaProvider(format),
+            embeddedBundleCatalog = DefaultEmbeddedBundleCatalog(),
             verifier = DefaultManifestVerifier(format),
             generator = DefaultBundleGenerator(format, fileWriter),
         )

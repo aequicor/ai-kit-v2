@@ -30,7 +30,8 @@ class BundleManifestParserTest {
             }
         """.trimIndent()
 
-        val manifest = format.parseBundleManifest(MemoryBundleSource(json)).getOrThrow()
+        val parsed = format.parseBundleManifest(MemoryBundleSource(json)).getOrThrow()
+        val manifest = parsed.manifest
 
         assertEquals("my-bundle", manifest.name)
         assertEquals("1.0.0", manifest.version)
@@ -59,7 +60,7 @@ class BundleManifestParserTest {
             }
         """.trimIndent()
 
-        val manifest = format.parseBundleManifest(MemoryBundleSource(json)).getOrThrow()
+        val manifest = format.parseBundleManifest(MemoryBundleSource(json)).getOrThrow().manifest
         assertEquals(6, manifest.inputs.size)
 
         assertIs<InputSpec.BoolInput>(manifest.inputs[0]).also { assertEquals(true, it.default) }

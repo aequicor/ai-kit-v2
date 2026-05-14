@@ -1,32 +1,25 @@
 package io.aequicor.aikit.core.domain.template
 
 /**
- * A single template file shipped inside a bundle, held as raw source bytes.
+ * A resolved template file ready to be written to disk.
  *
- * The domain layer is intentionally opaque: substitution (`${bundle.input.<id>}`) and conditional
- * blocks (`<!-- when: … -->…<!-- end -->`) are not parsed here. The `engine` module consumes
- * [bytes] together with resolved input values and produces the final on-disk file.
+ * By the time a [Template] exists in the domain, all conditions have been evaluated and the
+ * file has been selected for inclusion. The [bytes] hold the final rendered content — all
+ * `${bundle.input.<id>}` substitutions and `<!-- when: … -->…<!-- end -->` conditional blocks
+ * have been processed by the engine before this model is produced.
  *
- * The same model covers both processable files (`.md` templates with AI-Kit extensions) and
- * verbatim assets (`.js` plugins, JSON snippets). The engine decides how to treat each one
- * based on [path].
- *
- * @property path Bundle-relative POSIX path to the source file (e.g. `claude/commands/review.md`).
- *   The engine writes the rendered result to this path inside the target installation root.
- * @property bytes Raw source content exactly as stored in the bundle.
- * @property condition Optional AKEL expression (same syntax as `<!-- when: … -->`). When non-null,
- *   the engine evaluates it against resolved inputs and skips writing the file if the result is falsy.
+ * @property path Installation-root-relative POSIX path (e.g. `commands/review.md`).
+ * @property bytes Final rendered file content.
  */
 data class Template(
     val path: String,
     val bytes: ByteArray,
-    val condition: String? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Template) return false
-        return path == other.path && bytes.contentEquals(other.bytes) && condition == other.condition
+        return path == other.path && bytes.contentEquals(other.bytes)
     }
 
-    override fun hashCode(): Int = 31 * (31 * path.hashCode() + bytes.contentHashCode()) + condition.hashCode()
+    override fun hashCode(): Int = 31 * path.hashCode() + bytes.contentHashCode()
 }

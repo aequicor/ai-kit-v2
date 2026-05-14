@@ -43,6 +43,12 @@ internal object InputResolver {
         default?.replace("\${cwd.basename}", cwdBasename)
 
     private fun coerceBool(spec: InputSpec.BoolInput, raw: JsonElement?): AkelValue? {
+        if (raw is JsonPrimitive && raw.booleanOrNull == null) {
+            throw EngineError.InputValidationError(
+                spec.id,
+                "input '${spec.id}' must be a boolean (true/false), got: ${raw.content}",
+            )
+        }
         val b = (raw as? JsonPrimitive)?.booleanOrNull ?: spec.default
         return b?.let { AkelValue.Bool(it) }
     }

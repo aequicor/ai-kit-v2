@@ -7,19 +7,23 @@ import io.aequicor.aikit.cli.commands.GenerateCommand
 import io.aequicor.aikit.cli.commands.SchemaCommand
 import io.aequicor.aikit.cli.commands.VerifyCommand
 import io.aequicor.aikit.engine.api.BundleGenerator
+import io.aequicor.aikit.engine.api.BundleSchemaProvider
+import io.aequicor.aikit.engine.api.EmbeddedBundleCatalog
 import io.aequicor.aikit.engine.api.ManifestVerifier
 import io.aequicor.aikit.engine.api.SchemaProvider
 
 /** Root CLI command; delegates to [SchemaCommand], [VerifyCommand], [GenerateCommand]. */
 class AiKitCli(
     schemaProvider: SchemaProvider,
+    bundleSchemaProvider: BundleSchemaProvider,
+    embeddedBundleCatalog: EmbeddedBundleCatalog,
     verifier: ManifestVerifier,
     generator: BundleGenerator,
 ) : CliktCommand(name = "kit-setup") {
     init {
         versionOption(VERSION)
         subcommands(
-            SchemaCommand(schemaProvider),
+            SchemaCommand(schemaProvider, bundleSchemaProvider, embeddedBundleCatalog),
             VerifyCommand(verifier),
             GenerateCommand(generator),
         )

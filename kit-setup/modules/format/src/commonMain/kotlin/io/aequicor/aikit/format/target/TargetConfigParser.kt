@@ -16,9 +16,9 @@ import kotlinx.serialization.json.Json
 /**
  * Parses a target's `config.json` and merges the result into an existing stub [Target].
  *
- * The stub is produced by [io.aequicor.aikit.format.bundle.v1.BundleManifestMapperV1] and
- * already contains the template lists (commands, skills, subagents, plugins). This parser
- * fills in the config-specific fields (model, permissions, hooks, MCP servers, etc.).
+ * Fills in the config-specific fields: model, permissions, hooks, MCP servers, etc.
+ * Template file handling (commands, skills, subagents, plugins) is done separately in
+ * [io.aequicor.aikit.format.bundle.v1.BundleManifestMapperV1].
  */
 internal class TargetConfigParser(private val json: Json) {
 

@@ -76,7 +76,7 @@
       {
         "when": "${bundle.input.strict}",
         "matcher": "Bash",
-        "command": ".claude/hooks/block-dangerous.sh"
+        "command": ".claude/strict/hooks/block-dangerous.sh"
       }
     ],
     "SessionStart": [

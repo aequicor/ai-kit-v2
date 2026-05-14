@@ -14,6 +14,8 @@ import io.aequicor.aikit.engine.pipeline.InputResolver
 import io.aequicor.aikit.engine.template.TemplateRenderer
 import io.aequicor.aikit.engine.write.FileWriter
 import io.aequicor.aikit.format.AiKitFormat
+import io.aequicor.aikit.format.ParsedBundle
+import io.aequicor.aikit.format.template.TemplateSource
 import io.aequicor.aikit.io.fs.FsProjectManifestSource
 import kotlinx.io.files.Path
 
@@ -23,7 +25,7 @@ import kotlinx.io.files.Path
  * For each application/target pair in the manifest, the generator:
  * 1. Loads and parses the bundle.
  * 2. Resolves and validates input values.
- * 3. Renders each template file.
+ * 3. Renders each template file (evaluates conditions, substitutes inputs).
  * 4. Writes the result to the correct output path inside the application directory.
  */
 internal class DefaultBundleGenerator(
@@ -52,7 +54,7 @@ internal class DefaultBundleGenerator(
                     }
 
                 bundleSource.use { src ->
-                    val bundleManifest = format.parseBundleManifest(src)
+                    val parsedBundle = format.parseBundleManifest(src)
                         .getOrElse {
                             throw EngineError.BundleLoadError(
                                 rawTarget.source,
@@ -61,16 +63,24 @@ internal class DefaultBundleGenerator(
                             )
                         }
 
-                    val target = bundleManifest.targets.firstOrNull { it.matchesFolder(targetName) }
+                    val actualRef = "${parsedBundle.manifest.name}@${parsedBundle.manifest.version}"
+                    if (actualRef != rawTarget.bundle) {
+                        throw EngineError.BundleLoadError(
+                            rawTarget.bundle,
+                            "bundle version mismatch: expected '${rawTarget.bundle}', found '$actualRef'",
+                        )
+                    }
+
+                    val target = parsedBundle.manifest.targets.firstOrNull { it.matchesFolder(targetName) }
                         ?: throw EngineError.BundleLoadError(
                             rawTarget.bundle,
                             "bundle '${rawTarget.bundle}' does not contain a '$targetName' target",
                         )
 
-                    val inputs = InputResolver.resolve(bundleManifest.inputs, rawTarget.inputs, cwdBasename)
+                    val inputs = InputResolver.resolve(parsedBundle.manifest.inputs, rawTarget.inputs, cwdBasename)
                         .getOrThrow()
 
-                    renderAndWrite(target, app.path, projectRoot, inputs)
+                    renderAndWrite(target, parsedBundle, app.path, projectRoot, inputs)
                 }
             }
         }
@@ -78,48 +88,41 @@ internal class DefaultBundleGenerator(
 
     private fun renderAndWrite(
         target: Target,
+        parsedBundle: ParsedBundle,
         appPath: String,
         projectRoot: String,
         inputs: Map<String, AkelValue>,
     ) {
         val outputRoot = outputRoot(target, appPath, projectRoot)
-        val allTemplates = collectTemplates(target)
         val bundleFolder = bundleFolder(target)
-
+        val sources = parsedBundle.targetSources[bundleFolder] ?: emptyList()
         val context = AkelContext.of(inputs.mapKeys { "bundle.input.${it.key}" })
-        for (template in allTemplates) {
-            val condition = template.condition
-            if (condition != null) {
-                val include = Akel.evaluate(condition, context).getOrElse { false }
-                if (!include) continue
-            }
 
+        for (template in render(sources, inputs, context)) {
             val relativePath = template.path.removePrefix("$bundleFolder/")
             val outputPath = "$outputRoot/$relativePath"
-            val renderedBytes = renderTemplate(template, inputs)
-
-            fileWriter.write(outputPath, renderedBytes)
+            fileWriter.write(outputPath, template.bytes)
                 .getOrElse { throw EngineError.WriteError(outputPath, "cannot write '$outputPath': ${it.message}", it) }
         }
     }
 
-    private fun renderTemplate(
-        template: Template,
+    private fun render(
+        sources: List<TemplateSource>,
         inputs: Map<String, AkelValue>,
-    ): ByteArray {
-        val text = template.bytes.decodeToString()
-        val parts = format.parseTemplateBody(text, template.path)
-            .getOrElse { throw EngineError.RenderError(template.path, "cannot parse template '${template.path}': ${it.message}", it) }
-
-        return TemplateRenderer.render(parts, inputs, template.path)
-            .getOrElse { throw it as? EngineError ?: EngineError.RenderError(template.path, it.message ?: "render error", it) }
+        context: AkelContext,
+    ): List<Template> = sources.mapNotNull { source ->
+        val condition = source.condition
+        if (condition != null) {
+            val include = Akel.evaluate(condition, context).getOrElse { false }
+            if (!include) return@mapNotNull null
+        }
+        val text = source.bytes.decodeToString()
+        val parts = format.parseTemplateBody(text, source.path)
+            .getOrElse { throw EngineError.RenderError(source.path, "cannot parse template '${source.path}': ${it.message}", it) }
+        val renderedBytes = TemplateRenderer.render(parts, inputs, source.path)
+            .getOrElse { throw it as? EngineError ?: EngineError.RenderError(source.path, it.message ?: "render error", it) }
             .encodeToByteArray()
-    }
-
-    private fun collectTemplates(target: Target): List<Template> = when (target) {
-        is ClaudeCode -> target.commands + target.skills + target.subagents
-        is OpenCode -> target.commands + target.skills + target.plugins
-        is QwenCode -> target.commands + target.skills + target.subagents
+        Template(path = source.path, bytes = renderedBytes)
     }
 
     private fun outputRoot(target: Target, appPath: String, projectRoot: String): String {

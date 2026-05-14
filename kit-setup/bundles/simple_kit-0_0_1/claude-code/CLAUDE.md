@@ -37,6 +37,7 @@
 Доступен MCP-сервер `github` — используй его для работы с issues, PR и code search вместо `gh` где это удобнее.
 <!-- end -->
 
+<!-- when: ('code-reviewer' in ${bundle.input.subagents}) || ('test-runner' in ${bundle.input.subagents}) -->
 ## Доступные субагенты
 
 <!-- when: 'code-reviewer' in ${bundle.input.subagents} -->
@@ -44,6 +45,7 @@
 <!-- end -->
 <!-- when: 'test-runner' in ${bundle.input.subagents} -->
 - **test-runner** — прогон тестов и краткий отчёт.
+<!-- end -->
 <!-- end -->
 
 ## Доступные скилы

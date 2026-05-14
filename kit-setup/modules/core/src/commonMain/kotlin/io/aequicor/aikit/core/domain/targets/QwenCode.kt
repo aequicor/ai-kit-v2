@@ -11,8 +11,7 @@ import io.aequicor.aikit.core.domain.template.Template
  * Inherits Claude Code's agent model: a flat list of **subagents** (no primary-agent
  * definitions) and a declarative lifecycle-hook system (a subset of Claude's).
  *
- * @property subagents Subagent definition templates installed under `.qwen/agents/`. Each
- *   [Template.path] is the file's destination relative to the agent root.
+ * @property subagents Subagent definition templates installed under `.qwen/agents/`.
  * @property model Model selection and generation parameters.
  * @property modelProviders Additional model provider definitions. The active provider is chosen
  *   by matching [QwenModelConfig.name] against provider [QwenModelProvider.id].

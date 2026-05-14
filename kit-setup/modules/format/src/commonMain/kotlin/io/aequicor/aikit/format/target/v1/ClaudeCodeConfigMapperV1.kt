@@ -5,7 +5,6 @@ import io.aequicor.aikit.core.domain.targets.ClaudeDefaultMode
 import io.aequicor.aikit.core.domain.targets.ClaudePermissions
 import io.aequicor.aikit.core.domain.targets.McpServer
 import io.aequicor.aikit.core.domain.targets.PermissionRule
-import io.aequicor.aikit.core.domain.template.Template
 import io.aequicor.aikit.format.error.FormatError
 
 internal object ClaudeCodeConfigMapperV1 {
@@ -18,24 +17,7 @@ internal object ClaudeCodeConfigMapperV1 {
         env = dto.settings?.env,
         permissions = dto.settings?.permissions?.let { mapPermissions(it) },
         hooks = dto.hooks?.let { ClaudeHookMapperV1.mapHooks(it) } ?: emptyMap(),
-        commands = applyConditions(stub.commands, (dto.memory ?: emptyList()) + (dto.commands ?: emptyList())),
-        skills = applyConditions(stub.skills, dto.skills ?: emptyList()),
-        subagents = applyConditions(stub.subagents, dto.agents ?: emptyList()),
     )
-
-    private fun applyConditions(templates: List<Template>, refs: List<FileRefDtoV1>): List<Template> {
-        if (refs.isEmpty()) return templates
-        val conditionBySource = refs.associate { ref ->
-            ref.source.trimEnd('/') to ref.`when`
-        }
-        return templates.map { tmpl ->
-            val relPath = tmpl.path.substringAfter('/')
-            val condition = conditionBySource.entries.firstOrNull { (src, _) ->
-                relPath == src || relPath.startsWith("$src/")
-            }?.value
-            if (condition != null) tmpl.copy(condition = condition) else tmpl
-        }
-    }
 
     private fun mapPermissions(dto: ClaudePermissionsDtoV1): ClaudePermissions = ClaudePermissions(
         defaultMode = dto.defaultMode?.let { parseDefaultMode(it) },

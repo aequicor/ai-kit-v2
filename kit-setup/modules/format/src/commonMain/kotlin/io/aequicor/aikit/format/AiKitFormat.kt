@@ -2,6 +2,7 @@ package io.aequicor.aikit.format
 
 import io.aequicor.aikit.core.domain.bundle.BundleManifest
 import io.aequicor.aikit.format.bundle.BundleManifestParser
+import io.aequicor.aikit.format.bundle.renderBundleInputsSchema
 import io.aequicor.aikit.format.projectManifest.ProjectManifestParser
 import io.aequicor.aikit.format.projectManifest.RawProjectManifest
 import io.aequicor.aikit.format.template.TemplateBodyParser
@@ -22,13 +23,13 @@ import kotlinx.serialization.json.Json
 interface AiKitFormat {
 
     /**
-     * Parse a bundle directory (via [BundleSource]) into a fully structured [BundleManifest].
+     * Parse a bundle directory (via [BundleSource]) into a [ParsedBundle].
      *
      * Reads `bundle.json` and, for each declared target, reads `<target>/config.json` and
-     * collects raw template file bytes into [io.aequicor.aikit.core.domain.template.Template]
-     * instances. The [BundleSource] is NOT closed by this method — the caller owns it.
+     * collects raw [io.aequicor.aikit.format.template.TemplateSource] entries.
+     * The [BundleSource] is NOT closed by this method — the caller owns it.
      */
-    fun parseBundleManifest(source: BundleSource): Result<BundleManifest>
+    fun parseBundleManifest(source: BundleSource): Result<ParsedBundle>
 
     /**
      * Parse `.aikit/manifest.json` into a [RawProjectManifest].
@@ -54,6 +55,14 @@ interface AiKitFormat {
     /** JSON Schema string for `.aikit/manifest.json` (for the `aikit schema` command). */
     fun manifestJsonSchema(): String
 
+    /**
+     * JSON Schema string describing the `inputs` object accepted by a specific bundle.
+     *
+     * Generated from the [BundleManifest.inputs] declarations. The schema can be attached to the
+     * `targets.<name>.inputs` block of a project manifest for IDE autocomplete and validation.
+     */
+    fun bundleInputsJsonSchema(manifest: BundleManifest): String
+
     companion object {
         fun create(): AiKitFormat = DefaultAiKitFormat(
             json = Json {
@@ -71,7 +80,7 @@ internal class DefaultAiKitFormat(private val json: Json) : AiKitFormat {
     private val manifestParser = ProjectManifestParser(json)
     private val templateParser = TemplateBodyParser()
 
-    override fun parseBundleManifest(source: BundleSource): Result<BundleManifest> =
+    override fun parseBundleManifest(source: BundleSource): Result<ParsedBundle> =
         bundleParser.parse(source)
 
     override fun parseProjectManifest(source: Source): Result<RawProjectManifest> =
@@ -81,6 +90,15 @@ internal class DefaultAiKitFormat(private val json: Json) : AiKitFormat {
         templateParser.parse(text, path)
 
     override fun manifestJsonSchema(): String = MANIFEST_JSON_SCHEMA
+
+    override fun bundleInputsJsonSchema(manifest: BundleManifest): String =
+        renderBundleInputsSchema(manifest, prettyJson)
+
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    private val prettyJson: Json = Json(from = json) {
+        prettyPrint = true
+        prettyPrintIndent = "  "
+    }
 }
 
 private const val MANIFEST_JSON_SCHEMA = """{

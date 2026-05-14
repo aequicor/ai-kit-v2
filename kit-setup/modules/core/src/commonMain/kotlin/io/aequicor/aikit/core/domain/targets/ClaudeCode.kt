@@ -8,11 +8,7 @@ import io.aequicor.aikit.core.domain.template.Template
  * [Target] implementation targeting [Claude Code](https://claude.ai/code).
  * Native config: `.claude/settings.json`.
  *
- * Claude Code exposes a flat list of **subagents** installed as `.claude/agents/<name>.md`,
- * and a rich declarative lifecycle-hook system.
- *
- * @property subagents Subagent definition templates installed under `.claude/agents/`. Each
- *   [Template.path] is the file's destination relative to the agent root.
+ * @property subagents Subagent definition templates installed under `.claude/agents/`.
  * @property model Default model for the session (e.g. `"claude-sonnet-4-6"`).
  * @property includeCoAuthoredBy Whether to append `Co-authored-by:` trailers to commits.
  * @property env Extra environment variables injected into every tool invocation.

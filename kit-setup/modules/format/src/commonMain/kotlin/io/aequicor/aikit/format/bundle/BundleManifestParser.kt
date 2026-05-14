@@ -1,6 +1,6 @@
 package io.aequicor.aikit.format.bundle
 
-import io.aequicor.aikit.core.domain.bundle.BundleManifest
+import io.aequicor.aikit.format.ParsedBundle
 import io.aequicor.aikit.format.bundle.v1.BundleManifestDtoV1
 import io.aequicor.aikit.format.bundle.v1.BundleManifestMapperV1
 import io.aequicor.aikit.format.error.FormatError
@@ -16,7 +16,7 @@ internal class BundleManifestParser(private val json: Json) {
 
     private val configParser = TargetConfigParser(json)
 
-    fun parse(bundleSource: BundleSource): Result<BundleManifest> = runCatching {
+    fun parse(bundleSource: BundleSource): Result<ParsedBundle> = runCatching {
         val manifestText = bundleSource.openManifest().getOrThrow().use { it.readString() }
 
         val raw = try {
@@ -39,7 +39,7 @@ internal class BundleManifestParser(private val json: Json) {
                 } catch (e: IllegalStateException) {
                     throw FormatError.BadJson("cannot decode bundle.json v1: ${e.message}", e)
                 }
-                BundleManifestMapperV1(configParser).map(dto, bundleSource).getOrThrow()
+                BundleManifestMapperV1(configParser, json).map(dto, bundleSource).getOrThrow()
             }
             else -> throw FormatError.UnsupportedSchemaVersion(version, SUPPORTED_VERSIONS)
         }

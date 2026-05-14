@@ -7,25 +7,33 @@ import io.aequicor.aikit.core.domain.targets.OpenCode
 import io.aequicor.aikit.core.domain.targets.QwenCode
 import io.aequicor.aikit.core.domain.targets.Target
 import io.aequicor.aikit.core.domain.template.Template
+import io.aequicor.aikit.format.ParsedBundle
 import io.aequicor.aikit.format.error.FormatError
 import io.aequicor.aikit.format.target.TargetConfigParser
+import io.aequicor.aikit.format.target.v1.ClaudeCodeConfigDtoV1
+import io.aequicor.aikit.format.target.v1.FileRefDtoV1
+import io.aequicor.aikit.format.template.TemplateSource
 import io.aequicor.aikit.io.BundleSource
 import kotlinx.io.readByteArray
 import kotlinx.io.readString
-import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 
-internal class BundleManifestMapperV1(private val configParser: TargetConfigParser) {
+internal class BundleManifestMapperV1(
+    private val configParser: TargetConfigParser,
+    private val json: Json,
+) {
 
-    fun map(dto: BundleManifestDtoV1, bundleSource: BundleSource): Result<BundleManifest> = runCatching {
+    fun map(dto: BundleManifestDtoV1, bundleSource: BundleSource): Result<ParsedBundle> = runCatching {
+        val targetSources = mutableMapOf<String, List<TemplateSource>>()
         val targets = dto.targets.map { targetFolder ->
-            loadTarget(targetFolder, bundleSource).getOrThrow()
+            loadTarget(targetFolder, bundleSource, targetSources).getOrThrow()
         }
-        BundleManifest(
+        val manifest = BundleManifest(
             schemaVersion = dto.schemaVersion,
             name = dto.name,
             version = dto.version,
@@ -35,57 +43,113 @@ internal class BundleManifestMapperV1(private val configParser: TargetConfigPars
             targets = targets,
             inputs = dto.inputs.map { mapInputSpec(it).getOrThrow() },
         )
+        ParsedBundle(manifest = manifest, targetSources = targetSources)
     }
 
-    private fun loadTarget(targetFolder: String, bundleSource: BundleSource): Result<Target> = runCatching {
+    private fun loadTarget(
+        targetFolder: String,
+        bundleSource: BundleSource,
+        targetSources: MutableMap<String, List<TemplateSource>>,
+    ): Result<Target> = runCatching {
         val configJson = bundleSource.openTargetConfig(targetFolder)
             .getOrThrow()
             ?.use { it.readString() }
 
-        val templates = loadTemplates(targetFolder, bundleSource)
+        val rawSources = loadTemplateSources(targetFolder, bundleSource)
+
+        val sources = when (targetFolder) {
+            "claude-code" -> applyClaudeConditions(rawSources, configJson?.let { decodeClaudeConfig(it) })
+            else -> rawSources
+        }
+        targetSources[targetFolder] = sources
+
+        val templates = sources.map { Template(path = it.path, bytes = it.bytes) }
+        val stub = buildStub(targetFolder, templates)
+        if (configJson != null) configParser.parse(configJson, stub).getOrThrow() else stub
+    }
+
+    private fun buildStub(targetFolder: String, templates: List<Template>): Target {
         val commands = templates.filter { isCommandFile(it.path) }
         val skills = templates.filter { it.path.contains("/skills/") }
-
-        val stub = when (targetFolder) {
-            "claude-code" -> buildClaudeCode(commands, skills, templates)
-            "opencode" -> buildOpenCode(commands, skills, templates)
-            "qwen-code" -> buildQwenCode(commands, skills, templates)
+        return when (targetFolder) {
+            "claude-code" -> ClaudeCode(
+                schemaVersion = 1, minVersion = null, mcpServers = emptyList(),
+                commands = commands, skills = skills,
+                subagents = templates.filter { it.path.contains("/subagents/") },
+                model = null, includeCoAuthoredBy = null, env = null, permissions = null, hooks = emptyMap(),
+            )
+            "opencode" -> OpenCode(
+                schemaVersion = 1, minVersion = null, mcpServers = emptyList(),
+                commands = commands, skills = skills,
+                plugins = templates.filter { it.path.endsWith(".js") || it.path.endsWith(".ts") },
+                model = null, smallModel = null, defaultAgent = null, shell = null,
+                share = null, snapshot = null, instructions = null,
+                provider = null, tools = null, permission = null, agents = null, compaction = null,
+            )
+            "qwen-code" -> QwenCode(
+                schemaVersion = 1, minVersion = null, mcpServers = emptyList(),
+                commands = commands, skills = skills,
+                subagents = templates.filter { it.path.contains("/subagents/") },
+                model = null, modelProviders = null, permissions = null, tools = null,
+                general = null, context = null, telemetry = null, hooks = emptyMap(),
+            )
             else -> throw FormatError.UnknownEnum(targetFolder, "targets[]", setOf("claude-code", "opencode", "qwen-code"))
-        }
-
-        if (configJson != null) {
-            configParser.parse(configJson, stub).getOrThrow()
-        } else {
-            stub
         }
     }
 
-    private fun buildClaudeCode(commands: List<Template>, skills: List<Template>, all: List<Template>) =
-        ClaudeCode(
-            schemaVersion = 1, minVersion = null, mcpServers = emptyList(),
-            commands = commands, skills = skills,
-            subagents = all.filter { it.path.contains("/subagents/") },
-            model = null, includeCoAuthoredBy = null, env = null, permissions = null, hooks = emptyMap(),
-        )
+    private fun decodeClaudeConfig(configJson: String): ClaudeCodeConfigDtoV1 = try {
+        json.decodeFromString<ClaudeCodeConfigDtoV1>(configJson)
+    } catch (e: IllegalArgumentException) {
+        throw FormatError.BadJson("cannot decode claude config.json: ${e.message}", e)
+    } catch (e: IllegalStateException) {
+        throw FormatError.BadJson("cannot decode claude config.json: ${e.message}", e)
+    }
 
-    private fun buildOpenCode(commands: List<Template>, skills: List<Template>, all: List<Template>) =
-        OpenCode(
-            schemaVersion = 1, minVersion = null, mcpServers = emptyList(),
-            commands = commands, skills = skills,
-            plugins = all.filter { it.path.endsWith(".js") || it.path.endsWith(".ts") },
-            model = null, smallModel = null, defaultAgent = null, shell = null,
-            share = null, snapshot = null, instructions = null,
-            provider = null, tools = null, permission = null, agents = null, compaction = null,
-        )
+    private fun applyClaudeConditions(
+        sources: List<TemplateSource>,
+        dto: ClaudeCodeConfigDtoV1?,
+    ): List<TemplateSource> {
+        if (dto == null) return sources
+        val refs = (dto.memory ?: emptyList()) + (dto.commands ?: emptyList()) +
+            (dto.skills ?: emptyList()) + (dto.agents ?: emptyList()) +
+            hookFileRefs(dto, agentPrefix = ".claude/")
+        return applyConditions(sources, refs)
+    }
 
-    private fun buildQwenCode(commands: List<Template>, skills: List<Template>, all: List<Template>) =
-        QwenCode(
-            schemaVersion = 1, minVersion = null, mcpServers = emptyList(),
-            commands = commands, skills = skills,
-            subagents = all.filter { it.path.contains("/subagents/") },
-            model = null, modelProviders = null, permissions = null, tools = null,
-            general = null, context = null, telemetry = null, hooks = emptyMap(),
-        )
+    private fun hookFileRefs(dto: ClaudeCodeConfigDtoV1, agentPrefix: String): List<FileRefDtoV1> =
+        dto.hooks?.values?.flatten()
+            .orEmpty()
+            .filter { it.command != null && it.`when` != null }
+            .map { hook ->
+                FileRefDtoV1(
+                    name = "",
+                    source = hook.command!!.removePrefix(agentPrefix),
+                    `when` = hook.`when`,
+                )
+            }
+
+    private fun applyConditions(sources: List<TemplateSource>, refs: List<FileRefDtoV1>): List<TemplateSource> {
+        if (refs.isEmpty()) return sources
+        val conditionBySource = refs.associate { it.source.trimEnd('/') to it.`when` }
+        return sources.map { src ->
+            val relPath = src.path.substringAfter('/')
+            val condition = conditionBySource.entries.firstOrNull { (key, _) ->
+                relPath == key || relPath.startsWith("$key/")
+            }?.value
+            if (condition != null) src.copy(condition = condition) else src
+        }
+    }
+
+    private fun loadTemplateSources(targetFolder: String, bundleSource: BundleSource): List<TemplateSource> =
+        bundleSource.listTargetFiles(targetFolder).getOrThrow()
+            .filter { !it.endsWith("config.json") }
+            .map { relativePath ->
+                val bytes = bundleSource.openTargetFile(targetFolder, relativePath).getOrThrow().use { it.readByteArray() }
+                TemplateSource(path = "$targetFolder/$relativePath", bytes = bytes)
+            }
+
+    private fun isCommandFile(path: String): Boolean =
+        path.contains("/commands/") || path.endsWith("CLAUDE.md") || path.endsWith("AGENTS.md") || path.endsWith("QWEN.md")
 
     private fun mapInputSpec(dto: InputSpecDtoV1): Result<InputSpec> = runCatching {
         val id = dto.id
@@ -115,17 +179,6 @@ internal class BundleManifestMapperV1(private val configParser: TargetConfigPars
             )
         }
     }
-
-    private fun loadTemplates(targetFolder: String, bundleSource: BundleSource): List<Template> =
-        bundleSource.listTargetFiles(targetFolder).getOrThrow()
-            .filter { !it.endsWith("config.json") }
-            .map { relativePath ->
-                val bytes = bundleSource.openTargetFile(targetFolder, relativePath).getOrThrow().use { it.readByteArray() }
-                Template(path = "$targetFolder/$relativePath", bytes = bytes)
-            }
-
-    private fun isCommandFile(path: String): Boolean =
-        path.contains("/commands/") || path.endsWith("CLAUDE.md") || path.endsWith("AGENTS.md") || path.endsWith("QWEN.md")
 
     private fun requireOptions(dto: InputSpecDtoV1): List<String> =
         dto.options ?: throw FormatError.MissingField("options", "inputs[${dto.id}] (type=${dto.type})")
