@@ -10,11 +10,11 @@ const T = {
       manifest: 'Manifest',
       howItWorks: 'How it works',
     },
-    heroBadge: 'Early access — v0.0.1',
+    heroBadge: 'Early access — v0.0.7',
     heroTagline: 'Deterministic template bundles for AI agents.',
     heroSubtext:
       'Pack, ship, and apply CLAUDE.md configurations with a single CLI command. Reproducible across every machine, every time.',
-    ctaDownload: 'Download v0.0.1',
+    ctaDownload: 'Download v0.0.7',
     ctaSeeHow: 'See how it works →',
     overviewLabel: 'Overview',
     overviewHeading: 'What is AI-Kit?',
@@ -75,8 +75,8 @@ const T = {
       { name: ':cli', desc: 'Entry-point binary, wires all modules together' },
     ],
     ctaHeading: 'Ready to get started?',
-    ctaBody: 'Download AI-Kit v0.0.1 and start shipping deterministic agent configurations today.',
-    ctaBtn: 'Download v0.0.1 from GitHub',
+    ctaBody: 'Download AI-Kit v0.0.7 and start shipping deterministic agent configurations today.',
+    ctaBtn: 'Download v0.0.7 from GitHub',
     footerIssues: 'Issues',
   },
   ru: {
@@ -85,11 +85,11 @@ const T = {
       manifest: 'Манифест',
       howItWorks: 'Как работает',
     },
-    heroBadge: 'Ранний доступ — v0.0.1',
+    heroBadge: 'Ранний доступ — v0.0.7',
     heroTagline: 'Детерминированные шаблонные бандлы для ИИ-агентов.',
     heroSubtext:
       'Упакуй, доставь и примени конфигурацию CLAUDE.md одной CLI-командой. Воспроизводимо на любом устройстве.',
-    ctaDownload: 'Скачать v0.0.1',
+    ctaDownload: 'Скачать v0.0.7',
     ctaSeeHow: 'Как работает →',
     overviewLabel: 'Обзор',
     overviewHeading: 'Что такое AI-Kit?',
@@ -150,8 +150,8 @@ const T = {
       { name: ':cli', desc: 'Точка входа бинарника, связывает все модули' },
     ],
     ctaHeading: 'Готов начать?',
-    ctaBody: 'Скачай AI-Kit v0.0.1 и начни поставлять детерминированные конфигурации агентов уже сегодня.',
-    ctaBtn: 'Скачать v0.0.1 с GitHub',
+    ctaBody: 'Скачай AI-Kit v0.0.7 и начни поставлять детерминированные конфигурации агентов уже сегодня.',
+    ctaBtn: 'Скачать v0.0.7 с GitHub',
     footerIssues: 'Задачи',
   },
 }
@@ -169,10 +169,14 @@ const MANIFEST_JSON = `{
 
 const CLI_COMMANDS = [
   { cmd: '# 1. Download the binary for your platform', comment: true },
-  { cmd: 'curl -L https://github.com/your-org/ai-kit-v2/releases/download/v0.0.1/ai-kit-linux -o ai-kit', comment: false },
+  { cmd: 'curl -L https://github.com/aequicor/ai-kit-v2/releases/download/v0.0.7/kit-setup-macos-arm64 -o kit-setup', comment: false },
   { cmd: '', comment: false },
-  { cmd: '# 2. Make it executable and run', comment: true },
-  { cmd: 'chmod +x ai-kit && ./ai-kit apply --bundle ./my-bundle.zip', comment: false },
+  { cmd: '# 2. Make it executable', comment: true },
+  { cmd: 'chmod +x kit-setup', comment: false },
+  { cmd: '', comment: false },
+  { cmd: '# 3. Verify manifest and generate agent config', comment: true },
+  { cmd: 'kit-setup verify .aikit/manifest.json', comment: false },
+  { cmd: 'kit-setup generate .aikit/manifest.json', comment: false },
 ]
 
 // ---------------------------------------------------------------------------
@@ -367,7 +371,7 @@ export default function App() {
             <LogoIcon className="w-7 h-7" />
             <span className="font-semibold text-gray-900 dark:text-white">AI-Kit</span>
             <span className="text-xs px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-600 dark:text-cyan-400 font-mono">
-              v0.0.1
+              v0.0.7
             </span>
           </div>
 
@@ -377,7 +381,7 @@ export default function App() {
             <a href="#manifest" className="hover:text-gray-900 dark:hover:text-white transition-colors hidden sm:block">{t.nav.manifest}</a>
             <a href="#how-it-works" className="hover:text-gray-900 dark:hover:text-white transition-colors hidden sm:block">{t.nav.howItWorks}</a>
             <a
-              href="https://github.com/your-org/ai-kit-v2"
+              href="https://github.com/aequicor/ai-kit-v2"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 hover:text-gray-900 dark:hover:text-white transition-colors"
@@ -454,7 +458,7 @@ export default function App() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
-              href="https://github.com/your-org/ai-kit-v2/releases/tag/v0.0.1"
+              href="https://github.com/aequicor/ai-kit-v2/releases/tag/v0.0.7"
               target="_blank"
               rel="noopener noreferrer"
               className="px-8 py-3.5 rounded-xl font-semibold text-sm bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-400 hover:to-blue-500 transition-all duration-200 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30"
@@ -622,7 +626,7 @@ export default function App() {
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">{t.ctaHeading}</h2>
               <p className="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">{t.ctaBody}</p>
               <a
-                href="https://github.com/your-org/ai-kit-v2/releases/tag/v0.0.1"
+                href="https://github.com/aequicor/ai-kit-v2/releases/tag/v0.0.7"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-sm bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-400 hover:to-blue-500 transition-all duration-200 shadow-lg shadow-cyan-500/20"
@@ -642,11 +646,11 @@ export default function App() {
             <LogoIcon className="w-5 h-5" />
             <span className="text-gray-500 dark:text-gray-600">AI-Kit v2</span>
             <span className="text-gray-300 dark:text-gray-700">·</span>
-            <span className="text-gray-500 dark:text-gray-600">v0.0.1</span>
+            <span className="text-gray-500 dark:text-gray-600">v0.0.7</span>
           </div>
           <div className="flex items-center gap-6">
             <a
-              href="https://github.com/your-org/ai-kit-v2"
+              href="https://github.com/aequicor/ai-kit-v2"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-gray-700 dark:hover:text-gray-400 transition-colors"
@@ -654,7 +658,7 @@ export default function App() {
               GitHub
             </a>
             <a
-              href="https://github.com/your-org/ai-kit-v2/releases"
+              href="https://github.com/aequicor/ai-kit-v2/releases"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-gray-700 dark:hover:text-gray-400 transition-colors"
@@ -662,7 +666,7 @@ export default function App() {
               Releases
             </a>
             <a
-              href="https://github.com/your-org/ai-kit-v2/issues"
+              href="https://github.com/aequicor/ai-kit-v2/issues"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-gray-700 dark:hover:text-gray-400 transition-colors"

@@ -29,16 +29,16 @@
 
 ## CLI: ручной запуск
 
-Готовые бинарники под Windows / Linux / macOS публикуются в [GitHub Releases](https://github.com/KYamshanov/ai-kit-v2/releases). Скачайте подходящий, сделайте исполняемым (`chmod +x kit-setup`) и положите в `PATH`. Локальная сборка: `cd kit-setup && ./gradlew :modules:cli:linkReleaseExecutableMacosArm64` (под нужный таргет) — бинарь окажется в `kit-setup/modules/cli/build/bin/<target>/releaseExecutable/cli.kexe`.
+Готовые бинарники под Windows / Linux / macOS публикуются в [GitHub Releases](https://github.com/aequicor/ai-kit-v2/releases). Скачайте подходящий, сделайте исполняемым (`chmod +x kit-setup`) и положите в `PATH`. Локальная сборка: `cd kit-setup && ./gradlew :modules:cli:linkReleaseExecutableMacosArm64` (под нужный таргет) — бинарь окажется в `kit-setup/modules/cli/build/bin/<target>/releaseExecutable/cli.kexe`.
 
 Все команды читают/пишут относительно текущей рабочей директории.
 
-### `kit-setup schema`
+### `kit-setup schema manifest`
 
 Печатает JSON-схему файла `.aikit/manifest.json` — общая структура (`aikitVersion`, `applications[]`, `targets`).
 
 ```bash
-kit-setup schema > .aikit/manifest.schema.json
+kit-setup schema manifest > .aikit/manifest.schema.json
 ```
 
 Удобно подцепить как `$schema` в IDE — будут работать автодополнение и валидация полей проектного манифеста.
