@@ -38,12 +38,35 @@ If the command is **not found**, download and install it automatically before co
    ```bash
    curl -fsSL https://api.github.com/repos/aequicor/ai-kit-v2/releases/latest
    ```
-   Parse the `assets` array for an asset matching the current platform/arch (e.g. `kit-setup-linux-x64`, `kit-setup-macos-arm64`, `kit-setup-windows-x64.exe`). Use the asset's `browser_download_url`.
-3. **Download** into `.aikit/bin/`:
+   Parse the `assets` array for an asset whose `name` matches the current platform/arch. Asset names follow the pattern `kit-setup-<version>-<platform>-<arch>.<ext>`:
+   - Linux x64: `kit-setup-<version>-linux-amd64.tar.gz`
+   - macOS ARM64: `kit-setup-<version>-macos-arm64.tar.gz`
+   - Windows x64: `kit-setup-<version>-windows-amd64.zip`
+
+   Use the matching asset's `browser_download_url`.
+3. **Download and extract** the archive, then place the binary and bundled bundles:
+
+   Linux/macOS:
    ```bash
    mkdir -p .aikit/bin
-   curl -fsSL <browser_download_url> -o .aikit/bin/kit-setup
-   chmod +x .aikit/bin/kit-setup          # Linux/macOS only
+   curl -fsSL <browser_download_url> -o /tmp/kit-setup-archive.tar.gz
+   tar -xzf /tmp/kit-setup-archive.tar.gz -C /tmp
+   EXTRACTED=$(tar -tzf /tmp/kit-setup-archive.tar.gz | head -1 | cut -d/ -f1)
+   cp /tmp/$EXTRACTED/kit-setup .aikit/bin/kit-setup
+   chmod +x .aikit/bin/kit-setup
+   cp -r /tmp/$EXTRACTED/bundles .aikit/bin/bundles
+   rm -rf /tmp/kit-setup-archive.tar.gz /tmp/$EXTRACTED
+   ```
+
+   Windows (PowerShell):
+   ```powershell
+   New-Item -ItemType Directory -Force -Path .aikit\bin | Out-Null
+   Invoke-WebRequest -Uri <browser_download_url> -OutFile "$env:TEMP\kit-setup-archive.zip"
+   Expand-Archive -Path "$env:TEMP\kit-setup-archive.zip" -DestinationPath "$env:TEMP\kit-setup-extracted" -Force
+   $extracted = Get-ChildItem "$env:TEMP\kit-setup-extracted" | Select-Object -First 1
+   Copy-Item "$($extracted.FullName)\kit-setup.exe" ".aikit\bin\kit-setup.exe"
+   Copy-Item -Recurse "$($extracted.FullName)\bundles" ".aikit\bin\bundles"
+   Remove-Item -Recurse -Force "$env:TEMP\kit-setup-archive.zip","$env:TEMP\kit-setup-extracted"
    ```
 4. **Extend `PATH` for this session:**
    ```bash
