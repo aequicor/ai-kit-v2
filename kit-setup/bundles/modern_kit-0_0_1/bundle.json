@@ -58,6 +58,13 @@
       "default": false
     },
     {
+      "id": "serenaMcp",
+      "type": "boolean",
+      "title": "Подключить Serena MCP?",
+      "description": "LSP-based code intelligence: навигация по символам, поиск определений, рефакторинг. Требует uv/uvx.",
+      "default": false
+    },
+    {
       "id": "strict",
       "type": "boolean",
       "title": "Strict-режим?",

@@ -36,6 +36,13 @@
       "transport": "stdio",
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-github"]
+    },
+    {
+      "when": "${bundle.input.serenaMcp}",
+      "name": "serena",
+      "transport": "stdio",
+      "command": "uvx",
+      "args": ["--from", "serena", "serena", "--project-dir", "."]
     }
   ],
 
