@@ -14,7 +14,7 @@ Before doing anything else, ask **one** question:
 
 Use the answer for every later message, question, summary and explanation **directed at the user**. Keep shell commands, file paths, JSON, code blocks and CLI output untranslated. If the user does not answer, default to English.
 
-## Step 1 — Locate the CLI
+## Step 1 — Locate or install the CLI
 
 Run:
 
@@ -22,7 +22,39 @@ Run:
 kit-setup --version
 ```
 
-If the command is not found, stop and tell the user to install `kit-setup` from the [AI-Kit GitHub Releases](https://github.com/aequicor/ai-kit-v2/releases) and put the binary on `PATH`. Do not proceed.
+If the command is found, record the version — it will go into the manifest as `aikitVersion`. Skip the rest of this step.
+
+If the command is **not found**, download and install it automatically:
+
+1. **Detect platform and architecture:**
+   - Linux/macOS: `uname -s` → `Linux` or `Darwin`; `uname -m` → `x86_64`, `aarch64`, `arm64`.
+   - Windows: check `$env:PROCESSOR_ARCHITECTURE` → `AMD64` or `ARM64`.
+
+2. **Fetch the latest release metadata:**
+   ```bash
+   curl -fsSL https://api.github.com/repos/aequicor/ai-kit-v2/releases/latest
+   ```
+   Parse the `assets` array for an asset whose `name` matches the current platform/arch (e.g. `kit-setup-linux-x64`, `kit-setup-macos-arm64`, `kit-setup-windows-x64.exe`). Use the asset's `browser_download_url`.
+
+3. **Create the install directory** inside the current project:
+   ```bash
+   mkdir -p .aikit/bin
+   ```
+
+4. **Download** the binary into `.aikit/bin/`:
+   ```bash
+   curl -fsSL <browser_download_url> -o .aikit/bin/kit-setup   # Linux/macOS
+   curl -fsSL <browser_download_url> -o .aikit/bin/kit-setup.exe  # Windows
+   chmod +x .aikit/bin/kit-setup          # Linux/macOS only
+   ```
+
+5. **Extend `PATH` for this session:**
+   ```bash
+   export PATH="$(pwd)/.aikit/bin:$PATH"   # Linux/macOS
+   $env:PATH = "$(Get-Location)\.aikit\bin;$env:PATH"  # Windows PowerShell
+   ```
+
+6. **Verify:** re-run `kit-setup --version`. If it still fails, stop and ask the user to install the binary manually from the [AI-Kit GitHub Releases](https://github.com/aequicor/ai-kit-v2/releases).
 
 Record the version — it will go into the manifest as `aikitVersion`.
 

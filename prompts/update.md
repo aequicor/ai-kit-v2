@@ -21,7 +21,7 @@ Before doing anything else, ask **one** question:
 
 Use the answer for every message directed at the user. Keep shell commands, file paths, JSON and CLI output untranslated. Default to English if the user does not answer.
 
-## Step 1 — Locate the CLI and check for a newer release
+## Step 1 — Locate or install the CLI, then check for a newer release
 
 Run:
 
@@ -29,9 +29,29 @@ Run:
 kit-setup --version
 ```
 
-If the command is missing, stop and ask the user to install `kit-setup` from the [AI-Kit GitHub Releases](https://github.com/aequicor/ai-kit-v2/releases). Do not proceed.
+If the command is **not found**, download and install it automatically before continuing:
 
-Then check whether the user is on the latest CLI:
+1. **Detect platform and architecture:**
+   - Linux/macOS: `uname -s` → `Linux` or `Darwin`; `uname -m` → `x86_64`, `aarch64`, `arm64`.
+   - Windows: check `$env:PROCESSOR_ARCHITECTURE` → `AMD64` or `ARM64`.
+2. **Fetch the latest release metadata:**
+   ```bash
+   curl -fsSL https://api.github.com/repos/aequicor/ai-kit-v2/releases/latest
+   ```
+   Parse the `assets` array for an asset matching the current platform/arch (e.g. `kit-setup-linux-x64`, `kit-setup-macos-arm64`, `kit-setup-windows-x64.exe`). Use the asset's `browser_download_url`.
+3. **Download** into `.aikit/bin/`:
+   ```bash
+   mkdir -p .aikit/bin
+   curl -fsSL <browser_download_url> -o .aikit/bin/kit-setup
+   chmod +x .aikit/bin/kit-setup          # Linux/macOS only
+   ```
+4. **Extend `PATH` for this session:**
+   ```bash
+   export PATH="$(pwd)/.aikit/bin:$PATH"
+   ```
+5. Re-run `kit-setup --version`. If it still fails, stop and ask the user to install manually.
+
+Once `kit-setup` is available, check whether the user is on the latest CLI:
 
 ```bash
 kit-setup update self --check
@@ -43,7 +63,7 @@ This prints the current version and the URL of the latest release. If the user i
 kit-setup update self
 ```
 
-The command prints a platform-specific one-liner (curl / PowerShell). Show the command to the user and let **them** execute it — replacing the running CLI binary is a privileged action the agent must not perform silently. After the user reports the upgrade is done, ask them to re-run this prompt under the new CLI so everything operates against the latest schema.
+The command prints a platform-specific one-liner (curl / PowerShell). **Execute that one-liner automatically** — capture the printed command and run it in the same session. After execution, inform the user that the CLI was updated and ask them to re-run this prompt so everything operates against the latest schema.
 
 ## Step 2 — Read the current installation
 

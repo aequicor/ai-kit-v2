@@ -14,7 +14,7 @@ Before doing anything else, ask **one** question:
 
 Use the answer for every message directed at the user. Keep shell commands, file paths and CLI output untranslated. Default to English if the user does not answer.
 
-## Step 1 — Locate the CLI
+## Step 1 — Locate or install the CLI
 
 Run:
 
@@ -22,12 +22,27 @@ Run:
 kit-setup --version
 ```
 
-If the command is missing, tell the user that the cleanest uninstall path is to:
+If the command is **not found**, download and install it automatically before continuing:
 
-1. Install `kit-setup` from the [AI-Kit GitHub Releases](https://github.com/aequicor/ai-kit-v2/releases) and re-run this prompt; **or**
-2. Delete the `.aikit/` directory and the agent-specific output folders (`.claude/`, `.opencode/`, `.qwen/`) by hand — but warn them that this is a blunt instrument: any of their own edits inside those folders will go with it.
-
-Do not proceed without the CLI unless the user explicitly opts into the manual path.
+1. **Detect platform and architecture:**
+   - Linux/macOS: `uname -s` → `Linux` or `Darwin`; `uname -m` → `x86_64`, `aarch64`, `arm64`.
+   - Windows: check `$env:PROCESSOR_ARCHITECTURE` → `AMD64` or `ARM64`.
+2. **Fetch the latest release metadata:**
+   ```bash
+   curl -fsSL https://api.github.com/repos/aequicor/ai-kit-v2/releases/latest
+   ```
+   Parse the `assets` array for an asset matching the current platform/arch (e.g. `kit-setup-linux-x64`, `kit-setup-macos-arm64`, `kit-setup-windows-x64.exe`). Use the asset's `browser_download_url`.
+3. **Download** into `.aikit/bin/`:
+   ```bash
+   mkdir -p .aikit/bin
+   curl -fsSL <browser_download_url> -o .aikit/bin/kit-setup
+   chmod +x .aikit/bin/kit-setup          # Linux/macOS only
+   ```
+4. **Extend `PATH` for this session:**
+   ```bash
+   export PATH="$(pwd)/.aikit/bin:$PATH"
+   ```
+5. Re-run `kit-setup --version`. If it still fails, tell the user that the cleanest uninstall path without the CLI is to delete the `.aikit/` directory and the agent-specific output folders (`.claude/`, `.opencode/`, `.qwen/`) by hand — but warn them that any of their own edits inside those folders will go with it. Do not proceed further.
 
 ## Step 2 — Inspect what is installed
 

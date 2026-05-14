@@ -15,7 +15,7 @@ Lock-файл — служебный артефакт CLI. Пользовате�
 ```json
 {
   "lockVersion": "1",
-  "aikitVersion": "0.0.8",
+  "aikitVersion": "0.0.9",
   "generatedAt": "",
   "applications": [
     {

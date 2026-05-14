@@ -76,6 +76,10 @@ Ready-made template files shipped inside the CLI binary, one folder per agent:
 - `templates/claude-code/` — `CLAUDE.md`, `commands/review.md`
 - `templates/opencode/` — `AGENTS.md`
 
+## Работа с бандлами
+
+При создании нового или обновлении существующего бандла в [`bundles/`](bundles/) **первым делом** читай [`bundles/README.md`](bundles/README.md) — там собраны конвенции, чек-лист и ссылки на все спецификации формата (`BUNDLE_JSON.md`, `CONFIG_JSON.md`, `TEMPLATE_MD.md`, `MANIFEST_JSON.md`).
+
 ## Code rules
 
 - **SOLID + Clean Architecture**: domain model in `core`, I/O behind interfaces (`BundleSource`, `Generator`, …). Implementations live outside the core module.
