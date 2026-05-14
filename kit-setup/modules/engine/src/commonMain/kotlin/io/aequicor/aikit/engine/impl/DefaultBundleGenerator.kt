@@ -7,7 +7,6 @@ import io.aequicor.aikit.core.domain.targets.ClaudeCode
 import io.aequicor.aikit.core.domain.targets.OpenCode
 import io.aequicor.aikit.core.domain.targets.QwenCode
 import io.aequicor.aikit.core.domain.targets.Target
-import io.aequicor.aikit.core.domain.template.Template
 import io.aequicor.aikit.engine.api.BundleGenerator
 import io.aequicor.aikit.engine.api.GenerateOptions
 import io.aequicor.aikit.engine.api.GenerateReport
@@ -19,13 +18,18 @@ import io.aequicor.aikit.engine.lock.LockFileEntry
 import io.aequicor.aikit.engine.lock.LockStore
 import io.aequicor.aikit.engine.lock.LockTarget
 import io.aequicor.aikit.engine.pipeline.InputResolver
+import io.aequicor.aikit.engine.template.TemplatePreformatter
 import io.aequicor.aikit.engine.template.TemplateRenderer
 import io.aequicor.aikit.engine.write.FileWriter
 import io.aequicor.aikit.format.AiKitFormat
-import io.aequicor.aikit.format.ParsedBundle
-import io.aequicor.aikit.format.template.TemplateSource
+import io.aequicor.aikit.format.FileRoute
+import io.aequicor.aikit.format.RouteKind
 import io.aequicor.aikit.io.fs.FsProjectManifestSource
+import io.aequicor.aikit.layout.AgentLayout
+import io.aequicor.aikit.layout.FileKind
+import io.aequicor.aikit.layout.layoutFor
 import kotlinx.io.files.Path
+import kotlinx.serialization.json.Json
 
 private const val LOCK_VERSION = "1"
 private const val LOCK_RELATIVE_PATH = ".aikit/manifest.lock.json"
@@ -46,6 +50,8 @@ internal class DefaultBundleGenerator(
     private val aikitVersion: String,
     private val now: () -> String = { "" },
 ) : BundleGenerator {
+
+    private val nativeConfigBuilder = NativeConfigBuilder(Json { prettyPrint = true })
 
     @Suppress("LongMethod", "CyclomaticComplexMethod")
     override fun generate(manifestPath: String, options: GenerateOptions): Result<GenerateReport> =
@@ -156,7 +162,7 @@ internal class DefaultBundleGenerator(
             )
         }
 
-    @Suppress("LongParameterList", "ThrowsCount")
+    @Suppress("LongParameterList", "ThrowsCount", "LongMethod")
     private fun planTarget(
         appId: String,
         appPath: String,
@@ -203,20 +209,23 @@ internal class DefaultBundleGenerator(
                 .getOrThrow()
 
             val bundleFolder = bundleFolder(target)
-            val sources = parsedBundle.targetSources[bundleFolder] ?: emptyList()
+            val plan = parsedBundle.targetPlans[bundleFolder]
+                ?: throw EngineError.BundleLoadError(
+                    rawTarget.bundle,
+                    "bundle '${rawTarget.bundle}' is missing routing plan for '$bundleFolder'",
+                )
+            val layout = layoutFor(target)
             val context = AkelContext.of(inputs.mapKeys { "bundle.input.${it.key}" })
 
-            val rendered = render(sources, inputs, context)
-            val outputRel = outputRootRelative(target, appPath)
-            val files = rendered.map { template ->
-                val templateRel = template.path.removePrefix("$bundleFolder/")
-                val relPath = "$outputRel/$templateRel"
-                PlannedFile(
-                    relPath = relPath,
-                    bytes = template.bytes,
-                    hash = hashProvider.hash(template.bytes),
-                )
+            val routedFiles = renderRoutes(plan.routes, inputs, context, layout).map { (relPath, bytes) ->
+                val finalRel = combineAppPath(appPath, relPath)
+                PlannedFile(relPath = finalRel, bytes = bytes, hash = hashProvider.hash(bytes))
             }
+            val nativeFiles = nativeConfigBuilder.build(target, plan.rawConfig, layout, inputs).map { ncf ->
+                val finalRel = combineAppPath(appPath, ncf.relPath)
+                PlannedFile(relPath = finalRel, bytes = ncf.bytes, hash = hashProvider.hash(ncf.bytes))
+            }
+            val files = routedFiles + nativeFiles
 
             PlannedTarget(
                 appId = appId,
@@ -229,23 +238,31 @@ internal class DefaultBundleGenerator(
         }
     }
 
-    private fun render(
-        sources: List<TemplateSource>,
+    private fun renderRoutes(
+        routes: List<FileRoute>,
         inputs: Map<String, AkelValue>,
         context: AkelContext,
-    ): List<Template> = sources.mapNotNull { source ->
-        val condition = source.condition
+        layout: AgentLayout,
+    ): List<Pair<String, ByteArray>> = routes.mapNotNull { route ->
+        val condition = route.condition
         if (condition != null) {
             val include = Akel.evaluate(condition, context).getOrElse { false }
             if (!include) return@mapNotNull null
         }
+        val source = route.source
         val text = source.bytes.decodeToString()
         val parts = format.parseTemplateBody(text, source.path)
             .getOrElse { throw EngineError.RenderError(source.path, "cannot parse template '${source.path}': ${it.message}", it) }
-        val renderedBytes = TemplateRenderer.render(parts, inputs, source.path)
+        val renderedText = TemplateRenderer.render(parts, inputs, source.path)
             .getOrElse { throw it as? EngineError ?: EngineError.RenderError(source.path, it.message ?: "render error", it) }
-            .encodeToByteArray()
-        Template(path = source.path, bytes = renderedBytes)
+            .let { if (source.path.endsWith(".md")) TemplatePreformatter.preformat(it) else it }
+        val bytes = renderedText.encodeToByteArray()
+        val layoutSource = when (route.kind) {
+            RouteKind.SKILL -> route.skillRelPath ?: source.path
+            else -> source.path
+        }
+        val relPath = layout.destinationFor(toFileKind(route.kind), route.name, layoutSource)
+        relPath to bytes
     }
 
     private fun writeFile(absPath: String, bytes: ByteArray) {
@@ -290,20 +307,22 @@ internal class DefaultBundleGenerator(
         )
     }
 
-    private fun outputRootRelative(target: Target, appPath: String): String {
-        val agentFolder = agentFolder(target)
+    private fun combineAppPath(appPath: String, relPath: String): String {
         val appNorm = appPath.trim().removePrefix("./").trim('/').replace('\\', '/')
-        return if (appNorm.isEmpty() || appNorm == ".") agentFolder else "$appNorm/$agentFolder"
+        val pathNorm = relPath.trimStart('/')
+        return if (appNorm.isEmpty() || appNorm == ".") pathNorm else "$appNorm/$pathNorm"
+    }
+
+    private fun toFileKind(kind: RouteKind): FileKind = when (kind) {
+        RouteKind.MEMORY -> FileKind.MEMORY
+        RouteKind.SUBAGENT -> FileKind.SUBAGENT
+        RouteKind.COMMAND -> FileKind.COMMAND
+        RouteKind.SKILL -> FileKind.SKILL
+        RouteKind.HOOK_SCRIPT -> FileKind.HOOK_SCRIPT
     }
 
     private fun absolute(projectRoot: String, relPath: String): String =
         Path(projectRoot, relPath).toString()
-
-    private fun agentFolder(target: Target): String = when (target) {
-        is ClaudeCode -> ".claude"
-        is OpenCode -> ".opencode"
-        is QwenCode -> ".qwen"
-    }
 
     private fun bundleFolder(target: Target): String = when (target) {
         is ClaudeCode -> "claude-code"

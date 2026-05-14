@@ -14,5 +14,6 @@ include(
     ":modules:akel",
     ":modules:io",
     ":modules:format",
+    ":modules:layout",
     ":modules:engine",
 )
