@@ -97,7 +97,7 @@ See [`kit-setup/BUNDLE_JSON.md`](kit-setup/BUNDLE_JSON.md) for the full specific
 
 ```json
 {
-  "aikitVersion": "0.1.0",
+  "aikitVersion": "0.1.1",
   "applications": [
     {
       "id": "root",
