@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="AI-Kit logo">
+  <!-- Indigo rounded background -->
+  <rect x="10" y="10" width="140" height="140" rx="35" fill="#6366f1"/>
+
+  <!-- Triangle network: top(80,46) bl(52,108) br(108,108) -->
+  <g stroke="#ffffff" stroke-linecap="round" fill="none">
+    <line x1="80"  y1="46"  x2="52"  y2="108" stroke-width="7"/>
+    <line x1="80"  y1="46"  x2="108" y2="108" stroke-width="7"/>
+    <line x1="52"  y1="108" x2="108" y2="108" stroke-width="7"/>
+  </g>
+
+  <!-- Nodes -->
+  <circle cx="80"  cy="46"  r="13" fill="#ffffff"/>
+  <circle cx="52"  cy="108" r="13" fill="#ffffff"/>
+  <circle cx="108" cy="108" r="13" fill="#ffffff"/>
+</svg>

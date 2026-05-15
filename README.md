@@ -14,6 +14,16 @@
 
 AI-Kit generates ready-to-use configuration for AI coding agents from reusable presets called **bundles**. One command sets a project up for an agent; another updates or removes it cleanly.
 
+## Why AI-Kit
+
+- **Portability**. Bundles are reusable across projects; connecting a preset to a new project takes a single command.
+- **Flexible configuration**. Every bundle accepts `inputs`, letting you tailor the generated config to each project's needs.
+- **Multi-agent support**. AI-Kit works with multiple AI coding agents simultaneously: Claude Code, Cursor, Codex, and more.
+- **Security**. Secrets never live in the manifest directly; values can be referenced from environment variables.
+- **Multi-profile / multi-manifest**. Connect several manifests for different working modes, e.g. separate profiles for development and CI.
+- **Open**. Apache 2.0 licensed; third-party bundles from any source can be plugged in with no friction.
+- **Simple**. To get started, paste one prompt into your agent and it configures everything automatically.
+
 ## Quick Start
 
 The simplest way — copy and paste this prompt into any AI coding agent with tool use (Claude Code, Cursor, Codex, etc.) opened in your project:

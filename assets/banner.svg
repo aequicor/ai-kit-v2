@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" role="img" aria-label="AI-Kit v2">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1020"/>
+      <stop offset="100%" stop-color="#141a35"/>
+    </linearGradient>
+    <linearGradient id="brand" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="brandH" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="60%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="360" fill="url(#bg)"/>
+
+  <!-- Grid -->
+  <g stroke="#22d3ee" stroke-opacity="0.04" stroke-width="1">
+    <line x1="0" y1="45"  x2="1200" y2="45"/>  <line x1="0" y1="90"  x2="1200" y2="90"/>
+    <line x1="0" y1="135" x2="1200" y2="135"/> <line x1="0" y1="180" x2="1200" y2="180"/>
+    <line x1="0" y1="225" x2="1200" y2="225"/> <line x1="0" y1="270" x2="1200" y2="270"/>
+    <line x1="0" y1="315" x2="1200" y2="315"/>
+    <line x1="45"  y1="0" x2="45"  y2="360"/> <line x1="90"  y1="0" x2="90"  y2="360"/>
+    <line x1="135" y1="0" x2="135" y2="360"/> <line x1="180" y1="0" x2="180" y2="360"/>
+    <line x1="225" y1="0" x2="225" y2="360"/> <line x1="270" y1="0" x2="270" y2="360"/>
+    <line x1="315" y1="0" x2="315" y2="360"/> <line x1="360" y1="0" x2="360" y2="360"/>
+    <line x1="405" y1="0" x2="405" y2="360"/> <line x1="450" y1="0" x2="450" y2="360"/>
+    <line x1="495" y1="0" x2="495" y2="360"/> <line x1="540" y1="0" x2="540" y2="360"/>
+    <line x1="585" y1="0" x2="585" y2="360"/> <line x1="630" y1="0" x2="630" y2="360"/>
+    <line x1="675" y1="0" x2="675" y2="360"/> <line x1="720" y1="0" x2="720" y2="360"/>
+    <line x1="765" y1="0" x2="765" y2="360"/> <line x1="810" y1="0" x2="810" y2="360"/>
+    <line x1="855" y1="0" x2="855" y2="360"/> <line x1="900" y1="0" x2="900" y2="360"/>
+    <line x1="945" y1="0" x2="945" y2="360"/> <line x1="990" y1="0" x2="990" y2="360"/>
+    <line x1="1035" y1="0" x2="1035" y2="360"/> <line x1="1080" y1="0" x2="1080" y2="360"/>
+    <line x1="1125" y1="0" x2="1125" y2="360"/> <line x1="1170" y1="0" x2="1170" y2="360"/>
+  </g>
+
+  <!-- Glow blobs -->
+  <ellipse cx="185" cy="180" rx="240" ry="190" fill="#7c3aed" fill-opacity="0.13"/>
+  <ellipse cx="1020" cy="180" rx="230" ry="200" fill="#22d3ee" fill-opacity="0.06"/>
+
+  <!-- Hex cluster (right) — pointy-top hexagons, r=26 -->
+  <g fill="none" stroke="url(#brandH)" stroke-opacity="0.18" stroke-width="1.2">
+    <!-- cx = 940 + col*58, cy = 45 + row*50 staggered -->
+    <polygon points="940,19  962,6   984,19  984,45  962,58  940,45"/>
+    <polygon points="998,19  1020,6  1042,19 1042,45 1020,58 998,45"/>
+    <polygon points="1056,19 1078,6  1100,19 1100,45 1078,58 1056,45"/>
+    <polygon points="1114,19 1136,6  1158,19 1158,45 1136,58 1114,45"/>
+    <polygon points="969,69  991,56  1013,69 1013,95 991,108  969,95"/>
+    <polygon points="1027,69 1049,56 1071,69 1071,95 1049,108 1027,95"/>
+    <polygon points="1085,69 1107,56 1129,69 1129,95 1107,108 1085,95"/>
+    <polygon points="1143,69 1165,56 1187,69 1187,95 1165,108 1143,95"/>
+    <polygon points="940,119  962,106 984,119 984,145 962,158 940,145"/>
+    <polygon points="998,119  1020,106 1042,119 1042,145 1020,158 998,145"/>
+    <polygon points="1056,119 1078,106 1100,119 1100,145 1078,158 1056,145"/>
+    <polygon points="1114,119 1136,106 1158,119 1158,145 1136,158 1114,145"/>
+    <polygon points="969,169  991,156 1013,169 1013,195 991,208  969,195"/>
+    <polygon points="1027,169 1049,156 1071,169 1071,195 1049,208 1027,195"/>
+    <polygon points="1085,169 1107,156 1129,169 1129,195 1107,208 1085,195"/>
+    <polygon points="1143,169 1165,156 1187,169 1187,195 1165,208 1143,195"/>
+    <polygon points="940,219  962,206 984,219 984,245 962,258 940,245"/>
+    <polygon points="998,219  1020,206 1042,219 1042,245 1020,258 998,245"/>
+    <polygon points="1056,219 1078,206 1100,219 1100,245 1078,258 1056,245"/>
+    <polygon points="1114,219 1136,206 1158,219 1158,245 1136,258 1114,245"/>
+    <polygon points="969,269  991,256 1013,269 1013,295 991,308  969,295"/>
+    <polygon points="1027,269 1049,256 1071,269 1071,295 1049,308 1027,295"/>
+    <polygon points="1085,269 1107,256 1129,269 1129,295 1107,308 1085,295"/>
+    <polygon points="940,319  962,306 984,319 984,345 962,358 940,345"/>
+    <polygon points="998,319  1020,306 1042,319 1042,345 1020,358 998,345"/>
+    <polygon points="1056,319 1078,306 1100,319 1100,345 1078,358 1056,345"/>
+  </g>
+
+  <!-- ── Logo: indigo rounded rect + triangle network (scaled from 32×32 favicon) ── -->
+  <!-- scale=4.5 → 144×144, centered at (170, 178): translate(98, 106) -->
+  <g transform="translate(98, 106) scale(4.5)">
+    <rect x="2" y="2" width="28" height="28" rx="7" fill="#6366f1"/>
+    <g stroke="#ffffff" stroke-linecap="round" fill="none">
+      <line x1="16" y1="10.4" x2="10.4" y2="21.6" stroke-width="1.4"/>
+      <line x1="16" y1="10.4" x2="21.6" y2="21.6" stroke-width="1.4"/>
+      <line x1="10.4" y1="21.6" x2="21.6" y2="21.6" stroke-width="1.4"/>
+    </g>
+    <circle cx="16"  cy="10.4" r="2.6" fill="#ffffff"/>
+    <circle cx="10.4" cy="21.6" r="2.6" fill="#ffffff"/>
+    <circle cx="21.6" cy="21.6" r="2.6" fill="#ffffff"/>
+  </g>
+
+  <!-- ── Wordmark ── -->
+  <text x="276" y="214"
+        font-family="ui-sans-serif,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif"
+        font-size="112" font-weight="800" letter-spacing="-3"
+        fill="url(#textGrad)">AI-Kit</text>
+
+  <!-- v2 subscript — bottom of wordmark -->
+  <text x="560" y="216"
+        font-family="ui-sans-serif,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif"
+        font-size="34" font-weight="700"
+        fill="#a78bfa">v2</text>
+
+  <!-- Tagline -->
+  <text x="278" y="252"
+        font-family="ui-sans-serif,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif"
+        font-size="22" font-weight="400" letter-spacing="0.3"
+        fill="#94a3b8">Configure any AI coding agent in one command</text>
+
+  <!-- Agent chips -->
+  <g font-family="ui-sans-serif,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif"
+     font-size="13" font-weight="600">
+    <rect x="278" y="272" width="122" height="26" rx="13"
+          fill="#22d3ee" fill-opacity="0.10" stroke="#22d3ee" stroke-opacity="0.45" stroke-width="1"/>
+    <text x="339" y="290" text-anchor="middle" fill="#22d3ee">Claude Code</text>
+
+    <rect x="410" y="272" width="100" height="26" rx="13"
+          fill="#a78bfa" fill-opacity="0.10" stroke="#a78bfa" stroke-opacity="0.45" stroke-width="1"/>
+    <text x="460" y="290" text-anchor="middle" fill="#a78bfa">OpenCode</text>
+
+    <rect x="520" y="272" width="100" height="26" rx="13"
+          fill="#22d3ee" fill-opacity="0.10" stroke="#22d3ee" stroke-opacity="0.45" stroke-width="1"/>
+    <text x="570" y="290" text-anchor="middle" fill="#22d3ee">QwenCode</text>
+
+    <rect x="630" y="272" width="156" height="26" rx="13"
+          fill="#1e293b" fill-opacity="0.6" stroke="#475569" stroke-opacity="0.5" stroke-width="1"/>
+    <text x="708" y="290" text-anchor="middle" fill="#64748b">Cursor · Aider (soon)</text>
+  </g>
+
+  <!-- Bottom bar -->
+  <rect x="0" y="356" width="1200" height="4" fill="url(#brand)"/>
+</svg>
