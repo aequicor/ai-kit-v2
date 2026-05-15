@@ -8,17 +8,15 @@ import { useState } from 'react'
 export function LogoIcon({ className = 'w-7 h-7' }) {
   return (
     <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#22d3ee" />
-          <stop offset="100%" stopColor="#7c3aed" />
-        </linearGradient>
-      </defs>
-      <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="url(#logoGrad)" opacity="0.2" />
-      <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="none" stroke="url(#logoGrad)" strokeWidth="1.5" />
-      <line x1="16" y1="7" x2="10" y2="22" stroke="url(#logoGrad)" strokeWidth="2" strokeLinecap="round" />
-      <line x1="16" y1="7" x2="22" y2="22" stroke="url(#logoGrad)" strokeWidth="2" strokeLinecap="round" />
-      <line x1="12" y1="17" x2="20" y2="17" stroke="url(#logoGrad)" strokeWidth="2" strokeLinecap="round" />
+      <rect x="2" y="2" width="28" height="28" rx="7" fill="#6366f1" />
+      <g stroke="#ffffff" strokeLinecap="round" fill="none">
+        <line x1="16" y1="10.4" x2="10.4" y2="21.6" strokeWidth="1.4" />
+        <line x1="16" y1="10.4" x2="21.6" y2="21.6" strokeWidth="1.4" />
+        <line x1="10.4" y1="21.6" x2="21.6" y2="21.6" strokeWidth="1.4" />
+      </g>
+      <circle cx="16"   cy="10.4" r="2.6" fill="#ffffff" />
+      <circle cx="10.4" cy="21.6" r="2.6" fill="#ffffff" />
+      <circle cx="21.6" cy="21.6" r="2.6" fill="#ffffff" />
     </svg>
   )
 }

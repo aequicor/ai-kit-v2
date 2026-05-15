@@ -7,16 +7,16 @@ export const T = {
     nav: {
       home: 'What is it?',
       start: 'Get started',
+      features: 'Features',
+      cli: 'CLI',
+      bundles: 'Bundles',
       claude: 'Claude Code',
-      opencode: 'OpenCode',
-      qwen: 'Qwen Code',
-      cursor: 'Cursor',
-      aider: 'Aider',
+      architecture: 'Architecture',
     },
     common: {
       copy: 'Copy',
       copied: 'Copied',
-      copyFull: 'Copy full prompt',
+      copyFull: 'Copy',
       copyError: "Couldn't copy — select and copy manually",
       github: 'GitHub',
       releases: 'Releases',
@@ -28,403 +28,456 @@ export const T = {
     },
     home: {
       hero: {
-        badge: 'v4.2 · Apache 2.0',
+        suffix: ' · Apache 2.0',
         title: 'AI Kit',
-        lead: 'A toolkit that gives your coding agent a project description, a structured workflow, and three commands it can follow. Describe the project once — the agent reads it at the start of every session.',
+        lead: 'A safe installer, updater, and uninstaller for AI-coding-agent configs — driven by a single manifest and reusable bundles. One command sets the project up, another updates it, a third removes it cleanly.',
         ctaStart: 'Get started',
         ctaGithub: 'Open on GitHub',
       },
       problem: {
         eyebrow: 'Why this exists',
-        title: 'What goes wrong without a process',
+        title: 'What goes wrong without it',
         items: [
           {
-            icon: '🌪',
-            title: 'Chaos on large tasks',
-            body: 'Without a plan, the agent picks a starting point at random and works in all directions. Halfway through, it loses track of what it started.',
+            icon: '🧩',
+            title: 'Configs scattered everywhere',
+            body: 'CLAUDE.md, skills, sub-agents, hooks, MCP servers — every agent expects a different layout. Doing it by hand is tedious and easy to get wrong.',
           },
           {
-            icon: '🧠',
-            title: 'No memory between sessions',
-            body: 'Every session starts blank. You re-explain the stack, the off-limits folders, the conventions — every time.',
+            icon: '👥',
+            title: 'Drift between teammates',
+            body: 'Without a single source of truth, every developer ends up with a slightly different setup. Rules diverge, skills go stale.',
           },
           {
             icon: '💥',
-            title: 'Breaks neighboring code',
-            body: 'Fixing one thing clips three others. You find out when tests go red.',
+            title: 'Hand edits get blown away',
+            body: 'Regenerating configs with a script usually means overwriting manual fixes. Nobody trusts a re-run.',
           },
           {
-            icon: '🎯',
-            title: 'Misses the target',
-            body: 'It misreads the task, writes 500 lines, and the result doesn\'t match what you needed. Revert and start over.',
+            icon: '🧹',
+            title: 'No clean uninstall',
+            body: 'Trying a new preset means hunting down stale files by hand. Half-removed configs poison the next attempt.',
           },
         ],
       },
       solution: {
         eyebrow: 'What AI Kit does',
-        title: 'Three commands that give the agent a process',
-        lead: 'Not a plugin, not a service — just files in your project that the agent reads on session start and follows.',
+        title: 'One manifest, three commands',
+        lead: 'A native CLI binary that reads .aikit/manifest.json and renders agent configs from reusable bundles. Install, update, remove — that\'s it.',
         items: [
           {
             icon: '📐',
-            title: 'Knows the project',
-            body: 'Describe the stack once in .aikit/manifest.yaml. The agent reads it at session start: language, framework, build commands, forbidden paths, conventions.',
+            title: 'Config as code',
+            body: 'A single .aikit/manifest.json describes every application in your repo, the target agents, and the chosen inputs. Edit the manifest, not the generated files.',
           },
           {
-            icon: '📋',
-            title: 'Plans before coding',
-            body: 'Every task starts with a plan: artifacts, steps, definition of done. One step, one commit — you can roll back at any point.',
+            icon: '♻️',
+            title: 'Reproducible',
+            body: 'Same manifest → same output for everyone on the team. Update or roll back with one command. No drift.',
           },
           {
-            icon: '🛑',
-            title: 'Waits at checkpoints',
-            body: 'After the plan, after risky steps, before commits. You decide what happens next — the agent holds until you say go.',
+            icon: '🔒',
+            title: 'Safe by default',
+            body: 'Writes only to .aikit/ and the target agent directories. A SHA256 lock file protects your manual edits — nothing gets overwritten without --force.',
           },
         ],
       },
-      how: {
-        eyebrow: 'What it looks like',
-        title: 'A simple loop',
-        steps: [
+      why: {
+        eyebrow: 'Why it beats hand-rolling',
+        title: 'Four guarantees you don\'t get from copy-paste',
+        items: [
           {
-            num: '1',
-            title: 'You describe the task',
-            body: 'One sentence in chat. The agent reads the project and proposes a plan.',
+            title: 'SHA256 lock file',
+            body: 'Every generated file is recorded with its SHA256 hash in .aikit/manifest.lock.json. The CLI knows exactly what it owns.',
           },
           {
-            num: '2',
-            title: 'You review the plan',
-            body: 'A list of steps and artifacts. Approve, adjust, or cancel.',
+            title: 'Drift detection',
+            body: 'If you hand-edit a generated file, the next generate skips it instead of clobbering your changes. You opt in with --force.',
           },
           {
-            num: '3',
-            title: 'The agent executes step by step',
-            body: 'One step, one commit. At checkpoints it stops and shows you the result.',
+            title: 'Clean uninstall',
+            body: 'remove deletes only what\'s in the lock file. User-created files stay untouched. No half-removed configs.',
           },
           {
-            num: '4',
-            title: 'You confirm and move on',
-            body: 'At each step: continue, correct, or stop. You stay in control.',
+            title: 'Anti-prompt-injection installer',
+            body: 'The installer prompt has hard invariants: never runs git, never writes outside .aikit/ and agent dirs, verifies the binary via SHA256 before running it.',
           },
         ],
       },
       runners: {
-        eyebrow: 'Supported environments',
-        title: 'One process — five agents',
-        lead: 'The same commands work everywhere. Switching from Cursor to Claude Code? The manifest and workflow stay the same.',
+        eyebrow: 'Supported agent',
+        title: 'Claude Code today',
+        lead: 'Bundles currently ship configs for Claude Code. The architecture is target-agnostic — more agents land as bundle targets stabilize.',
         items: [
-          { id: 'claude', name: 'Claude Code', note: 'Full support' },
-          { id: 'opencode', name: 'OpenCode', note: 'Full support' },
-          { id: 'qwen', name: 'Qwen Code', note: 'Full support' },
-          { id: 'cursor', name: 'Cursor', note: 'Rules and MCP' },
-          { id: 'aider', name: 'Aider', note: 'Conventions and prompts' },
+          { id: 'claude', name: 'Claude Code', note: 'Supported' },
         ],
       },
       cta: {
-        title: 'Want to try it?',
-        body: 'Setup takes a minute: open the agent in your project, paste the prompt, answer two questions.',
+        title: 'Try it on your repo',
+        body: 'Paste one prompt into your agent, or download the binary and run kit-setup generate. Either way, less than a minute.',
         button: 'Get started',
       },
     },
     start: {
       hero: {
-        eyebrow: 'Get started',
-        title: 'Set up in a minute',
-        lead: 'Copy the full prompt, paste it into Claude Code or OpenCode inside your project, answer two questions. The agent handles the rest.',
+        eyebrow: 'Install · Update · Remove',
+        title: 'Three commands',
+        lead: 'AI Kit is a single native binary (kit-setup) plus one JSON manifest. Drop the binary in your PATH, write a minimal manifest, then install, update, or remove.',
       },
-      setup: {
-        title: 'Setup prompt',
-        subtitle: 'Copy → paste into your agent\'s chat → answer two questions',
-        previewLabel: 'Beginning of the prompt (preview):',
-        stepsTitle: 'What happens next',
+      prompt: {
+        title: 'Easiest path: ask your agent',
+        subtitle: 'Paste this into any AI coding agent with tool use, opened in your project:',
+        body: `Read prompts/install.md from https://github.com/aequicor/ai-kit-v2 and follow
+the installation instructions for this project.`,
+      },
+      install: {
+        eyebrow: 'Install',
+        title: 'kit-setup generate',
+        lead: 'Renders the configs declared in .aikit/manifest.json into the locations the target agent expects. Writes only inside .aikit/ and the agent\'s own directories.',
+        manifestLabel: 'Minimal .aikit/manifest.json',
+        manifest: `{
+  "aikitVersion": "0.1.1",
+  "applications": [
+    {
+      "id": "root",
+      "path": ".",
+      "targets": {
+        "claude-code": {
+          "bundle": "simple-kit@0.0.1",
+          "source": "internal",
+          "inputs": {
+            "projectName": "my-app",
+            "skills": [],
+            "subagents": [],
+            "githubMcp": false,
+            "strict": true
+          }
+        }
+      }
+    }
+  ]
+}`,
+        runLabel: 'Run',
+        run: 'kit-setup generate',
+        notes: [
+          'Idempotent: re-running with the same manifest is a no-op.',
+          'Drift-safe: hand-edited files are preserved unless you pass --force.',
+          '--dry-run shows the plan without touching the filesystem.',
+        ],
+      },
+      update: {
+        eyebrow: 'Update',
+        title: 'kit-setup update',
+        lead: 'Refresh the install from the current manifest — picks up bundle/version changes and re-applies inputs. Use --dry-run first to see the diff.',
+        sub: [
+          { cmd: 'kit-setup update', body: 'Re-render from the current manifest.' },
+          { cmd: 'kit-setup update --dry-run', body: 'Show what would change without writing.' },
+          { cmd: 'kit-setup update self --check', body: 'Show the current CLI version and the latest release link.' },
+        ],
+      },
+      remove: {
+        eyebrow: 'Remove',
+        title: 'kit-setup remove',
+        lead: 'Uninstalls everything AI Kit added. Only files recorded in .aikit/manifest.lock.json are deleted — nothing else.',
+        sub: [
+          { cmd: 'kit-setup remove', body: 'Delete every tracked file plus the manifest and lock.' },
+          { cmd: 'kit-setup remove --keep-manifest', body: 'Delete generated files but keep .aikit/manifest.json and the lock.' },
+          { cmd: 'kit-setup remove --dry-run', body: 'Show what would be removed without touching the filesystem.' },
+          { cmd: 'kit-setup remove --force', body: 'Also delete files you hand-edited (drift); without --force, drifted files stay.' },
+        ],
+      },
+      install_binary: {
+        title: 'Get the binary',
+        body: 'One native executable per platform — no JVM required. Download from the releases page; the filename is kit-setup-<linux|macos|windows.exe>.',
+        link: 'Latest release →',
+      },
+    },
+    features: {
+      hero: {
+        eyebrow: 'Features',
+        title: 'What you get',
+        lead: 'Every item below is wired in the current binary. Each card maps to a real piece of code — no roadmap items, no maybes.',
+      },
+      sections: [
+        {
+          group: 'Manifest & inputs',
+          items: [
+            { title: 'Manifest as source of truth', body: '.aikit/manifest.json describes every application in the repo: its id, path, target agents, and the input values for each bundle. Edit the manifest, not the generated files.' },
+            { title: 'Multiple manifests / modes', body: 'Pick the manifest via --manifest, --mode <name>, env AIKIT_MANIFEST or AIKIT_MODE, .aikit/local.properties, or the default .aikit/manifest.json. Resolved in that order.' },
+            { title: 'Monorepo-friendly', body: 'The applications array lets you describe backend / frontend / infra in one manifest and generate a distinct configuration for each path.' },
+            { title: 'Bundle inputs', body: 'Bundles declare bool / select / multiselect / string / int / double inputs. Inputs gate which files end up in the project and are substituted into templates via ${bundle.input.<id>}.' },
+            { title: 'Conditional generation (akel)', body: 'Tiny expression language used in config.json when-clauses and templates — flip files or sections on/off depending on input values.' },
+          ],
+        },
+        {
+          group: 'Bundles',
+          items: [
+            { title: 'Internal registry + external sources', body: 'source: "internal" picks bundles compiled into the binary; a relative path points at your own .zip or folder. Reference format is name@version.' },
+            { title: 'JSON Schema export', body: 'kit-setup schema manifest and kit-setup schema bundle <ref> emit valid JSON Schema for IDE autocomplete and validation.' },
+            { title: 'Bundle catalog', body: 'kit-setup schema bundle --list prints every bundle compiled into the binary, with its version.' },
+          ],
+        },
+        {
+          group: 'Safety',
+          items: [
+            { title: 'Idempotent generate', body: 'A SHA256 hash of every generated file is recorded in .aikit/manifest.lock.json. Re-running generate touches nothing if content is identical.' },
+            { title: 'Drift detection', body: 'Hand-edit a generated file and the next generate leaves it alone. Override with --force only when you mean it.' },
+            { title: 'Dry-run everywhere', body: 'generate, update, and remove all accept --dry-run — print the plan, write nothing.' },
+            { title: 'Safe wipe on bundle change', body: 'When you switch bundle or version, old files are deleted only after the new plan builds successfully. A broken new manifest never destroys a working install.' },
+            { title: 'Clean uninstall', body: 'remove deletes only files in the lock. User-created files are never touched. --keep-manifest preserves the manifest; --force overrides drift protection.' },
+            { title: 'Verify without writing', body: 'kit-setup verify (or verify --all) validates one or every manifest in .aikit/ — no rendering, no writes.' },
+            { title: 'Anti-prompt-injection installer', body: 'The installer prompt has hard invariants: never runs git, never writes YAML, verifies the binary via SHA256 before executing, and only writes to .aikit/ and target agent directories.' },
+          ],
+        },
+        {
+          group: 'Distribution',
+          items: [
+            { title: 'Native binary, no JVM', body: 'Built with Kotlin Multiplatform for linuxX64, macosArm64, mingwX64. Drop one file in your PATH and you\'re done.' },
+            { title: 'Self-update check', body: 'kit-setup update self --check reports the current version and a link to the latest release.' },
+          ],
+        },
+      ],
+    },
+    cli: {
+      hero: {
+        eyebrow: 'CLI reference',
+        title: 'kit-setup',
+        lead: 'A handful of subcommands. Every operation that writes accepts --dry-run, every manifest-aware command accepts --manifest and --mode.',
+      },
+      resolution: {
+        title: 'Manifest resolution',
+        lead: 'The manifest file is picked in this order — first match wins:',
         steps: [
-          'The agent asks which language to use for setup (English / Russian).',
-          'Scans your project and asks which agent and model family to use.',
-          'Shows a draft .aikit/manifest.yaml and waits for your approval.',
-          'Downloads kit-setup, verifies the manifest, generates files, commits.',
+          '--manifest <path> (explicit)',
+          '--mode <name> → .aikit/manifest.<name>.json',
+          'env AIKIT_MANIFEST',
+          'env AIKIT_MODE',
+          '.aikit/local.properties → manifest= field',
+          '.aikit/manifest.json (default)',
         ],
       },
-      files: {
-        eyebrow: 'Result',
-        title: 'What lands in your project',
-        lead: 'One manifest and a set of files for the chosen agent. Your existing source code is left alone.',
-        tree: [
-          { path: '.aikit/manifest.yaml', note: 'single YAML for the whole project' },
-          { path: '.aikit/bin/kit-setup', note: 'binary (in .gitignore)' },
-          { path: 'CLAUDE.md / AGENTS.md / CONVENTIONS.md', note: 'agent-facing instructions, varies by agent' },
-          { path: '.claude/ or .opencode/ or .qwen/ or .cursor/', note: 'sub-agents, slash commands, skills' },
+      commands: [
+        {
+          name: 'generate [MANIFEST]',
+          summary: 'Render configs from the manifest.',
+          flags: [
+            ['--manifest <path>', 'Explicit manifest file.'],
+            ['--mode <name>', 'Shorthand for --manifest .aikit/manifest.<name>.json.'],
+            ['--dry-run', 'Show the plan without writing files.'],
+            ['--force', 'Overwrite files modified since last generate (drift).'],
+            ['--clean', 'Wipe previously generated files before applying.'],
+          ],
+        },
+        {
+          name: 'update [MANIFEST]',
+          summary: 'Refresh the install from the current manifest.',
+          flags: [
+            ['--manifest <path>', 'Explicit manifest file.'],
+            ['--mode <name>', 'Mode shorthand.'],
+            ['--dry-run', 'Show the plan only.'],
+            ['--force', 'Overwrite drifted files.'],
+          ],
+        },
+        {
+          name: 'update self',
+          summary: 'Show current CLI version and latest release link.',
+          flags: [
+            ['--check', 'Print current version and link to the latest release.'],
+          ],
+        },
+        {
+          name: 'remove [MANIFEST]',
+          summary: 'Uninstall every file recorded in the lock.',
+          flags: [
+            ['--manifest <path>', 'Explicit manifest file.'],
+            ['--mode <name>', 'Mode shorthand.'],
+            ['--dry-run', 'Show what would be deleted.'],
+            ['--force', 'Also delete files you hand-edited (drift).'],
+            ['--keep-manifest', 'Keep .aikit/manifest.json and the lock file.'],
+          ],
+        },
+        {
+          name: 'verify [MANIFEST]',
+          summary: 'Validate a manifest without writing anything.',
+          flags: [
+            ['--manifest <path>', 'Explicit manifest file.'],
+            ['--mode <name>', 'Mode shorthand.'],
+            ['--all', 'Validate every manifest file under .aikit/.'],
+          ],
+        },
+        {
+          name: 'schema manifest',
+          summary: 'Print the JSON Schema for .aikit/manifest.json.',
+          flags: [],
+        },
+        {
+          name: 'schema bundle [REF]',
+          summary: 'Print the JSON Schema for a bundle (or list bundled ones).',
+          flags: [
+            ['REF', 'Bundle reference: directory path, .zip, zip:<path>, or embedded:<name>[@<version>].'],
+            ['--base-dir <dir>', 'Base directory for resolving relative REF paths.'],
+            ['--list', 'List every bundle compiled into the binary.'],
+          ],
+        },
+      ],
+      exitTitle: 'Exit codes',
+      exit: [
+        { code: '0', body: 'Success.' },
+        { code: '1', body: 'Manifest invalid or validation failed.' },
+        { code: '2', body: 'Usage error or I/O failure.' },
+      ],
+    },
+    bundles: {
+      hero: {
+        eyebrow: 'Bundles',
+        title: 'Reusable presets',
+        lead: 'A bundle is a folder with a bundle.json manifest and one subfolder per target agent. Bundles ship inside the CLI binary or you can point at a .zip / directory of your own.',
+      },
+      manifest: {
+        title: 'bundle.json',
+        lead: 'The bundle manifest declares schema version, identity, targets, and inputs.',
+        fields: [
+          ['schemaVersion', 'int', 'Format version; bump on breaking changes.'],
+          ['name', 'string', 'Unique kebab-case identifier.'],
+          ['version', 'string', 'SemVer of the bundle.'],
+          ['description', 'string', 'One-line summary.'],
+          ['author', 'string?', 'Optional author info.'],
+          ['license', 'string?', 'Optional SPDX identifier.'],
+          ['targets', 'string[]', 'Supported agents — one folder per target in the bundle root.'],
+          ['inputs', 'InputSpec[]', 'User-facing parameters. Empty array means no inputs.'],
         ],
       },
-      commands: {
-        eyebrow: 'Three commands',
-        title: 'Day-to-day work',
-        lead: 'The same commands across every agent. Each one runs in a fresh chat session.',
+      inputs: {
+        title: 'Input types',
+        rows: [
+          ['bool', 'Boolean flag. Toggles presence of files under <agent>/<id>/...'],
+          ['select', 'One value from a list of options. Activates <agent>/<id>/<value>/...'],
+          ['multiselect', 'Multiple values; each activates a matching subfolder.'],
+          ['string', 'Free-form text. Substituted into templates via ${bundle.input.<id>}.'],
+          ['int', 'Integer with optional min/max bounds.'],
+          ['double', 'Floating-point with optional min/max bounds.'],
+        ],
+      },
+      layout: {
+        title: 'On-disk layout',
+        body: `<bundle-root>/
+  bundle.json
+  <agent-id>/                    # e.g. claude-code
+    config.json                  # optional layout / when-rules
+    <files and folders>...       # rendered into target paths
+  <other-agent>/...`,
+      },
+      sources: {
+        title: 'Where bundles come from',
+        items: [
+          { title: 'internal', body: 'Compiled into the kit-setup binary. List them with kit-setup schema bundle --list.' },
+          { title: 'External path', body: 'A relative path to a folder or .zip in your repo. Use source: "<relative-path>" in the manifest and reference name@version.' },
+        ],
+      },
+      shipped: {
+        title: 'Shipped with the binary',
         items: [
           {
-            name: '/kit',
-            subtitle: 'Planning',
-            body: 'Describe the task in one sentence — the agent reads the code, assesses risk, and drafts a plan with artifacts, steps, and definition of done. It stops for your approval before doing anything.',
+            name: 'simple-kit@0.0.1',
+            desc: 'Minimal starter: CLAUDE.md, optional skills, optional sub-agents, optional GitHub MCP, optional strict hooks.',
+            inputs: 'projectName, skills, subagents, githubMcp, strict',
+            targets: 'claude-code',
           },
           {
-            name: '/kit-do',
-            subtitle: 'Execution',
-            body: 'Walks through the approved plan step by step, one commit per step, with verification. At each checkpoint it shows what it built and waits for you to continue.',
-          },
-          {
-            name: '/kit-fix',
-            subtitle: 'Diagnostic recovery',
-            body: '4-stage flow: anamnesis + cause options → fix options → diff preview → commit. Skips trivial steps automatically; the confirmation before commit is always required.',
+            name: 'modern-kit@0.0.1',
+            desc: 'Kotlin-flavored: ktlint / detekt hooks, kotlin-specialist & gradle-troubleshooter sub-agents, optional Serena & KnowledgeOS MCP.',
+            inputs: 'see kit-setup schema bundle embedded:modern-kit',
+            targets: 'claude-code',
           },
         ],
       },
-      scenarios: {
-        eyebrow: 'Scenarios',
-        title: 'What this looks like in practice',
+      custom: {
+        title: 'Build your own',
+        steps: [
+          'Create a folder with bundle.json at the top and one subfolder per target agent.',
+          'Declare inputs and reference them in templates as ${bundle.input.<id>}.',
+          'Validate with kit-setup schema bundle <path>.',
+          'Reference it from a project manifest via source: "<relative-path>" and bundle: "<name>@<version>".',
+        ],
+      },
+    },
+    architecture: {
+      hero: {
+        eyebrow: 'Architecture',
+        title: 'How it\'s built',
+        lead: 'kit-setup is a Kotlin Multiplatform CLI with native targets for Linux, macOS arm64, and Windows. The docs site you\'re reading is a Vite + React SPA. Both live in one monorepo.',
+      },
+      modules: {
+        title: 'Gradle modules',
+        rows: [
+          ['core', 'Pure domain model. Bundle / project manifests, input specs, supported targets. No I/O.'],
+          ['format', 'Kotlinx serialization for manifests + JSON Schema generation.'],
+          ['io', 'Filesystem abstraction. Reads manifests and bundle sources (directories + zips).'],
+          ['engine', 'Plan → diff → apply generator, verifier, remover. Owns the lock file and SHA256 hashing.'],
+          ['layout', 'Routes generated files to the agent\'s native paths.'],
+          ['akel', 'Tiny expression language used in config.json when-clauses and templates.'],
+          ['cli', 'Clikt-based entry point. Compiles to native binary for linuxX64 / macosArm64 / mingwX64.'],
+          ['e2e', 'End-to-end tests driving the real built binary (JVM, not multiplatform).'],
+        ],
+      },
+      flow: {
+        title: 'generate flow',
+        steps: [
+          'Load and parse .aikit/manifest.json.',
+          'Resolve every referenced bundle (internal registry or external path).',
+          'Validate inputs against each bundle\'s schema.',
+          'Render templates: akel conditionals + ${bundle.input.*} substitution.',
+          'Diff the rendered plan against .aikit/manifest.lock.json.',
+          'If a bundle reference changed: wipe old files only after the plan is built successfully.',
+          'Apply the diff and write a fresh lock file.',
+        ],
+      },
+      safety: {
+        title: 'Safety mechanisms',
         items: [
-          {
-            title: 'New feature',
-            body: '/kit "add CSV export for orders". The agent reads the modules, drafts a 5-step plan, waits for approval, then /kit-do walks through them.',
-          },
-          {
-            title: 'Fix a bug',
-            body: '/kit-fix "the save button stops responding on the second click". Isolated session, doesn\'t disturb the current plan.',
-          },
-          {
-            title: 'Change stack or bump dependencies',
-            body: 'Edit stack.profiles in the manifest (e.g. add nextjs), run kit-setup generate — every config is re-rendered.',
-          },
-          {
-            title: 'Lock the agent out of legacy/',
-            body: 'Add legacy/ to policies.forbidden_patterns — the rule lands consistently in every generated file.',
-          },
-          {
-            title: 'Add a sub-agent',
-            body: 'Describe the role in agents[] (e.g. review-agent), run generate — a new file appears under .claude/agents/ or .opencode/agents/.',
-          },
-          {
-            title: 'Keep secrets out of the manifest',
-            body: 'Use ${env:VAR}, ${file:secrets/token.txt}, or ${envFile:config/prod.env:KEY} directly inside input values — secrets stay in env vars and are never committed to the manifest.',
-          },
+          { title: 'SHA256 hashing', body: 'Pure-Kotlin SHA256 (multiplatform). Same hash on every target. Used for drift detection and lock identity.' },
+          { title: 'Lock-driven removal', body: 'ProjectRemover only deletes files listed in .aikit/manifest.lock.json. Anything else is preserved.' },
+          { title: 'Plan-then-wipe', body: 'On bundle/version change, the old install is wiped only after the new plan is built. A failure aborts before any destructive write.' },
+          { title: 'Anti-prompt-injection', body: 'The installer prompt enforces strict invariants and SHA256-verifies the binary before running it.' },
         ],
       },
-      cli: {
-        eyebrow: 'For the hands-on path',
-        title: 'kit-setup CLI',
-        lead: 'If you\'d rather not hand setup to an agent, drive everything yourself. The binary is on the releases page — one file per platform.',
-        subcommands: [
-          {
-            cmd: 'kit-setup verify [<path>]',
-            body: 'Validates the manifest. Returns JSON {valid, errors[]}. Use in an edit-then-verify loop.',
-          },
-          {
-            cmd: 'kit-setup generate [<path>]',
-            body: 'Renders files. Returns JSON {ok, generated[]}. Idempotent — overwrites its own output cleanly.',
-          },
-          {
-            cmd: 'kit-setup schema [--format json|human]',
-            body: 'Catalog of bundled templates: profiles, adapters, dialects, commands, skills.',
-          },
-        ],
-        exitTitle: 'Exit codes',
-        exit: [
-          { code: '0', body: 'Success.' },
-          { code: '1', body: 'Manifest invalid (verify) or validation refused (generate).' },
-          { code: '2', body: 'Usage, manifest load, parse, or I/O failure.' },
-        ],
-        releasesLink: 'Download the binary →',
+      docs: {
+        title: 'docs/ stack',
+        body: 'Vite 5, React 18, react-router-dom (HashRouter), Tailwind CSS. Content lives as JSX + bilingual i18n.js (en/ru). The version badge fetches the latest tag from the GitHub Releases API with a six-hour localStorage cache and falls back to docs/package.json at build time.',
       },
     },
     claude: {
       hero: {
         eyebrow: 'Claude Code',
         title: 'AI Kit in Claude Code',
-        lead: 'What gets written to .claude/, how the Anthropic-specific features — sub-agents, skills, hooks — are used, and how the dialect differs from the generic one.',
+        lead: 'Today Claude Code is the supported target. Both shipped bundles render configs into the locations Claude Code expects — CLAUDE.md, .claude/agents/, .claude/commands/, .claude/skills/, .claude/hooks/, and .mcp.json.',
       },
       files: {
         eyebrow: 'Artifacts',
-        title: 'What gets written to your project',
-        lead: 'Running kit-setup generate with render_targets: [claude-code] writes exactly these files. Existing source code is untouched.',
+        title: 'What gets written',
+        lead: 'kit-setup generate writes only the files declared by the chosen bundle. Your source code is untouched, and every file is tracked in .aikit/manifest.lock.json.',
         rows: [
-          { path: 'CLAUDE.md', purpose: 'Main instruction file: project conventions, forbidden patterns, the body of the Main agent. Claude Code reads this at the start of every session.' },
-          { path: '.claude/agents/*.md', purpose: 'Sub-agents — isolated one-shot contexts that Main dispatches via the Task tool. Default: Researcher.' },
-          { path: '.claude/commands/*.md', purpose: 'Slash commands /kit, /kit-do, /kit-fix. Each file\'s body is the prompt Claude Code substitutes when invoked.' },
-          { path: '.claude/skills/*/SKILL.md', purpose: 'Skills with auto-triggers driven by their descriptions. Covers plan format, debug flow, cause hypotheses, fix options, and more.' },
-          { path: '.claude/prompts/*.md', purpose: 'Helper prompts for manual use. Not auto-invoked — paste into chat when needed.' },
-          { path: '.claude/settings.json', purpose: 'Permissions, Bash allowlist, env. Ships with sensible defaults.' },
-          { path: '.mcp.json', purpose: 'Project-scoped MCP servers. Only emitted when manifest tools[] has an enabled mcp-* entry.' },
-          { path: '.claude/hooks/*.mjs', purpose: 'Optional. Auto-checks on PreToolUse / PostToolUse / Stop. For example: block Edit outside permitted directories.' },
+          { path: 'CLAUDE.md', purpose: 'Main instruction file Claude Code loads at session start: project description, conventions, AI Kit fingerprint section.' },
+          { path: '.claude/agents/*.md', purpose: 'Sub-agents Claude Code dispatches via the Task tool (e.g. kotlin-specialist, gradle-troubleshooter in modern-kit).' },
+          { path: '.claude/commands/*.md', purpose: 'Slash commands. Each file body is the prompt Claude Code substitutes when the command is invoked.' },
+          { path: '.claude/skills/*/SKILL.md', purpose: 'Auto-triggered skills. Description-matched by Claude Code on user intent.' },
+          { path: '.claude/hooks/*.mjs', purpose: 'Optional pre/post tool-use hooks emitted when strict mode is enabled.' },
+          { path: '.claude/settings.json', purpose: 'Permissions, Bash allowlist, env.' },
+          { path: '.mcp.json', purpose: 'Project-scoped MCP servers. Only emitted when the bundle\'s MCP inputs are turned on.' },
         ],
       },
-      features: {
-        eyebrow: 'Claude Code features',
-        title: 'What AI Kit uses in this environment',
+      bundles: {
+        eyebrow: 'Bundles',
+        title: 'Which bundle to start with',
         items: [
-          {
-            title: 'Sub-agents via the Task tool',
-            body: 'Each file in .claude/agents/ is an isolated one-shot context. Main dispatches them with the built-in Task tool when it needs to keep heavy research out of the main conversation. They return one message — a compact digest.',
-          },
-          {
-            title: 'Auto-triggered skills',
-            body: 'Each SKILL.md has a description. Claude Code matches user intent against it and loads the skill automatically. AI Kit uses this to enforce the format of planning blocks.',
-          },
-          {
-            title: 'Hooks for guardrails',
-            body: 'PreToolUse can block a tool call (e.g. Bash with rm -rf), PostToolUse can add a check after Edit, Stop can do a final validation. All hooks are plain .mjs files inside the project.',
-          },
-          {
-            title: 'Permissions in settings.json, MCP in .mcp.json',
-            body: 'Bash allowlist and write permissions live in .claude/settings.json. Project-scoped MCP servers live in .mcp.json at the repo root. Both are plain files reviewable like any other code.',
-          },
+          { title: 'simple-kit@0.0.1', body: 'Minimal: CLAUDE.md + optional skills, sub-agents, GitHub MCP, strict hooks. A clean baseline you can extend.' },
+          { title: 'modern-kit@0.0.1', body: 'Kotlin-flavored: ktlint / detekt hooks, kotlin-specialist and gradle-troubleshooter sub-agents, optional Serena and KnowledgeOS MCP.' },
         ],
       },
-      dialect: {
-        eyebrow: 'Anthropic dialect',
-        title: 'How prompts differ from generic',
-        lead: 'Wrappers in dialects/anthropic/ are written for Claude\'s native APIs: they reference the Task tool by name, use structured XML tags for long context, and read more like instructions to a colleague than directives to a machine. The generic dialect for non-Anthropic models is more directive and skips Claude-specific affordances.',
-      },
-    },
-    opencode: {
-      hero: {
-        eyebrow: 'OpenCode',
-        title: 'AI Kit in OpenCode',
-        lead: 'Same three commands, same manifest — different files. OpenCode supports sub-agents and slash commands, but uses TypeScript plugins instead of hooks.',
-      },
-      files: {
-        eyebrow: 'Artifacts',
-        title: 'What gets written to your project',
-        lead: 'Running kit-setup generate with render_targets: [opencode] writes these files.',
-        rows: [
-          { path: 'AGENTS.md', purpose: 'Main instruction file — the OpenCode equivalent of CLAUDE.md.' },
-          { path: '.opencode/agents/*.md', purpose: 'Sub-agents, each with their own permission set.' },
-          { path: '.opencode/commands/*.md', purpose: 'Slash commands /kit, /kit-do, /kit-fix.' },
-          { path: '.opencode/skills/*/SKILL.md', purpose: 'Skills in the same format as Claude Code.' },
-          { path: 'opencode.json', purpose: 'Provider, model, and MCP configuration.' },
-          { path: '.opencode/plugins/*.ts', purpose: 'TypeScript plugins in place of hooks. Same guardrail effect via TypeScript modules.' },
-        ],
-      },
-      diff: {
-        eyebrow: 'Differences from Claude Code',
-        title: 'What changes and what stays the same',
-        items: [
-          {
-            title: 'No hooks — TypeScript plugins instead',
-            body: 'OpenCode doesn\'t have a hooks system. AI Kit emits .opencode/plugins/*.ts files that achieve the same guardrail effect via TypeScript modules.',
-          },
-          {
-            title: 'AGENTS.md instead of CLAUDE.md',
-            body: 'The main instruction file is AGENTS.md at the project root. Content is the same; the filename follows OpenCode\'s convention.',
-          },
-          {
-            title: 'opencode.json for model and MCP config',
-            body: 'Provider, model family, and MCP server configuration live in opencode.json at the project root.',
-          },
-        ],
-      },
-    },
-    qwen: {
-      hero: {
-        eyebrow: 'Qwen Code',
-        title: 'AI Kit in Qwen Code',
-        lead: 'Same three commands, same manifest. Qwen Code mirrors the OpenCode structure but everything lives under .qwen/.',
-      },
-      files: {
-        eyebrow: 'Artifacts',
-        title: 'What gets written to your project',
-        lead: 'Running kit-setup generate with render_targets: [qwen-code] writes these files.',
-        rows: [
-          { path: '.qwen/AGENTS.md', purpose: 'Main instruction file. Path is declared in settings.json via contextFileName.' },
-          { path: '.qwen/agents/*.md', purpose: 'Sub-agents.' },
-          { path: '.qwen/commands/*.md', purpose: 'Slash commands.' },
-          { path: '.qwen/skills/*/SKILL.md', purpose: 'Skills.' },
-          { path: '.qwen/settings.json', purpose: 'Model settings (modelProviders) and MCP servers.' },
-        ],
-      },
-      diff: {
-        eyebrow: 'Differences from OpenCode',
-        title: 'What changes',
-        items: [
-          {
-            title: 'Everything under .qwen/',
-            body: 'All agent files — agents, commands, skills, settings — live under .qwen/ instead of .opencode/.',
-          },
-          {
-            title: 'contextFileName in settings.json',
-            body: 'Qwen Code reads the main instruction file path from settings.json via contextFileName, pointing to .qwen/AGENTS.md.',
-          },
-          {
-            title: 'Generic dialect with Qwen tweaks',
-            body: 'Prompts come from dialects/qwen/ — a subdirectory of the generic dialect with minor adjustments for the model\'s context window and instruction style.',
-          },
-        ],
-      },
-    },
-    cursor: {
-      hero: {
-        eyebrow: 'Cursor',
-        title: 'AI Kit in Cursor',
-        lead: 'Partial support. No sub-agents, no slash commands. AI Kit writes the project rules as .cursor/rules/*.mdc files and adds .cursor/mcp.json for MCP servers.',
-      },
-      files: {
-        eyebrow: 'Artifacts',
-        title: 'What gets written to your project',
-        lead: 'Running kit-setup generate with render_targets: [cursor] writes these files.',
-        rows: [
-          { path: '.cursor/rules/*.mdc', purpose: 'Project rules with alwaysApply: true. Replaces CLAUDE.md / AGENTS.md for Cursor.' },
-          { path: '.cursor/mcp.json', purpose: 'MCP server configuration for Cursor.' },
-        ],
-      },
-      limits: {
-        eyebrow: 'Limitations',
-        title: 'What partial support means',
-        items: [
-          {
-            title: 'No sub-agents',
-            body: 'Cursor doesn\'t have a Task tool or equivalent. The Researcher and other sub-agents aren\'t emitted — the agent works from a single context.',
-          },
-          {
-            title: 'No slash commands',
-            body: '/kit, /kit-do, and /kit-fix aren\'t available as proper slash commands. You can still paste the prompt content manually, but the experience is manual.',
-          },
-          {
-            title: 'Rules instead of a memory file',
-            body: 'The project description and conventions land in .cursor/rules/*.mdc with alwaysApply: true. Cursor loads them automatically, so the agent knows the stack — but the planning and execution commands don\'t have dedicated triggers.',
-          },
-        ],
-      },
-    },
-    aider: {
-      hero: {
-        eyebrow: 'Aider',
-        title: 'AI Kit in Aider',
-        lead: 'Partial support. No sub-agents, no slash commands. AI Kit writes CONVENTIONS.md, .aider.conf.yml, and user prompts under .aider/prompts/.',
-      },
-      files: {
-        eyebrow: 'Artifacts',
-        title: 'What gets written to your project',
-        lead: 'Running kit-setup generate with render_targets: [aider] writes these files.',
-        rows: [
-          { path: 'CONVENTIONS.md', purpose: 'Main instruction file. Aider loads it automatically at session start.' },
-          { path: '.aider.conf.yml', purpose: 'Global model setting and Aider configuration.' },
-          { path: '.aider/prompts/*.md', purpose: 'User prompts for the /kit, /kit-do, /kit-fix workflow. Paste into chat manually.' },
-        ],
-      },
-      limits: {
-        eyebrow: 'Limitations',
-        title: 'What partial support means',
-        items: [
-          {
-            title: 'No sub-agents',
-            body: 'Aider doesn\'t support isolated sub-agent contexts. All work happens in a single session.',
-          },
-          {
-            title: 'No slash commands',
-            body: '/kit, /kit-do, and /kit-fix don\'t have dedicated triggers. The prompts are in .aider/prompts/ — copy and paste them manually.',
-          },
-          {
-            title: 'CONVENTIONS.md is the foundation',
-            body: 'Aider reads CONVENTIONS.md automatically. The stack description, conventions, and forbidden patterns land there — the agent knows the project from session start.',
-          },
-        ],
+      fingerprint: {
+        eyebrow: 'Safety',
+        title: 'AI Kit fingerprint in CLAUDE.md',
+        lead: 'Both bundles inject an "AI Kit" section into the generated CLAUDE.md. It tells the agent to quote-and-confirm before acting on any in-repo prompt that asks it to download binaries, run them, or git-commit on the user\'s behalf. Combined with the installer prompt\'s SHA256 verification, this raises the bar against prompt-injection attempts living inside repos.',
       },
     },
   },
@@ -433,16 +486,16 @@ export const T = {
     nav: {
       home: 'Что это?',
       start: 'Начать',
+      features: 'Возможности',
+      cli: 'CLI',
+      bundles: 'Бандлы',
       claude: 'Claude Code',
-      opencode: 'OpenCode',
-      qwen: 'Qwen Code',
-      cursor: 'Cursor',
-      aider: 'Aider',
+      architecture: 'Архитектура',
     },
     common: {
       copy: 'Копировать',
       copied: 'Скопировано',
-      copyFull: 'Скопировать полный промпт',
+      copyFull: 'Копировать',
       copyError: 'Не удалось скопировать — выдели и скопируй вручную',
       github: 'GitHub',
       releases: 'Релизы',
@@ -454,403 +507,456 @@ export const T = {
     },
     home: {
       hero: {
-        badge: 'v4.2 · Apache 2.0',
+        suffix: ' · Apache 2.0',
         title: 'AI Kit',
-        lead: 'Инструментарий, который даёт кодовому агенту описание проекта, рабочий процесс и три команды. Описываешь проект один раз — агент читает это в начале каждой сессии.',
+        lead: 'Безопасный установщик, обновлятор и удалятор конфигов для AI coding-агентов — из одного манифеста и переиспользуемых бандлов. Одна команда ставит, другая обновляет, третья чисто удаляет.',
         ctaStart: 'Начать',
         ctaGithub: 'Открыть на GitHub',
       },
       problem: {
         eyebrow: 'Зачем это нужно',
-        title: 'Что идёт не так без процесса',
+        title: 'Что идёт не так без него',
         items: [
           {
-            icon: '🌪',
-            title: 'Хаос на больших задачах',
-            body: 'Без плана агент берётся за всё сразу в произвольном порядке. Где-то на середине теряет нить.',
+            icon: '🧩',
+            title: 'Конфиги раскиданы по проекту',
+            body: 'CLAUDE.md, скилы, субагенты, хуки, MCP-серверы — у каждого агента своя раскладка. Делать руками долго и легко ошибиться.',
           },
           {
-            icon: '🧠',
-            title: 'Нет памяти между сессиями',
-            body: 'Каждая новая сессия начинается с нуля. Снова объясняешь стек, запрещённые папки, конвенции.',
+            icon: '👥',
+            title: 'Разные настройки у команды',
+            body: 'Без единого источника правды у каждого свой набор файлов. Правила расходятся, скилы устаревают.',
           },
           {
             icon: '💥',
-            title: 'Ломает соседний код',
-            body: 'Чинит одно, задевает три других. Узнаёшь, когда падают тесты.',
+            title: 'Ручные правки затираются',
+            body: 'Любой скрипт регенерации обычно перезаписывает то, что ты подправил руками. После такого никто не доверяет повторному запуску.',
           },
           {
-            icon: '🎯',
-            title: 'Строит не то',
-            body: 'Неверно читает задачу, пишет 500 строк — результат мимо цели. Откат и сначала.',
+            icon: '🧹',
+            title: 'Нет чистой деинсталляции',
+            body: 'Попробовать новый пресет — значит руками вылавливать старые файлы. Полуудалённые конфиги отравляют следующую попытку.',
           },
         ],
       },
       solution: {
         eyebrow: 'Что делает AI Kit',
-        title: 'Три команды, которые дают агенту процесс',
-        lead: 'Не плагин и не сервис — просто файлы в проекте, которые агент читает при старте сессии и следует им.',
+        title: 'Один манифест, три команды',
+        lead: 'Нативный CLI-бинарь читает .aikit/manifest.json и рендерит конфиги агента из переиспользуемых бандлов. Install, update, remove — больше ничего.',
         items: [
           {
             icon: '📐',
-            title: 'Знает проект',
-            body: 'Описываешь стек один раз в .aikit/manifest.yaml. Агент читает при старте: язык, фреймворк, команды сборки, запрещённые пути, конвенции.',
+            title: 'Конфиг как код',
+            body: 'Один .aikit/manifest.json описывает каждое приложение в репо, целевых агентов и значения inputs. Правишь манифест, а не сгенерированные файлы.',
           },
           {
-            icon: '📋',
-            title: 'Сначала план, потом код',
-            body: 'Каждая задача начинается с плана: артефакты, шаги, критерий завершения. Один шаг — один коммит, откат в любой точке.',
+            icon: '♻️',
+            title: 'Воспроизводимо',
+            body: 'Тот же манифест → тот же результат у всей команды. Обновление и откат — одной командой. Без рассинхронизации.',
           },
           {
-            icon: '🛑',
-            title: 'Ждёт на чекпоинтах',
-            body: 'После плана, после рискованных шагов, перед коммитами. Ты решаешь, что дальше — агент стоит, пока не дашь команду.',
+            icon: '🔒',
+            title: 'Безопасно по умолчанию',
+            body: 'Пишет только в .aikit/ и каталоги целевого агента. SHA256-lock защищает ручные правки — ничего не перезатрётся без --force.',
           },
         ],
       },
-      how: {
-        eyebrow: 'Как это выглядит',
-        title: 'Простой цикл',
-        steps: [
+      why: {
+        eyebrow: 'Почему лучше ручной настройки',
+        title: 'Четыре гарантии, которых нет у copy-paste',
+        items: [
           {
-            num: '1',
-            title: 'Описываешь задачу',
-            body: 'Одним предложением в чате. Агент изучает проект и предлагает план.',
+            title: 'SHA256 lock-файл',
+            body: 'Каждый сгенерированный файл записан с SHA256-хэшем в .aikit/manifest.lock.json. CLI точно знает, что принадлежит ему.',
           },
           {
-            num: '2',
-            title: 'Смотришь план',
-            body: 'Список шагов и артефактов. Одобряешь, правишь или отменяешь.',
+            title: 'Защита от drift',
+            body: 'Если файл правлен руками, следующий generate его не трогает. Перезаписать можно только осознанно через --force.',
           },
           {
-            num: '3',
-            title: 'Агент выполняет пошагово',
-            body: 'Один шаг, один коммит. На чекпоинтах останавливается и показывает результат.',
+            title: 'Чистое удаление',
+            body: 'remove удаляет только то, что в lock. Пользовательские файлы остаются. Никаких полуудалённых конфигов.',
           },
           {
-            num: '4',
-            title: 'Подтверждаешь и двигаешься дальше',
-            body: 'На каждом шаге: продолжить, поправить или остановить. Контроль остаётся у тебя.',
+            title: 'Anti-prompt-injection установка',
+            body: 'У промпта установщика жёсткие инварианты: никогда не запускает git, не пишет вне .aikit/ и каталогов агента, проверяет SHA256 бинаря перед запуском.',
           },
         ],
       },
       runners: {
-        eyebrow: 'Поддерживаемые среды',
-        title: 'Один процесс — пять агентов',
-        lead: 'Одинаковые команды везде. Переходишь с Cursor на Claude Code? Манифест и процесс остаются те же.',
+        eyebrow: 'Поддерживаемые агенты',
+        title: 'Сегодня — Claude Code',
+        lead: 'Бандлы поставляются с конфигами для Claude Code. Архитектура target-агностичная — другие агенты появятся по мере стабилизации их targets.',
         items: [
-          { id: 'claude', name: 'Claude Code', note: 'Полная поддержка' },
-          { id: 'opencode', name: 'OpenCode', note: 'Полная поддержка' },
-          { id: 'qwen', name: 'Qwen Code', note: 'Полная поддержка' },
-          { id: 'cursor', name: 'Cursor', note: 'Правила и MCP' },
-          { id: 'aider', name: 'Aider', note: 'Конвенции и промпты' },
+          { id: 'claude', name: 'Claude Code', note: 'Поддерживается' },
         ],
       },
       cta: {
-        title: 'Хочешь попробовать?',
-        body: 'Настройка занимает минуту: открой агента в своём проекте, вставь промпт, ответь на два вопроса.',
+        title: 'Попробуй на своём репо',
+        body: 'Вставь один промпт в агента или скачай бинарь и запусти kit-setup generate. В обоих случаях меньше минуты.',
         button: 'Начать',
       },
     },
     start: {
       hero: {
-        eyebrow: 'Начало работы',
-        title: 'Настройка за минуту',
-        lead: 'Скопируй полный промпт, вставь в Claude Code или OpenCode внутри своего проекта, ответь на два вопроса. Агент сделает всё остальное.',
+        eyebrow: 'Install · Update · Remove',
+        title: 'Три команды',
+        lead: 'AI Kit — это один нативный бинарь (kit-setup) и один JSON-манифест. Положи бинарь в PATH, напиши минимальный манифест и ставь, обновляй или удаляй.',
       },
-      setup: {
-        title: 'Промпт для установки',
-        subtitle: 'Скопировать → вставить в чат агента → ответить на два вопроса',
-        previewLabel: 'Начало промпта (предпросмотр):',
-        stepsTitle: 'Что произойдёт дальше',
+      prompt: {
+        title: 'Самый простой путь: поручить агенту',
+        subtitle: 'Вставь это в любой AI coding-агент с tool use, открытый в твоём проекте:',
+        body: `Read prompts/install.md from https://github.com/aequicor/ai-kit-v2 and follow
+the installation instructions for this project.`,
+      },
+      install: {
+        eyebrow: 'Установка',
+        title: 'kit-setup generate',
+        lead: 'Рендерит конфиги, объявленные в .aikit/manifest.json, в места, ожидаемые целевым агентом. Пишет только в .aikit/ и в каталоги самого агента.',
+        manifestLabel: 'Минимальный .aikit/manifest.json',
+        manifest: `{
+  "aikitVersion": "0.1.1",
+  "applications": [
+    {
+      "id": "root",
+      "path": ".",
+      "targets": {
+        "claude-code": {
+          "bundle": "simple-kit@0.0.1",
+          "source": "internal",
+          "inputs": {
+            "projectName": "my-app",
+            "skills": [],
+            "subagents": [],
+            "githubMcp": false,
+            "strict": true
+          }
+        }
+      }
+    }
+  ]
+}`,
+        runLabel: 'Запуск',
+        run: 'kit-setup generate',
+        notes: [
+          'Идемпотентен: повторный запуск с тем же манифестом — no-op.',
+          'Бережёт ручные правки: drifted-файлы не перезатираются без --force.',
+          '--dry-run показывает план без записи в файловую систему.',
+        ],
+      },
+      update: {
+        eyebrow: 'Обновление',
+        title: 'kit-setup update',
+        lead: 'Обновляет установку из текущего манифеста — подхватывает смены бандла/версии и перерендерит inputs. --dry-run покажет дифф до применения.',
+        sub: [
+          { cmd: 'kit-setup update', body: 'Перерендерить из текущего манифеста.' },
+          { cmd: 'kit-setup update --dry-run', body: 'Показать, что изменится, без записи.' },
+          { cmd: 'kit-setup update self --check', body: 'Текущая версия CLI и ссылка на последний релиз.' },
+        ],
+      },
+      remove: {
+        eyebrow: 'Удаление',
+        title: 'kit-setup remove',
+        lead: 'Удаляет всё, что добавил AI Kit. Стирается только то, что записано в .aikit/manifest.lock.json — больше ничего.',
+        sub: [
+          { cmd: 'kit-setup remove', body: 'Удалить все трекаемые файлы вместе с манифестом и lock.' },
+          { cmd: 'kit-setup remove --keep-manifest', body: 'Удалить сгенерированные файлы, но сохранить манифест и lock.' },
+          { cmd: 'kit-setup remove --dry-run', body: 'Показать, что было бы удалено, без изменений в FS.' },
+          { cmd: 'kit-setup remove --force', body: 'Удалить и drifted-файлы (правленые руками). Без --force такие файлы остаются.' },
+        ],
+      },
+      install_binary: {
+        title: 'Скачать бинарь',
+        body: 'По одному нативному файлу на платформу — JVM не нужен. Бери со страницы релизов, имя файла: kit-setup-<linux|macos|windows.exe>.',
+        link: 'Последний релиз →',
+      },
+    },
+    features: {
+      hero: {
+        eyebrow: 'Возможности',
+        title: 'Что ты получаешь',
+        lead: 'Всё ниже реально работает в текущем бинаре. Каждая карточка ссылается на конкретный код — без roadmap-обещаний.',
+      },
+      sections: [
+        {
+          group: 'Манифест и inputs',
+          items: [
+            { title: 'Манифест как источник правды', body: '.aikit/manifest.json описывает каждое приложение в репо: id, путь, целевых агентов и значения inputs для бандла. Правишь манифест, а не сгенерированные файлы.' },
+            { title: 'Несколько манифестов / режимов', body: 'Выбор манифеста через --manifest, --mode <name>, env AIKIT_MANIFEST / AIKIT_MODE, .aikit/local.properties или дефолтный .aikit/manifest.json. В этом порядке.' },
+            { title: 'Поддержка монорепо', body: 'Массив applications позволяет описать backend / frontend / инфру в одном манифесте и сгенерировать свой конфиг для каждого пути.' },
+            { title: 'Bundle inputs', body: 'Бандлы объявляют inputs типов bool / select / multiselect / string / int / double. Inputs управляют присутствием файлов и подставляются в шаблоны через ${bundle.input.<id>}.' },
+            { title: 'Условная генерация (akel)', body: 'Маленький язык выражений в config.json when-условиях и шаблонах — включает/выключает файлы и секции по значениям inputs.' },
+          ],
+        },
+        {
+          group: 'Бандлы',
+          items: [
+            { title: 'Встроенный реестр + внешние источники', body: 'source: "internal" — бандлы, вкомпиленные в бинарь; относительный путь — твой собственный .zip или папка. Ссылка в формате name@version.' },
+            { title: 'JSON Schema export', body: 'kit-setup schema manifest и kit-setup schema bundle <ref> отдают валидные JSON Schema для автокомплита и валидации в IDE.' },
+            { title: 'Каталог бандлов', body: 'kit-setup schema bundle --list печатает все бандлы, вкомпиленные в бинарь, с их версиями.' },
+          ],
+        },
+        {
+          group: 'Безопасность',
+          items: [
+            { title: 'Идемпотентный generate', body: 'SHA256-хэш каждого сгенерированного файла лежит в .aikit/manifest.lock.json. Повторный generate не трогает ничего, если контент тот же.' },
+            { title: 'Drift detection', body: 'Поправил файл руками — следующий generate его не тронет. Перезаписать можно только через --force.' },
+            { title: 'Dry-run везде', body: 'У generate, update и remove есть --dry-run — печатает план, ничего не пишет.' },
+            { title: 'Безопасный wipe при смене бандла', body: 'При смене бандла или версии старые файлы стираются только после успешного построения нового плана. Битый манифест не сломает рабочую установку.' },
+            { title: 'Чистое удаление', body: 'remove удаляет только файлы из lock. Пользовательские не трогает. --keep-manifest сохраняет манифест, --force снимает защиту от drift.' },
+            { title: 'Verify без записи', body: 'kit-setup verify (или verify --all) проверяет один или все манифесты в .aikit/ — без рендеринга и без записи.' },
+            { title: 'Anti-prompt-injection установка', body: 'У промпта установщика жёсткие инварианты: никогда не запускает git, не пишет YAML, проверяет SHA256 бинаря перед запуском и пишет только в .aikit/ и каталоги агента.' },
+          ],
+        },
+        {
+          group: 'Дистрибуция',
+          items: [
+            { title: 'Нативный бинарь, без JVM', body: 'Kotlin Multiplatform для linuxX64, macosArm64, mingwX64. Положи один файл в PATH — готово.' },
+            { title: 'Проверка обновления CLI', body: 'kit-setup update self --check показывает текущую версию и ссылку на последний релиз.' },
+          ],
+        },
+      ],
+    },
+    cli: {
+      hero: {
+        eyebrow: 'Справочник CLI',
+        title: 'kit-setup',
+        lead: 'Несколько подкоманд. Каждая операция записи поддерживает --dry-run, каждая команда с манифестом — --manifest и --mode.',
+      },
+      resolution: {
+        title: 'Как выбирается манифест',
+        lead: 'Манифест ищется в этом порядке — первое совпадение побеждает:',
         steps: [
-          'Агент спросит, на каком языке работать (English / Русский).',
-          'Изучит проект и спросит, какой агент и семейство моделей использовать.',
-          'Покажет черновик .aikit/manifest.yaml и подождёт твоего одобрения.',
-          'Скачает kit-setup, проверит манифест, сгенерирует файлы, сделает коммит.',
+          '--manifest <path> (явно)',
+          '--mode <name> → .aikit/manifest.<name>.json',
+          'env AIKIT_MANIFEST',
+          'env AIKIT_MODE',
+          '.aikit/local.properties → поле manifest=',
+          '.aikit/manifest.json (по умолчанию)',
         ],
       },
-      files: {
-        eyebrow: 'Результат',
-        title: 'Что появится в проекте',
-        lead: 'Один манифест и набор файлов для выбранного агента. Существующий исходный код остаётся нетронутым.',
-        tree: [
-          { path: '.aikit/manifest.yaml', note: 'единый YAML для всего проекта' },
-          { path: '.aikit/bin/kit-setup', note: 'бинарник (в .gitignore)' },
-          { path: 'CLAUDE.md / AGENTS.md / CONVENTIONS.md', note: 'инструкции для агента, зависят от выбранной среды' },
-          { path: '.claude/ или .opencode/ или .qwen/ или .cursor/', note: 'субагенты, слэш-команды, скилы' },
+      commands: [
+        {
+          name: 'generate [MANIFEST]',
+          summary: 'Рендерит конфиги из манифеста.',
+          flags: [
+            ['--manifest <path>', 'Явный файл манифеста.'],
+            ['--mode <name>', 'Сокращение для --manifest .aikit/manifest.<name>.json.'],
+            ['--dry-run', 'Показать план без записи файлов.'],
+            ['--force', 'Перезаписать файлы, изменённые после последнего generate (drift).'],
+            ['--clean', 'Стереть ранее сгенерированные файлы перед применением.'],
+          ],
+        },
+        {
+          name: 'update [MANIFEST]',
+          summary: 'Обновляет установку из текущего манифеста.',
+          flags: [
+            ['--manifest <path>', 'Явный файл манифеста.'],
+            ['--mode <name>', 'Сокращение для режима.'],
+            ['--dry-run', 'Только показать план.'],
+            ['--force', 'Перезаписать drifted-файлы.'],
+          ],
+        },
+        {
+          name: 'update self',
+          summary: 'Текущая версия CLI и ссылка на последний релиз.',
+          flags: [
+            ['--check', 'Печатает текущую версию и ссылку на последний релиз.'],
+          ],
+        },
+        {
+          name: 'remove [MANIFEST]',
+          summary: 'Удаляет каждый файл, записанный в lock.',
+          flags: [
+            ['--manifest <path>', 'Явный файл манифеста.'],
+            ['--mode <name>', 'Сокращение для режима.'],
+            ['--dry-run', 'Показать, что было бы удалено.'],
+            ['--force', 'Удалить и drifted-файлы.'],
+            ['--keep-manifest', 'Сохранить .aikit/manifest.json и lock.'],
+          ],
+        },
+        {
+          name: 'verify [MANIFEST]',
+          summary: 'Проверяет манифест без записи.',
+          flags: [
+            ['--manifest <path>', 'Явный файл манифеста.'],
+            ['--mode <name>', 'Сокращение для режима.'],
+            ['--all', 'Проверить каждый файл манифеста в .aikit/.'],
+          ],
+        },
+        {
+          name: 'schema manifest',
+          summary: 'Печатает JSON Schema для .aikit/manifest.json.',
+          flags: [],
+        },
+        {
+          name: 'schema bundle [REF]',
+          summary: 'Печатает JSON Schema для бандла (или список встроенных).',
+          flags: [
+            ['REF', 'Ссылка на бандл: путь к папке, .zip, zip:<path> или embedded:<name>[@<version>].'],
+            ['--base-dir <dir>', 'База для относительных REF-путей.'],
+            ['--list', 'Список всех встроенных бандлов.'],
+          ],
+        },
+      ],
+      exitTitle: 'Коды выхода',
+      exit: [
+        { code: '0', body: 'Успех.' },
+        { code: '1', body: 'Манифест невалиден или проверка не прошла.' },
+        { code: '2', body: 'Ошибка использования или ввода-вывода.' },
+      ],
+    },
+    bundles: {
+      hero: {
+        eyebrow: 'Бандлы',
+        title: 'Переиспользуемые пресеты',
+        lead: 'Бандл — это папка с манифестом bundle.json и по одной подпапке на каждого целевого агента. Бандлы могут жить внутри бинаря или быть собственным .zip / папкой.',
+      },
+      manifest: {
+        title: 'bundle.json',
+        lead: 'Манифест бандла описывает версию схемы, идентификацию, targets и inputs.',
+        fields: [
+          ['schemaVersion', 'int', 'Версия формата; повышается при ломающих изменениях.'],
+          ['name', 'string', 'Уникальный kebab-case идентификатор.'],
+          ['version', 'string', 'SemVer бандла.'],
+          ['description', 'string', 'Краткое описание.'],
+          ['author', 'string?', 'Опционально.'],
+          ['license', 'string?', 'Опциональный SPDX-идентификатор.'],
+          ['targets', 'string[]', 'Поддерживаемые агенты — по одной папке на target в корне бандла.'],
+          ['inputs', 'InputSpec[]', 'Пользовательские параметры. Пустой массив — нет inputs.'],
         ],
       },
-      commands: {
-        eyebrow: 'Три команды',
-        title: 'Повседневная работа',
-        lead: 'Одинаковые команды для любого агента. Каждая запускается в свежей сессии чата.',
+      inputs: {
+        title: 'Типы inputs',
+        rows: [
+          ['bool', 'Булев флаг. Включает/выключает файлы под <agent>/<id>/...'],
+          ['select', 'Одно значение из списка опций. Активирует <agent>/<id>/<value>/...'],
+          ['multiselect', 'Несколько значений; каждое активирует свою подпапку.'],
+          ['string', 'Произвольный текст. Подставляется в шаблоны через ${bundle.input.<id>}.'],
+          ['int', 'Целое число с опциональными min/max.'],
+          ['double', 'Дробное число с опциональными min/max.'],
+        ],
+      },
+      layout: {
+        title: 'Раскладка на диске',
+        body: `<bundle-root>/
+  bundle.json
+  <agent-id>/                    # например claude-code
+    config.json                  # опциональные when-правила
+    <файлы и папки>...           # рендерятся в пути агента
+  <другой-агент>/...`,
+      },
+      sources: {
+        title: 'Откуда берутся бандлы',
+        items: [
+          { title: 'internal', body: 'Вкомпилены в kit-setup. Список — kit-setup schema bundle --list.' },
+          { title: 'Внешний путь', body: 'Относительный путь к папке или .zip в репо. В манифесте указываешь source: "<relative-path>" и ссылку name@version.' },
+        ],
+      },
+      shipped: {
+        title: 'Поставляются с бинарём',
         items: [
           {
-            name: '/kit',
-            subtitle: 'Планирование',
-            body: 'Описываешь задачу одним предложением — агент читает код, оценивает риски, составляет план с артефактами, шагами и критерием завершения. Останавливается и ждёт твоего одобрения.',
+            name: 'simple-kit@0.0.1',
+            desc: 'Минимальный стартер: CLAUDE.md, опциональные скилы, субагенты, GitHub MCP, strict-хуки.',
+            inputs: 'projectName, skills, subagents, githubMcp, strict',
+            targets: 'claude-code',
           },
           {
-            name: '/kit-do',
-            subtitle: 'Исполнение',
-            body: 'Проходит по утверждённому плану пошагово, один коммит на шаг, с проверкой. На каждом чекпоинте показывает результат и ждёт, когда скажешь продолжить.',
-          },
-          {
-            name: '/kit-fix',
-            subtitle: 'Диагностика и фикс',
-            body: '4 этапа: анамнез + варианты причины → варианты фикса → предпросмотр диффа → коммит. Тривиальные шаги пропускает автоматически; подтверждение перед коммитом — всегда.',
+            name: 'modern-kit@0.0.1',
+            desc: 'Kotlin-flavored: ktlint / detekt хуки, kotlin-specialist и gradle-troubleshooter, опциональные Serena и KnowledgeOS MCP.',
+            inputs: 'см. kit-setup schema bundle embedded:modern-kit',
+            targets: 'claude-code',
           },
         ],
       },
-      scenarios: {
-        eyebrow: 'Сценарии',
-        title: 'Как это выглядит на практике',
+      custom: {
+        title: 'Собрать свой',
+        steps: [
+          'Создай папку с bundle.json на верхнем уровне и по подпапке на каждого целевого агента.',
+          'Объяви inputs и ссылайся на них в шаблонах как ${bundle.input.<id>}.',
+          'Проверь kit-setup schema bundle <path>.',
+          'Подключи в манифесте проекта через source: "<relative-path>" и bundle: "<name>@<version>".',
+        ],
+      },
+    },
+    architecture: {
+      hero: {
+        eyebrow: 'Архитектура',
+        title: 'Как устроено',
+        lead: 'kit-setup — Kotlin Multiplatform CLI с нативными сборками для Linux, macOS arm64 и Windows. Сайт, который ты сейчас читаешь, — Vite + React SPA. Оба живут в одном монорепо.',
+      },
+      modules: {
+        title: 'Gradle-модули',
+        rows: [
+          ['core', 'Чистая доменная модель. Манифесты бандла/проекта, спецификации inputs, поддерживаемые targets. Без I/O.'],
+          ['format', 'Сериализация через kotlinx.serialization + генерация JSON Schema.'],
+          ['io', 'Абстракция файловой системы. Чтение манифестов и источников бандлов (папки + zip).'],
+          ['engine', 'Генератор план→дифф→применение, verifier, remover. Владелец lock-файла и SHA256.'],
+          ['layout', 'Раскладывает сгенерированные файлы по родным путям агента.'],
+          ['akel', 'Маленький язык выражений в config.json when-условиях и шаблонах.'],
+          ['cli', 'Точка входа на Clikt. Собирается в нативный бинарь для linuxX64 / macosArm64 / mingwX64.'],
+          ['e2e', 'E2E-тесты по реальному собранному бинарю (JVM, не multiplatform).'],
+        ],
+      },
+      flow: {
+        title: 'Поток generate',
+        steps: [
+          'Загрузить и распарсить .aikit/manifest.json.',
+          'Резолвить каждый ссылочный бандл (внутренний реестр или внешний путь).',
+          'Проверить inputs против схемы каждого бандла.',
+          'Отрендерить шаблоны: akel-условия + подстановка ${bundle.input.*}.',
+          'Сравнить план с .aikit/manifest.lock.json.',
+          'Если ссылка на бандл изменилась — стереть старые файлы только после успешного плана.',
+          'Применить дифф и записать новый lock.',
+        ],
+      },
+      safety: {
+        title: 'Механизмы безопасности',
         items: [
-          {
-            title: 'Новая фича',
-            body: '/kit "добавить CSV-экспорт для заказов". Агент читает модули, составляет план из 5 шагов, ждёт одобрения, затем /kit-do проходит по ним.',
-          },
-          {
-            title: 'Исправить баг',
-            body: '/kit-fix "кнопка сохранения перестаёт реагировать при втором клике". Изолированная сессия, не мешает текущему плану.',
-          },
-          {
-            title: 'Сменить стек или обновить зависимости',
-            body: 'Правишь stack.profiles в манифесте (например, добавляешь nextjs), запускаешь kit-setup generate — все конфиги перегенерируются.',
-          },
-          {
-            title: 'Закрыть агенту доступ к legacy/',
-            body: 'Добавляешь legacy/ в policies.forbidden_patterns — правило попадает во все сгенерированные файлы.',
-          },
-          {
-            title: 'Добавить субагента',
-            body: 'Описываешь роль в agents[] (например, review-agent), запускаешь generate — новый файл появляется в .claude/agents/ или .opencode/agents/.',
-          },
-          {
-            title: 'Держать секреты вне манифеста',
-            body: 'В значениях inputs пиши ${env:VAR}, ${file:secrets/token.txt} или ${envFile:config/prod.env:KEY} — секреты берутся из переменных среды и никогда не попадают в коммит.',
-          },
+          { title: 'SHA256-хэширование', body: 'Чистый Kotlin SHA256 (multiplatform). Одинаковый хэш на любой платформе. Используется для drift detection и идентичности lock.' },
+          { title: 'Удаление по lock', body: 'ProjectRemover стирает только файлы из .aikit/manifest.lock.json. Всё остальное сохраняется.' },
+          { title: 'План → wipe', body: 'При смене бандла/версии старая установка стирается только после успешного построения нового плана. Падение — abort до любой деструктивной записи.' },
+          { title: 'Anti-prompt-injection', body: 'Промпт установщика навязывает строгие инварианты и SHA256-верифицирует бинарь перед запуском.' },
         ],
       },
-      cli: {
-        eyebrow: 'Для тех, кто предпочитает контроль',
-        title: 'CLI kit-setup',
-        lead: 'Если хочешь сам управлять установкой, можно сделать всё через CLI. Бинарник на странице релизов — один файл под платформу.',
-        subcommands: [
-          {
-            cmd: 'kit-setup verify [<path>]',
-            body: 'Проверяет манифест. Возвращает JSON {valid, errors[]}. Удобен в цикле «правишь — проверяешь».',
-          },
-          {
-            cmd: 'kit-setup generate [<path>]',
-            body: 'Генерирует файлы. Возвращает JSON {ok, generated[]}. Идемпотентен — свои файлы перезаписывает чисто.',
-          },
-          {
-            cmd: 'kit-setup schema [--format json|human]',
-            body: 'Каталог встроенных шаблонов: профили, адаптеры, диалекты, команды, скилы.',
-          },
-        ],
-        exitTitle: 'Коды выхода',
-        exit: [
-          { code: '0', body: 'Успех.' },
-          { code: '1', body: 'Манифест невалиден (verify) или генерация отклонена (generate).' },
-          { code: '2', body: 'Ошибка использования, загрузки, парсинга или ввода-вывода.' },
-        ],
-        releasesLink: 'Скачать бинарник →',
+      docs: {
+        title: 'Стек docs/',
+        body: 'Vite 5, React 18, react-router-dom (HashRouter), Tailwind CSS. Контент — JSX + двуязычный i18n.js (en/ru). Бэйдж версии тянет последний tag из GitHub Releases API (кэш 6 часов в localStorage), fallback — версия из docs/package.json во время сборки.',
       },
     },
     claude: {
       hero: {
         eyebrow: 'Claude Code',
         title: 'AI Kit в Claude Code',
-        lead: 'Что попадает в .claude/, как используются субагенты, скилы и хуки, и чем диалект Anthropic отличается от универсального.',
+        lead: 'Сегодня Claude Code — единственный поддерживаемый target. Оба поставляемых бандла рендерят файлы в места, ожидаемые Claude Code: CLAUDE.md, .claude/agents/, .claude/commands/, .claude/skills/, .claude/hooks/ и .mcp.json.',
       },
       files: {
         eyebrow: 'Артефакты',
-        title: 'Что появится в проекте',
-        lead: 'Запуск kit-setup generate с render_targets: [claude-code] записывает ровно эти файлы. Существующий исходный код не трогается.',
+        title: 'Что появляется в проекте',
+        lead: 'kit-setup generate пишет только то, что объявил выбранный бандл. Исходный код не трогается, каждый файл трекается в .aikit/manifest.lock.json.',
         rows: [
-          { path: 'CLAUDE.md', purpose: 'Главный файл инструкций: конвенции проекта, запрещённые паттерны, тело основного агента. Claude Code читает его в начале каждой сессии.' },
-          { path: '.claude/agents/*.md', purpose: 'Субагенты — изолированные однократные контексты, которые основной агент запускает через Task tool. По умолчанию: Researcher.' },
-          { path: '.claude/commands/*.md', purpose: 'Слэш-команды /kit, /kit-do, /kit-fix. Тело каждого файла — это промпт, который Claude Code подставляет при вызове.' },
-          { path: '.claude/skills/*/SKILL.md', purpose: 'Скилы с авто-триггерами через описания. Покрывают формат планов, дебаг-цикл, варианты причин, варианты фикса и другое.' },
-          { path: '.claude/prompts/*.md', purpose: 'Вспомогательные промпты для ручного использования. Не вызываются автоматически — вставляешь в чат сам.' },
-          { path: '.claude/settings.json', purpose: 'Разрешения, allowlist для Bash, переменные окружения. Поставляется с разумными значениями по умолчанию.' },
-          { path: '.mcp.json', purpose: 'MCP-серверы уровня проекта. Генерируется только если в manifest tools[] есть активная запись mcp-*.' },
-          { path: '.claude/hooks/*.mjs', purpose: 'Опционально. Автопроверки на PreToolUse / PostToolUse / Stop. Например: блокировать Edit вне разрешённых директорий.' },
+          { path: 'CLAUDE.md', purpose: 'Главный файл инструкций, который Claude Code читает в начале каждой сессии: описание проекта, конвенции, AI Kit fingerprint-секция.' },
+          { path: '.claude/agents/*.md', purpose: 'Субагенты, которых Claude Code запускает через Task tool (например, kotlin-specialist и gradle-troubleshooter в modern-kit).' },
+          { path: '.claude/commands/*.md', purpose: 'Слэш-команды. Тело каждого файла — это промпт, который Claude Code подставляет при вызове.' },
+          { path: '.claude/skills/*/SKILL.md', purpose: 'Авто-триггерные скилы. Claude Code матчит описание скила с намерением пользователя.' },
+          { path: '.claude/hooks/*.mjs', purpose: 'Опциональные pre/post-tool-use хуки. Генерируются при включённом strict-режиме.' },
+          { path: '.claude/settings.json', purpose: 'Разрешения, Bash allowlist, env.' },
+          { path: '.mcp.json', purpose: 'MCP-серверы уровня проекта. Генерируется, только если в inputs включены соответствующие MCP.' },
         ],
       },
-      features: {
-        eyebrow: 'Возможности Claude Code',
-        title: 'Что AI Kit использует в этой среде',
+      bundles: {
+        eyebrow: 'Бандлы',
+        title: 'С чего начать',
         items: [
-          {
-            title: 'Субагенты через Task tool',
-            body: 'Каждый файл в .claude/agents/ — изолированный однократный контекст. Основной агент делегирует им задачи через встроенный Task tool, когда нужно не засорять основной разговор. Они возвращают одно сообщение — компактный дайджест.',
-          },
-          {
-            title: 'Авто-триггеры скилов',
-            body: 'У каждого SKILL.md есть описание. Claude Code сопоставляет намерение пользователя с ним и загружает скил автоматически. AI Kit использует это, чтобы гарантировать формат блоков планирования.',
-          },
-          {
-            title: 'Хуки-ограничители',
-            body: 'PreToolUse может заблокировать вызов инструмента (например, Bash с rm -rf), PostToolUse — добавить проверку после Edit, Stop — сделать финальную валидацию. Все хуки — обычные .mjs-файлы внутри проекта.',
-          },
-          {
-            title: 'Разрешения в settings.json, MCP в .mcp.json',
-            body: 'Allowlist для Bash и явные права на запись — в .claude/settings.json. MCP-серверы уровня проекта — в .mcp.json в корне репозитория. Оба файла рецензируются как обычный код.',
-          },
+          { title: 'simple-kit@0.0.1', body: 'Минимальный: CLAUDE.md + опциональные скилы, субагенты, GitHub MCP, strict-хуки. Чистая база, которую легко расширять.' },
+          { title: 'modern-kit@0.0.1', body: 'Kotlin-flavored: ktlint / detekt хуки, субагенты kotlin-specialist и gradle-troubleshooter, опциональные Serena и KnowledgeOS MCP.' },
         ],
       },
-      dialect: {
-        eyebrow: 'Диалект Anthropic',
-        title: 'Чем промпты отличаются от универсальных',
-        lead: 'Обёртки в dialects/anthropic/ написаны под нативные API Claude: они ссылаются на Task tool по имени, используют структурированные XML-теги для длинного контекста и читаются скорее как инструкции коллеге, а не директивы машине. Универсальный диалект для не-Anthropic моделей — более директивный, без Claude-специфичных возможностей.',
-      },
-    },
-    opencode: {
-      hero: {
-        eyebrow: 'OpenCode',
-        title: 'AI Kit в OpenCode',
-        lead: 'Те же три команды, тот же манифест — другие файлы. OpenCode поддерживает субагентов и слэш-команды, но использует TypeScript-плагины вместо хуков.',
-      },
-      files: {
-        eyebrow: 'Артефакты',
-        title: 'Что появится в проекте',
-        lead: 'Запуск kit-setup generate с render_targets: [opencode] записывает эти файлы.',
-        rows: [
-          { path: 'AGENTS.md', purpose: 'Главный файл инструкций — аналог CLAUDE.md для OpenCode.' },
-          { path: '.opencode/agents/*.md', purpose: 'Субагенты с собственным набором разрешений.' },
-          { path: '.opencode/commands/*.md', purpose: 'Слэш-команды /kit, /kit-do, /kit-fix.' },
-          { path: '.opencode/skills/*/SKILL.md', purpose: 'Скилы в том же формате, что и для Claude Code.' },
-          { path: 'opencode.json', purpose: 'Провайдер, модель и MCP-конфигурация.' },
-          { path: '.opencode/plugins/*.ts', purpose: 'TypeScript-плагины вместо хуков. Тот же ограничительный эффект через TypeScript-модули.' },
-        ],
-      },
-      diff: {
-        eyebrow: 'Отличия от Claude Code',
-        title: 'Что меняется, что остаётся',
-        items: [
-          {
-            title: 'Нет хуков — TypeScript-плагины вместо них',
-            body: 'У OpenCode нет системы хуков. AI Kit генерирует .opencode/plugins/*.ts — TypeScript-модули с тем же ограничительным эффектом.',
-          },
-          {
-            title: 'AGENTS.md вместо CLAUDE.md',
-            body: 'Главный файл инструкций — AGENTS.md в корне проекта. Содержимое то же, имя файла следует конвенции OpenCode.',
-          },
-          {
-            title: 'opencode.json для модели и MCP',
-            body: 'Провайдер, семейство моделей и MCP-серверы — в opencode.json в корне проекта.',
-          },
-        ],
-      },
-    },
-    qwen: {
-      hero: {
-        eyebrow: 'Qwen Code',
-        title: 'AI Kit в Qwen Code',
-        lead: 'Те же три команды, тот же манифест. Qwen Code повторяет структуру OpenCode, но все файлы лежат в .qwen/.',
-      },
-      files: {
-        eyebrow: 'Артефакты',
-        title: 'Что появится в проекте',
-        lead: 'Запуск kit-setup generate с render_targets: [qwen-code] записывает эти файлы.',
-        rows: [
-          { path: '.qwen/AGENTS.md', purpose: 'Главный файл инструкций. Путь объявлен в settings.json через contextFileName.' },
-          { path: '.qwen/agents/*.md', purpose: 'Субагенты.' },
-          { path: '.qwen/commands/*.md', purpose: 'Слэш-команды.' },
-          { path: '.qwen/skills/*/SKILL.md', purpose: 'Скилы.' },
-          { path: '.qwen/settings.json', purpose: 'Настройки модели (modelProviders) и MCP-серверы.' },
-        ],
-      },
-      diff: {
-        eyebrow: 'Отличия от OpenCode',
-        title: 'Что меняется',
-        items: [
-          {
-            title: 'Всё в .qwen/',
-            body: 'Все файлы агента — субагенты, команды, скилы, настройки — лежат в .qwen/ вместо .opencode/.',
-          },
-          {
-            title: 'contextFileName в settings.json',
-            body: 'Qwen Code читает путь к главному файлу инструкций из settings.json через contextFileName, который указывает на .qwen/AGENTS.md.',
-          },
-          {
-            title: 'Универсальный диалект с Qwen-правками',
-            body: 'Промпты берутся из dialects/qwen/ — поддиректории универсального диалекта с небольшими поправками под контекстное окно и стиль инструкций модели.',
-          },
-        ],
-      },
-    },
-    cursor: {
-      hero: {
-        eyebrow: 'Cursor',
-        title: 'AI Kit в Cursor',
-        lead: 'Частичная поддержка. Нет субагентов, нет слэш-команд. AI Kit записывает правила проекта как .cursor/rules/*.mdc и добавляет .cursor/mcp.json для MCP-серверов.',
-      },
-      files: {
-        eyebrow: 'Артефакты',
-        title: 'Что появится в проекте',
-        lead: 'Запуск kit-setup generate с render_targets: [cursor] записывает эти файлы.',
-        rows: [
-          { path: '.cursor/rules/*.mdc', purpose: 'Правила проекта с alwaysApply: true. Заменяет CLAUDE.md / AGENTS.md для Cursor.' },
-          { path: '.cursor/mcp.json', purpose: 'Конфигурация MCP-серверов для Cursor.' },
-        ],
-      },
-      limits: {
-        eyebrow: 'Ограничения',
-        title: 'Что значит частичная поддержка',
-        items: [
-          {
-            title: 'Нет субагентов',
-            body: 'В Cursor нет Task tool или аналога. Researcher и другие субагенты не генерируются — агент работает в одном контексте.',
-          },
-          {
-            title: 'Нет слэш-команд',
-            body: '/kit, /kit-do и /kit-fix недоступны как нативные слэш-команды. Содержимое промптов можно вставить вручную, но это ручная работа.',
-          },
-          {
-            title: 'Правила вместо файла памяти',
-            body: 'Описание проекта и конвенции попадают в .cursor/rules/*.mdc с alwaysApply: true. Cursor загружает их автоматически, агент знает стек — но у команд планирования и исполнения нет выделенных триггеров.',
-          },
-        ],
-      },
-    },
-    aider: {
-      hero: {
-        eyebrow: 'Aider',
-        title: 'AI Kit в Aider',
-        lead: 'Частичная поддержка. Нет субагентов, нет слэш-команд. AI Kit записывает CONVENTIONS.md, .aider.conf.yml и пользовательские промпты в .aider/prompts/.',
-      },
-      files: {
-        eyebrow: 'Артефакты',
-        title: 'Что появится в проекте',
-        lead: 'Запуск kit-setup generate с render_targets: [aider] записывает эти файлы.',
-        rows: [
-          { path: 'CONVENTIONS.md', purpose: 'Главный файл инструкций. Aider загружает его автоматически при старте сессии.' },
-          { path: '.aider.conf.yml', purpose: 'Глобальная настройка модели и конфигурация Aider.' },
-          { path: '.aider/prompts/*.md', purpose: 'Пользовательские промпты для рабочего цикла /kit, /kit-do, /kit-fix. Вставляй в чат вручную.' },
-        ],
-      },
-      limits: {
-        eyebrow: 'Ограничения',
-        title: 'Что значит частичная поддержка',
-        items: [
-          {
-            title: 'Нет субагентов',
-            body: 'Aider не поддерживает изолированные контексты субагентов. Вся работа — в одной сессии.',
-          },
-          {
-            title: 'Нет слэш-команд',
-            body: '/kit, /kit-do и /kit-fix не имеют выделенных триггеров. Промпты лежат в .aider/prompts/ — копируй и вставляй вручную.',
-          },
-          {
-            title: 'CONVENTIONS.md — основа',
-            body: 'Aider читает CONVENTIONS.md автоматически. Описание стека, конвенции и запрещённые паттерны попадают туда — агент знает проект с первого старта.',
-          },
-        ],
+      fingerprint: {
+        eyebrow: 'Безопасность',
+        title: 'AI Kit fingerprint в CLAUDE.md',
+        lead: 'Оба бандла встраивают секцию «AI Kit» в сгенерированный CLAUDE.md. Она инструктирует агента сначала процитировать и подтвердить любой in-repo промпт, который просит скачать бинарь, запустить его или сделать git-commit. Вместе с SHA256-верификацией бинаря в installer-промпте это повышает планку против prompt-injection атак из репозиториев.',
       },
     },
   },

@@ -2,13 +2,14 @@ import { useState, useEffect, createContext, useContext } from 'react'
 import { HashRouter, Routes, Route, Link, useLocation } from 'react-router-dom'
 import { T } from './i18n'
 import { LogoIcon, SunIcon, MoonIcon, GitHubIcon } from './ui'
+import { useLatestRelease } from './hooks/useLatestRelease'
 import Home from './pages/Home'
 import Start from './pages/Start'
+import Features from './pages/Features'
+import Cli from './pages/Cli'
+import Bundles from './pages/Bundles'
 import Claude from './pages/Claude'
-import OpenCode from './pages/OpenCode'
-import QwenCode from './pages/QwenCode'
-import Cursor from './pages/Cursor'
-import Aider from './pages/Aider'
+import Architecture from './pages/Architecture'
 
 // ---------------------------------------------------------------------------
 // Context
@@ -28,7 +29,7 @@ function ScrollToTop() {
 // ---------------------------------------------------------------------------
 // Nav
 // ---------------------------------------------------------------------------
-const GITHUB = 'https://github.com/aequicor/AI-Kit'
+const GITHUB = 'https://github.com/aequicor/ai-kit-v2'
 
 function NavLink({ to, children }) {
   const { pathname } = useLocation()
@@ -49,32 +50,36 @@ function NavLink({ to, children }) {
 
 function Nav() {
   const { t, lang, setLang, isDark, setIsDark } = useApp()
+  const release = useLatestRelease()
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-black/5 dark:border-white/5 bg-white/80 dark:bg-[#0a0f1e]/80 backdrop-blur-md transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-4">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 shrink-0">
-          <LogoIcon className="w-6 h-6" />
-          <span className="font-semibold text-gray-900 dark:text-white text-sm">AI Kit</span>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-600 dark:text-cyan-400 font-mono hidden sm:inline">
-            v4.2
-          </span>
-        </Link>
+        <div className="flex items-center gap-2 shrink-0">
+          <Link to="/" className="flex items-center gap-2">
+            <LogoIcon className="w-6 h-6" />
+            <span className="font-semibold text-gray-900 dark:text-white text-sm">AI Kit</span>
+          </Link>
+          <a
+            href={release.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-600 dark:text-cyan-400 font-mono hidden sm:inline hover:border-cyan-500/40 transition-colors"
+          >
+            {release.tag}
+          </a>
+        </div>
 
-        {/* Nav links — scrollable on small screens */}
         <div className="flex items-center gap-5 text-sm overflow-x-auto scrollbar-hide flex-1 justify-center">
           <NavLink to="/">{t.nav.home}</NavLink>
           <NavLink to="/start">{t.nav.start}</NavLink>
-          <span className="text-gray-200 dark:text-white/10 hidden md:inline select-none">|</span>
+          <NavLink to="/features">{t.nav.features}</NavLink>
+          <NavLink to="/cli">{t.nav.cli}</NavLink>
+          <NavLink to="/bundles">{t.nav.bundles}</NavLink>
           <NavLink to="/claude">{t.nav.claude}</NavLink>
-          <NavLink to="/opencode">{t.nav.opencode}</NavLink>
-          <NavLink to="/qwen">{t.nav.qwen}</NavLink>
-          <NavLink to="/cursor">{t.nav.cursor}</NavLink>
-          <NavLink to="/aider">{t.nav.aider}</NavLink>
+          <NavLink to="/architecture">{t.nav.architecture}</NavLink>
         </div>
 
-        {/* Controls */}
         <div className="flex items-center gap-2 shrink-0">
           <a
             href={GITHUB}
@@ -86,7 +91,6 @@ function Nav() {
             <span className="hidden lg:inline">GitHub</span>
           </a>
 
-          {/* Language */}
           <div className="flex items-center rounded-lg border border-gray-200 dark:border-white/10 overflow-hidden text-xs font-semibold">
             <button
               onClick={() => setLang('en')}
@@ -106,7 +110,6 @@ function Nav() {
             </button>
           </div>
 
-          {/* Theme */}
           <button
             onClick={() => setIsDark((d) => !d)}
             className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-white/20 transition-colors"
@@ -125,6 +128,7 @@ function Nav() {
 // ---------------------------------------------------------------------------
 function Footer() {
   const { t } = useApp()
+  const release = useLatestRelease()
   return (
     <footer className="border-t border-black/5 dark:border-white/5 py-8 px-6 transition-colors duration-300">
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-400 dark:text-gray-600">
@@ -132,10 +136,17 @@ function Footer() {
           <LogoIcon className="w-5 h-5" />
           <span className="text-gray-500 dark:text-gray-600">AI Kit</span>
           <span className="text-gray-300 dark:text-gray-700">·</span>
-          <span className="text-gray-500 dark:text-gray-600">v4.2</span>
+          <a
+            href={release.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-500 dark:text-gray-600 hover:text-gray-700 dark:hover:text-gray-400 transition-colors"
+          >
+            {release.tag}
+          </a>
           <span className="text-gray-300 dark:text-gray-700">·</span>
           <a
-            href="https://github.com/aequicor/AI-Kit/blob/master/LICENSE"
+            href={`${GITHUB}/blob/main/LICENSE`}
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-gray-700 dark:hover:text-gray-400 transition-colors"
@@ -210,11 +221,11 @@ export default function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/start" element={<Start />} />
+              <Route path="/features" element={<Features />} />
+              <Route path="/cli" element={<Cli />} />
+              <Route path="/bundles" element={<Bundles />} />
               <Route path="/claude" element={<Claude />} />
-              <Route path="/opencode" element={<OpenCode />} />
-              <Route path="/qwen" element={<QwenCode />} />
-              <Route path="/cursor" element={<Cursor />} />
-              <Route path="/aider" element={<Aider />} />
+              <Route path="/architecture" element={<Architecture />} />
             </Routes>
           </main>
           <Footer />
