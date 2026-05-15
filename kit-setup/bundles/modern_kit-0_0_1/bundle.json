@@ -75,7 +75,7 @@
       "id": "knowledgeOsUrl",
       "type": "string",
       "title": "URL KnowledgeOS MCP",
-      "description": "SSE-эндпоинт сервера. Порт берётся из поля ports в knowledge-docker-compose.yml (формат HOST:8080 → http://localhost:HOST/mcp).",
+      "description": "HTTP-эндпоинт сервера. Порт берётся из поля ports в knowledge-docker-compose.yml (формат HOST:8080 → http://localhost:HOST/mcp).",
       "default": "http://localhost:8080/mcp"
     },
     {

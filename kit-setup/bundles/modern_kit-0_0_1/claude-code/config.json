@@ -47,7 +47,7 @@
     {
       "when": "${bundle.input.knowledgeOsMcp}",
       "name": "knowledge-os",
-      "transport": "sse",
+      "type": "http",
       "url": "${bundle.input.knowledgeOsUrl}"
     }
   ],
