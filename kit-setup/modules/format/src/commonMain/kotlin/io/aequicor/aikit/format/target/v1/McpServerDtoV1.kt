@@ -18,6 +18,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 internal data class McpServerDtoV1(
     val name: String,
+    val type: String? = null,
     val transport: String? = null,
     val command: String? = null,
     val args: List<String>? = null,
