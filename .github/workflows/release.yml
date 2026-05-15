@@ -151,8 +151,13 @@ jobs:
       - name: Mark binaries executable
         run: chmod +x dist/kit-setup-*-linux-amd64 dist/kit-setup-*-macos-arm64
 
+      - name: Generate checksums.txt
+        working-directory: dist
+        run: sha256sum kit-setup-* > checksums.txt
+
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/*
+          files: |
+            dist/*
           generate_release_notes: true
