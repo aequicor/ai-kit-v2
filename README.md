@@ -1,343 +1,111 @@
-# AI-Kit v2
+<div align="center">
+
+<img src="assets/banner.svg" alt="AI-Kit v2 — Configure any AI coding agent in one command" width="100%"/>
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![Docs](https://img.shields.io/badge/docs-aequicor.github.io-informational)](https://aequicor.github.io/ai-kit-v2)
+[![Docs](https://img.shields.io/badge/docs-aequicor.github.io-7c3aed)](https://aequicor.github.io/ai-kit-v2)
+[![Release](https://img.shields.io/github/v/release/aequicor/ai-kit-v2?color=22d3ee)](https://github.com/aequicor/ai-kit-v2/releases)
 
-`kit-setup` is a Kotlin Native CLI that generates configuration files for AI coding targets (Claude Code, OpenCode, QwenCode) from reusable template packages called **bundles**.
+[**Quick Start**](#quick-start) · [**Docs**](https://aequicor.github.io/ai-kit-v2) · [**Releases**](https://github.com/aequicor/ai-kit-v2/releases)
 
-How it works:
+</div>
 
-1. A bundle contains templates and declares what inputs a project needs to supply.
-2. You write `.aikit/manifest.json` specifying which bundle to apply with which inputs.
-3. `kit-setup generate` renders templates, evaluates conditionals, and writes native config files into the project.
+---
 
-Every file written by `kit-setup` is tracked in `.aikit/manifest.lock.json` by SHA-256 hash. If you edit a generated file, subsequent updates skip it unless you pass `--force`.
+AI-Kit generates ready-to-use configuration for AI coding agents from reusable presets called **bundles**. One command sets a project up for an agent; another updates or removes it cleanly.
 
-## Installation
+## Quick Start
 
-Run the prompts below from inside the project with an AI coding target that has tool use (Claude Code, Cursor, Codex, etc.).
-
-**Install:**
+The simplest way — copy and paste this prompt into any AI coding agent with tool use (Claude Code, Cursor, Codex, etc.) opened in your project:
 
 ```
 Read prompts/install.md from https://github.com/aequicor/ai-kit-v2 and follow
 the installation instructions for this project.
 ```
 
-**Update:**
+## What the installer does
 
-```
-Read prompts/update.md from https://github.com/aequicor/ai-kit-v2 and follow
-the update instructions for this project.
-```
+- Picks a preset and asks for a few project inputs.
+- Writes ready-to-use config files into your project at the locations each agent expects.
+- The manifest is the single source of truth: customize the install by editing the manifest, not the generated files.
+- Re-run to regenerate from the manifest; the update report shows what was created, updated, or left unchanged.
+- Can be fully removed at any time.
 
-**Uninstall:**
+## Built-in presets
 
-```
-Read prompts/uninstall.md from https://github.com/aequicor/ai-kit-v2 and follow
-the uninstall instructions for this project.
-```
+| Preset                | What you get                                                                                              |
+|-----------------------|-----------------------------------------------------------------------------------------------------------|
+| `simple-kit@0.0.1`    | Minimal starter: CLAUDE.md, skills, subagents, optional GitHub MCP, strict hooks.                         |
+| `modern-kit@0.0.1`    | Kotlin-flavored: ktlint / detekt hooks, `kotlin-specialist` & `gradle-troubleshooter` subagents, optional Serena & KnowledgeOS MCP. |
 
-**Manual installation:** download a binary for your platform from [GitHub Releases](https://github.com/aequicor/ai-kit-v2/releases), make it executable (`chmod +x kit-setup`), and put it on `PATH`. Local build: `cd kit-setup && ./gradlew :modules:cli:linkReleaseExecutableMacosArm64`.
+Third-party bundles can be placed in `.aikit/bundles/<bundle-name>/` as a directory or `.zip` — see [docs](https://aequicor.github.io/ai-kit-v2).
 
-## Concepts
+## Update, remove, rollback
 
-| Term | Description |
-|------|-------------|
-| Bundle | A zip or directory with `bundle.json`, a `config.json` per target, and template files |
-| Project manifest | `.aikit/manifest.json` (or named variants) — which bundles to apply with which inputs |
-| Lock file | `.aikit/manifest.lock.json` — SHA-256 registry of every generated file |
-| Drift | A generated file edited by the user; skipped on update without `--force` |
-| AKEL | Expression language used in `when` conditions in templates and `config.json` |
-| Mode | Named manifest variant (e.g. `manifest.autonomous.json`) for different agent configurations |
-| local.properties | `.aikit/local.properties` — per-developer active-manifest config, not committed to git |
+- `kit-setup update` — refresh the installation from the current manifest.
+- `kit-setup update self` — show instructions for upgrading the CLI binary.
+- `kit-setup remove` — uninstall everything AI-Kit added. Combine with `git` to roll back to a clean state.
 
-## Bundle manifest (`bundle.json`)
+See the docs for flags, dry-runs, and edge cases.
 
-Lives at the root of every bundle. Describes the bundle and declares the inputs users configure at install time.
+## Documentation
 
-```json
-{
-  "schemaVersion": 1,
-  "name": "simple-kit",
-  "version": "0.0.1",
-  "description": "Minimal starter: CLAUDE.md, skills, subagents, hooks",
-  "author": "AI-Kit",
-  "license": "MIT",
-  "targets": ["claude-code"],
-  "inputs": [
-    {
-      "id": "projectName",
-      "type": "string",
-      "title": "Project name",
-      "default": "${cwd.basename}"
-    },
-    {
-      "id": "githubMcp",
-      "type": "boolean",
-      "title": "Enable GitHub MCP?",
-      "default": false
-    },
-    {
-      "id": "skills",
-      "type": "multiselect",
-      "title": "Skills to install",
-      "options": ["review", "security-review"],
-      "default": ["review"]
-    }
-  ]
-}
-```
+**Getting started**
+- [Overview](https://aequicor.github.io/ai-kit-v2/#/)
+- [Start guide](https://aequicor.github.io/ai-kit-v2/#/start)
 
-Input types: `boolean`, `select`, `multiselect`, `string`, `int`, `double`.
+**Agents**
+- [Claude Code](https://aequicor.github.io/ai-kit-v2/#/claude)
+- [OpenCode](https://aequicor.github.io/ai-kit-v2/#/opencode)
+- [QwenCode](https://aequicor.github.io/ai-kit-v2/#/qwen)
 
-See [`kit-setup/BUNDLE_JSON.md`](kit-setup/BUNDLE_JSON.md) for the full specification.
+## Contributing
 
-## Project manifest (`.aikit/manifest.json`)
+Issues and pull requests are welcome at [github.com/aequicor/ai-kit-v2](https://github.com/aequicor/ai-kit-v2).
 
-```json
-{
-  "aikitVersion": "0.1.1",
-  "applications": [
-    {
-      "id": "root",
-      "path": ".",
-      "targets": {
-        "claude": {
-          "bundle": "simple-kit@0.0.1",
-          "source": "internal",
-          "inputs": {
-            "projectName": "my-app",
-            "githubMcp": true,
-            "skills": ["review", "security-review"]
-          }
-        }
-      }
-    }
-  ]
-}
-```
+**Reporting bugs and ideas** — open an issue; describe what you expected vs. what happened, and attach the relevant manifest fragment if applicable.
 
-- `aikitVersion` — CLI version that wrote the manifest; used for compatibility diagnostics.
-- `applications` — list of subprojects, each with a `path` and per-target bundle configuration.
-- `source` — `"internal"` for built-in bundles; a path to a `.zip` or directory for third-party bundles.
+**Pull requests**
 
-A project with multiple subprojects adds more entries to `applications`. Each entry may target different agents independently.
+- For anything beyond a trivial fix, open an issue first so the approach can be agreed on before you invest time coding.
+- One PR — one task; keep the scope focused.
+- Branch off `main`; use a descriptive name: `feat/`, `fix/`, or `chore/` prefix.
+- Unit tests and E2E tests must pass before opening the PR.
+- Include a description: what changed and why.
 
-### Reference values in inputs
+**Setting up locally**
 
-Input values can embed references to env vars and files using inline `${...}` syntax:
-
-```json
-"inputs": {
-  "projectName": "${env:PROJECT_NAME}",
-  "prefix":      "my-${env:NS}-${env:ENV}",
-  "dbPassword":  "${file:secrets/db.txt}",
-  "awsKey":      "${envFile:config/prod.env:AWS_ACCESS_KEY}"
-}
-```
-
-| Expression | Resolves to |
-|---|---|
-| `${env:VAR}` | Environment variable value |
-| `${file:relative/path}` | Trimmed file contents |
-| `${envFile:path/file.env:KEY}` | Value of KEY from a `.env` file |
-
-Paths must be relative (no `..` or absolute). Missing variables or keys fail with a clear error.
-
-See [`kit-setup/MANIFEST_JSON.md`](kit-setup/MANIFEST_JSON.md) for the full specification.
-
-## Templates
-
-Bundle templates are `.md` files and `config.json` entries that support two control structures evaluated before files are written to disk.
-
-### Value substitution
-
-Works anywhere in `.md` files and in any `config.json` string value:
-
-```
-${bundle.input.<id>}
-```
-
-Serialization by type: `boolean` → `true`/`false`, `multiselect` → comma-separated list, others → as-is.
-
-### Conditional blocks in `.md` files
-
-```md
-<!-- when: ${bundle.input.githubMcp} -->
-## GitHub integration
-
-Configure the GitHub MCP server in `.mcp.json`.
-<!-- end -->
-```
-
-Nesting is supported. Content between markers is removed when the condition is false; the comment markers themselves leave no trace in the output.
-
-### Conditional blocks in `config.json`
-
-Any object in `config.json` can carry a `when` field:
-
-```json
-{
-  "when": "${bundle.input.githubMcp}",
-  "name": "github",
-  "command": "npx",
-  "args": ["@modelcontextprotocol/server-github"]
-}
-```
-
-The entire object is excluded when the expression evaluates to `false`.
-
-### AKEL expression language
-
-Used only inside `when` conditions.
-
-| Construct | Examples |
-|-----------|---------|
-| Literals | `true`, `false`, `42`, `3.14`, `'text'`, `['a', 'b']` |
-| Input reference | `${bundle.input.skills}` |
-| Equality | `==`, `!=` |
-| Comparison | `<`, `<=`, `>`, `>=` |
-| Membership | `'review' in ${bundle.input.skills}` |
-| Logic | `&&`, `\|\|`, `!` |
-| Grouping | `(...)` |
-
-Strict typing — no implicit coercion. See [`kit-setup/CONFIG_JSON.md`](kit-setup/CONFIG_JSON.md) and [`kit-setup/TEMPLATE_MD.md`](kit-setup/TEMPLATE_MD.md).
-
-## Output paths
-
-`kit-setup` maps each file kind to the target's native location. For Claude Code:
-
-| Kind | Output path |
-|------|-------------|
-| Memory (`CLAUDE.md`) | `<app-path>/CLAUDE.md` |
-| Subagent | `.claude/agents/<name>.md` |
-| Command | `.claude/commands/<name>.md` |
-| Skill | `.claude/skills/<name>/<file>` |
-| Settings | `.claude/settings.json` |
-| MCP config | `.mcp.json` |
-| Hook script | path declared in `config.json` (relative to app root) |
-
-## Manifest switching (modes)
-
-Store one manifest per agent configuration and switch between them with a single line:
-
-```
-.aikit/
-├── manifest.interactive.json
-├── manifest.autonomous.json
-└── local.properties        ← per-developer, add to .gitignore
-```
-
-```properties
-# .aikit/local.properties
-manifest=.aikit/manifest.autonomous.json
-```
-
-Priority order (highest to lowest): explicit arg / `--manifest` → `--mode` → `AIKIT_MANIFEST` env → `AIKIT_MODE` env → `local.properties` → legacy `.aikit/manifest.json`.
-
-Switching manifests triggers a **plan-first wipe**: the new manifest is validated in memory first, then the previous installation is wiped, then the new one is applied. A broken new manifest never destroys the current working installation.
-
-Shorthand: `kit-setup generate --mode autonomous` expands to `.aikit/manifest.autonomous.json`.
-
-See [`kit-setup/MODES.md`](kit-setup/MODES.md) for full details, CI integration, and troubleshooting.
-
-## CLI reference
-
-All commands operate relative to the current working directory.
-
-### `kit-setup schema manifest`
-
-Prints the JSON Schema for `.aikit/manifest.json`. Useful for IDE validation and autocomplete:
+Prerequisites: JDK 21, Git.
 
 ```bash
-kit-setup schema manifest > .aikit/manifest.schema.json
+git clone https://github.com/aequicor/ai-kit-v2.git
+cd ai-kit-v2/kit-setup
+
+./gradlew build                          # build all targets
+./gradlew :modules:engine:allTests       # run unit tests
 ```
 
-### `kit-setup schema bundle [REF]`
-
-Prints the JSON Schema for a bundle's `inputs` block.
+**E2E tests** run against a real built binary — they are not part of `build`:
 
 ```bash
-kit-setup schema bundle --list                          # list built-in bundles
-kit-setup schema bundle embedded:simple-kit@0.0.1      # schema for a built-in bundle
-kit-setup schema bundle ./path/to/bundle               # schema for a local bundle
-kit-setup schema bundle ./bundle.zip                   # schema for a zip bundle
+# 1. Build the native binary for your platform
+./gradlew :modules:cli:linkReleaseExecutableMacosArm64   # macOS arm64
+# or: :linkReleaseExecutableLinuxX64 / :linkReleaseExecutableMingwX64
+
+# 2. Run E2E
+./gradlew :modules:e2e:test \
+  -Pkit.binary="$(pwd)/modules/cli/build/bin/macosArm64/releaseExecutable/cli.kexe"
+
+# Run a single test class
+./gradlew :modules:e2e:test --tests "*LifecycleTest*" \
+  -Pkit.binary="$(pwd)/modules/cli/build/bin/macosArm64/releaseExecutable/cli.kexe"
 ```
 
-Options:
-- `--list` — list available built-in bundles instead of printing a schema.
-- `--base-dir <DIR>` — base directory for resolving relative paths in `REF` (default: `.`).
+If `-Pkit.binary` is omitted, the module looks for the binary in the standard build output paths.
 
-`REF` forms: directory path, `.zip` path, `zip:<path>`, `embedded:<name>[@<version>]`.
+Architecture overview: [`kit-setup/CLAUDE.md`](kit-setup/CLAUDE.md).
 
-The resulting schema (JSON Schema draft 2020-12) can validate the `inputs` block of any `.aikit/manifest.json` target entry.
-
-### `kit-setup verify [MANIFEST]`
-
-Validates the project manifest and all referenced bundles. Writes nothing. Exits non-zero on error.
-
-```bash
-kit-setup verify                              # resolved from .aikit/local.properties or .aikit/manifest.json
-kit-setup verify .aikit/manifest.json         # explicit path
-kit-setup verify --mode autonomous            # .aikit/manifest.autonomous.json
-kit-setup verify --all                        # validate every manifest.*.json in .aikit/
-```
-
-### `kit-setup generate [MANIFEST]`
-
-Renders templates and writes config files to the project. Saves `.aikit/manifest.lock.json` on success.
-
-```bash
-kit-setup generate                            # resolved from .aikit/local.properties or .aikit/manifest.json
-kit-setup generate .aikit/manifest.json
-kit-setup generate --mode autonomous          # .aikit/manifest.autonomous.json
-kit-setup generate --dry-run                  # preview without writing
-kit-setup generate --force                    # overwrite drifted files
-kit-setup generate --clean                    # wipe previous installation before applying
-```
-
-Files previously generated but no longer produced by the bundle are deleted, unless drifted.
-
-When the active manifest changes from the previous generate, the CLI automatically wipes the previous installation (after validating the new manifest in memory) before applying.
-
-### `kit-setup update [MANIFEST]`
-
-Re-renders from the current manifest and reports a diff against the lock file.
-
-```bash
-kit-setup update
-kit-setup update .aikit/manifest.json --dry-run
-kit-setup update --mode autonomous --force
-```
-
-### `kit-setup update self [--check]`
-
-Prints the current CLI version and the platform-specific command to install the latest release (curl on Linux/macOS, PowerShell on Windows). `--check` limits output to the current version and a link to the latest release; it downloads nothing.
-
-### `kit-setup remove [MANIFEST]`
-
-Removes all files tracked in the lock file.
-
-```bash
-kit-setup remove --dry-run          # show what would be deleted
-kit-setup remove                    # delete tracked files, manifest, and lock
-kit-setup remove --keep-manifest    # delete generated files; keep manifest and lock
-kit-setup remove --force            # also delete drifted files
-kit-setup remove --mode autonomous  # resolve project root from .aikit/manifest.autonomous.json
-```
-
-### `kit-setup --version` / `kit-setup --help`
-
-Version and built-in help. Per-command help: `kit-setup <cmd> --help`.
-
-## Drift and `--force`
-
-Before overwriting a file on `generate`, `update`, or `remove`, `kit-setup` compares its current content against the SHA-256 hash recorded in the lock file. If they differ, the file has *drifted* — you edited it — and the operation skips it with a warning.
-
-Pass `--force` to override drift protection and overwrite or delete drifted files.
-
-See [`kit-setup/MANIFEST_LOCK_JSON.md`](kit-setup/MANIFEST_LOCK_JSON.md) for the lock file schema.
+**Adding or editing a bundle** — read [`kit-setup/bundles/README.md`](kit-setup/bundles/README.md) first; it has the conventions checklist and links to the format specs.
 
 ## License
 
