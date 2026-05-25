@@ -136,7 +136,7 @@ the installation instructions for this project.`,
         lead: 'Renders the configs declared in .aikit/manifest.json into the locations the target agent expects. Writes only inside .aikit/ and the agent\'s own directories.',
         manifestLabel: 'Minimal .aikit/manifest.json',
         manifest: `{
-  "aikitVersion": "0.1.4",
+  "aikitVersion": "0.2.0",
   "applications": [
     {
       "id": "root",
@@ -622,7 +622,7 @@ the installation instructions for this project.`,
         lead: 'Рендерит конфиги, объявленные в .aikit/manifest.json, в места, ожидаемые целевым агентом. Пишет только в .aikit/ и в каталоги самого агента.',
         manifestLabel: 'Минимальный .aikit/manifest.json',
         manifest: `{
-  "aikitVersion": "0.1.4",
+  "aikitVersion": "0.2.0",
   "applications": [
     {
       "id": "root",
