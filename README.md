@@ -47,6 +47,7 @@ the installation instructions for this project.
 |-----------------------|-----------------------------------------------------------------------------------------------------------|
 | `simple-kit@0.0.1`    | Minimal starter: CLAUDE.md, skills, subagents, optional GitHub MCP, strict hooks.                         |
 | `modern-kit@0.0.1`    | Kotlin-flavored: ktlint / detekt hooks, `kotlin-specialist` & `gradle-troubleshooter` subagents, optional Serena & KnowledgeOS MCP. |
+| `flow-kit@0.0.1`      | Autonomous KMP + Ktor pipeline: `/pipeline` orchestrator (analyze → develop → security → interface test → commit), role subagents, `claude-in-mobile` MCP for UI autopilot, `maven-indexer` MCP for reading decompiled / source dependency code. Self-documenting: code is the source of truth. |
 
 Third-party bundles can be placed in `.aikit/bundles/<bundle-name>/` as a directory or `.zip` — see [docs](https://aequicor.github.io/ai-kit-v2).
 

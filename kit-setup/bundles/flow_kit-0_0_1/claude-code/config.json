@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "agent": "claude-code",
+  "minVersion": "1.0.0",
+  "scope": "project",
+
+  "settings": {
+    "includeCoAuthoredBy": false,
+    "permissions": {
+      "defaultMode": "acceptEdits",
+      "allow": [
+        { "value": "Read(./**)" },
+        { "value": "Bash(./gradlew:*)" },
+        { "value": "Bash(git status)" },
+        { "value": "Bash(git diff:*)" },
+        { "value": "Bash(git log:*)" },
+        { "value": "Bash(git branch:*)" },
+        { "value": "Bash(git add:*)" },
+        { "value": "Bash(git commit:*)" }
+      ],
+      "deny": [
+        { "value": "Read(./.env)" },
+        { "value": "Read(./secrets/**)" },
+        { "value": "Read(./local.properties)" },
+        { "value": "Read(./**/*.keystore)" },
+        { "value": "Read(./**/*.jks)" },
+        { "value": "Read(./**/google-services.json)" },
+        { "value": "Bash(rm -rf:*)", "when": "${bundle.input.strict}" },
+        { "value": "Bash(git push --force:*)", "when": "${bundle.input.strict}" },
+        { "value": "Bash(git reset --hard:*)", "when": "${bundle.input.strict}" }
+      ]
+    }
+  },
+
+  "memory": [
+    { "name": "CLAUDE.md", "source": "CLAUDE.md" }
+  ],
+
+  "mcpServers": [
+    {
+      "when": "${bundle.input.mobileMcp}",
+      "name": "mobile",
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "claude-in-mobile"]
+    },
+    {
+      "when": "${bundle.input.decompilerMcp}",
+      "name": "maven-indexer",
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "maven-indexer-mcp@latest"]
+    },
+    {
+      "when": "${bundle.input.githubMcp}",
+      "name": "github",
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"]
+    },
+    {
+      "when": "${bundle.input.serenaMcp}",
+      "name": "serena",
+      "transport": "stdio",
+      "command": "uvx",
+      "args": ["--from", "serena", "serena", "--project-dir", "."]
+    }
+  ],
+
+  "agents": [
+    {
+      "when": "'analyst' in ${bundle.input.subagents}",
+      "name": "analyst",
+      "source": "subagents/analyst/analyst.md"
+    },
+    {
+      "when": "'kotlin-specialist' in ${bundle.input.subagents}",
+      "name": "kotlin-specialist",
+      "source": "subagents/kotlin-specialist/kotlin-specialist.md"
+    },
+    {
+      "when": "'ktor-specialist' in ${bundle.input.subagents}",
+      "name": "ktor-specialist",
+      "source": "subagents/ktor-specialist/ktor-specialist.md"
+    },
+    {
+      "when": "'security-reviewer' in ${bundle.input.subagents}",
+      "name": "security-reviewer",
+      "source": "subagents/security-reviewer/security-reviewer.md"
+    },
+    {
+      "when": "'interface-tester' in ${bundle.input.subagents}",
+      "name": "interface-tester",
+      "source": "subagents/interface-tester/interface-tester.md"
+    },
+    {
+      "when": "'gradle-troubleshooter' in ${bundle.input.subagents}",
+      "name": "gradle-troubleshooter",
+      "source": "subagents/gradle-troubleshooter/gradle-troubleshooter.md"
+    },
+    {
+      "when": "'test-runner' in ${bundle.input.subagents}",
+      "name": "test-runner",
+      "source": "subagents/test-runner/test-runner.md"
+    }
+  ],
+
+  "commands": [
+    {
+      "name": "pipeline",
+      "source": "commands/pipeline.md"
+    },
+    {
+      "name": "build-check",
+      "source": "commands/build-check.md"
+    },
+    {
+      "name": "review",
+      "source": "commands/review.md"
+    }
+  ],
+
+  "skills": [
+    {
+      "when": "'security-review' in ${bundle.input.skills}",
+      "name": "security-review",
+      "source": "skills/security-review/"
+    },
+    {
+      "when": "'interface-testing' in ${bundle.input.skills}",
+      "name": "interface-testing",
+      "source": "skills/interface-testing/"
+    },
+    {
+      "when": "'docs-on-demand' in ${bundle.input.skills}",
+      "name": "docs-on-demand",
+      "source": "skills/docs-on-demand/"
+    },
+    {
+      "when": "'kotlin-build' in ${bundle.input.skills}",
+      "name": "kotlin-build",
+      "source": "skills/kotlin-build/"
+    }
+  ],
+
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "command": ".claude/hooks/session-start.sh"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "when": "${bundle.input.strict}",
+        "matcher": "Bash",
+        "command": ".claude/strict/hooks/block-dangerous.sh"
+      },
+      {
+        "when": "${bundle.input.strict}",
+        "matcher": "Bash",
+        "command": ".claude/strict/hooks/guard-commit.sh"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "when": "'ktlint' in ${bundle.input.qualityTools}",
+        "matcher": "Edit|Write",
+        "command": ".claude/hooks/post-edit-ktlint.sh"
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "command": ".claude/hooks/stop-checks.sh"
+      }
+    ]
+  }
+}

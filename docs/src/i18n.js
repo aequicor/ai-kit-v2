@@ -389,6 +389,12 @@ the installation instructions for this project.`,
             inputs: 'see kit-setup schema bundle embedded:modern-kit',
             targets: 'claude-code',
           },
+          {
+            name: 'flow-kit@0.0.1',
+            desc: 'Autonomous KMP + Ktor pipeline: a /pipeline orchestrator across analyze → develop → security → interface test → commit, with role sub-agents, claude-in-mobile MCP for UI autopilot, and maven-indexer MCP to read decompiled / source dependency code. Self-documenting: the code is the source of truth.',
+            inputs: 'projectName, projectType, autonomyLevel, subagents, skills, qualityTools, mobileMcp, decompilerMcp, githubMcp, serenaMcp, strict',
+            targets: 'claude-code',
+          },
         ],
       },
       custom: {
@@ -472,6 +478,7 @@ the installation instructions for this project.`,
         items: [
           { title: 'simple-kit@0.0.1', body: 'Minimal: CLAUDE.md + optional skills, sub-agents, GitHub MCP, strict hooks. A clean baseline you can extend.' },
           { title: 'modern-kit@0.0.1', body: 'Kotlin-flavored: ktlint / detekt hooks, kotlin-specialist and gradle-troubleshooter sub-agents, optional Serena and KnowledgeOS MCP.' },
+          { title: 'flow-kit@0.0.1', body: 'Autonomous KMP + Ktor dev pipeline: a /pipeline orchestrator (analyze → develop → security → interface test → commit) with role sub-agents, claude-in-mobile MCP for UI autopilot, and maven-indexer MCP for reading dependency sources.' },
         ],
       },
       fingerprint: {
@@ -868,6 +875,12 @@ the installation instructions for this project.`,
             inputs: 'см. kit-setup schema bundle embedded:modern-kit',
             targets: 'claude-code',
           },
+          {
+            name: 'flow-kit@0.0.1',
+            desc: 'Автономный KMP + Ktor пайплайн: оркестратор /pipeline (аналитика → разработка → security → тест интерфейсов → коммит), субагенты-роли, claude-in-mobile MCP для UI-автопилота, maven-indexer MCP для чтения декомпилированного / исходного кода зависимостей. Self-documenting: код — источник истины.',
+            inputs: 'projectName, projectType, autonomyLevel, subagents, skills, qualityTools, mobileMcp, decompilerMcp, githubMcp, serenaMcp, strict',
+            targets: 'claude-code',
+          },
         ],
       },
       custom: {
@@ -951,6 +964,7 @@ the installation instructions for this project.`,
         items: [
           { title: 'simple-kit@0.0.1', body: 'Минимальный: CLAUDE.md + опциональные скилы, субагенты, GitHub MCP, strict-хуки. Чистая база, которую легко расширять.' },
           { title: 'modern-kit@0.0.1', body: 'Kotlin-flavored: ktlint / detekt хуки, субагенты kotlin-specialist и gradle-troubleshooter, опциональные Serena и KnowledgeOS MCP.' },
+          { title: 'flow-kit@0.0.1', body: 'Автономный KMP + Ktor пайплайн разработки: оркестратор /pipeline (аналитика → разработка → security → тест интерфейсов → коммит) с субагентами-ролями, claude-in-mobile MCP для UI-автопилота и maven-indexer MCP для чтения исходников зависимостей.' },
         ],
       },
       fingerprint: {

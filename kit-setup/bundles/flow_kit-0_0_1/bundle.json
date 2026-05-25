@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+
+  "name": "flow-kit",
+  "version": "0.0.1",
+  "description": "Автономный пайплайн разработки Claude Code под KMP + Ktor: оркестратор /pipeline (аналитика → разработка → security → тест интерфейсов → коммит), субагенты-роли, claude-in-mobile MCP для UI-автопилота, maven-indexer MCP для чтения исходников/декомпиляции зависимостей. Философия self-documenting code: код — источник истины, доки тянутся по запросу.",
+  "author": "AI-Kit",
+  "license": "Apache-2.0",
+
+  "targets": ["claude-code"],
+
+  "inputs": [
+    {
+      "id": "projectName",
+      "type": "string",
+      "title": "Имя проекта",
+      "description": "Подставляется в CLAUDE.md, описания субагентов и скилов",
+      "default": "${cwd.basename}",
+      "required": true
+    },
+    {
+      "id": "projectType",
+      "type": "select",
+      "title": "Тип проекта",
+      "description": "Определяет, что значит «тестирование интерфейсов» и какие конвенции включить. ktor-server — backend (HTTP API, testApplication). compose-app — клиент на Compose Multiplatform (UI-автопилот через claude-in-mobile). kmp-fullstack — общий KMP-модуль + Ktor-сервер + Compose-клиент. kmp-library — переиспользуемая multiplatform-библиотека без UI.",
+      "options": ["ktor-server", "compose-app", "kmp-fullstack", "kmp-library"],
+      "default": "kmp-fullstack"
+    },
+    {
+      "id": "autonomyLevel",
+      "type": "select",
+      "title": "Уровень автономности /pipeline",
+      "description": "guided — оркестратор останавливается после стадии аналитики (план на утверждение) и перед коммитом. auto — проходит весь цикл сам, останавливается только на провале гейта (security/тесты) или для деструктивных действий.",
+      "options": ["guided", "auto"],
+      "default": "guided"
+    },
+    {
+      "id": "subagents",
+      "type": "multiselect",
+      "title": "Какие субагенты-роли установить?",
+      "description": "Делегируемые стадии пайплайна в собственном контекстном окне. analyst — аналитика. kotlin-specialist / ktor-specialist — разработка. security-reviewer — проверка безопасности в свежем контексте. interface-tester — прогон UI/API. gradle-troubleshooter / test-runner — поддержка.",
+      "options": ["analyst", "kotlin-specialist", "ktor-specialist", "security-reviewer", "interface-tester", "gradle-troubleshooter", "test-runner"],
+      "default": ["analyst", "kotlin-specialist", "ktor-specialist", "security-reviewer", "interface-tester", "gradle-troubleshooter", "test-runner"]
+    },
+    {
+      "id": "skills",
+      "type": "multiselect",
+      "title": "Какие скилы установить?",
+      "description": "Каждый скил — SKILL.md, который агент подхватывает по описанию (progressive disclosure: тонкий триггер, детали в references/). docs-on-demand — порядок разрешения незнания (код → исходники зависимости → офиц. доки → знания модели).",
+      "options": ["security-review", "interface-testing", "docs-on-demand", "kotlin-build"],
+      "default": ["security-review", "interface-testing", "docs-on-demand", "kotlin-build"]
+    },
+    {
+      "id": "qualityTools",
+      "type": "multiselect",
+      "title": "Инструменты качества кода",
+      "description": "ktlint — PostToolUse-хук форматит .kt после каждого Edit/Write. detekt — входит в Stop-хук (статанализ + тесты перед завершением сессии).",
+      "options": ["ktlint", "detekt"],
+      "default": ["ktlint", "detekt"]
+    },
+    {
+      "id": "mobileMcp",
+      "type": "boolean",
+      "title": "Подключить claude-in-mobile MCP?",
+      "description": "MCP-сервер автоматизации UI: Android (ADB), iOS (simctl + WDA), desktop-Compose, браузер. Движок стадии «тестирование интерфейсов». Включай для compose-app / kmp-fullstack. Для чистого ktor-server и kmp-library не нужен. Требует npx (Node) и платформенных инструментов (adb/Xcode по целям).",
+      "default": true
+    },
+    {
+      "id": "decompilerMcp",
+      "type": "boolean",
+      "title": "Подключить maven-indexer MCP (чтение исходников/декомпиляция зависимостей)?",
+      "description": "Индексирует Gradle-кэш, отдаёт реальные -sources.jar, а при их отсутствии декомпилирует .class через CFR. Позволяет агенту читать настоящий код зависимостей (Ktor, kotlinx-*), а не опираться на память. Ограничения: только JVM-байткод (нет klib/common-кода KMP), декомпиляция Kotlin отдаёт Java (лоссИ). Требует npx (Node).",
+      "default": true
+    },
+    {
+      "id": "githubMcp",
+      "type": "boolean",
+      "title": "Подключить GitHub MCP?",
+      "description": "Включай, если проект хостится на GitHub. Даёт доступ к issues, PR и code search.",
+      "default": false
+    },
+    {
+      "id": "serenaMcp",
+      "type": "boolean",
+      "title": "Подключить Serena MCP?",
+      "description": "LSP-based code intelligence: навигация по символам, поиск определений, рефакторинг. Усиливает принцип «код — источник истины». Требует uv/uvx.",
+      "default": false
+    },
+    {
+      "id": "strict",
+      "type": "boolean",
+      "title": "Strict-режим?",
+      "description": "Включает PreToolUse-хуки: block-dangerous (rm -rf, force push, reset --hard) и guard-commit (блокирует git commit при секретах/ключах в staged-diff; предупреждает про оставленные TODO/FIXME и !!).",
+      "default": true
+    }
+  ]
+}
