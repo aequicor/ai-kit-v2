@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+
+  "name": "parallel-work-kmp",
+  "version": "0.0.1",
+  "description": "Эффективная работа над KMP-проектом в параллельных сессиях Claude Code через git worktrees. Лёгкий операционный CLAUDE.md без архитектурных обзоров (по исследованию ETH Zurich о вреде раздутых context-файлов), скил parallel-sessions (нативный claude --worktree, .worktreeinclude, изоляция портов/серийников/AVD/applicationIdSuffix, тюнинг gradle.properties под N параллельных демонов), скил snapshot-testing (Roborazzi/Compose Preview как параллельный слой UI-проверки), хук-страж от незаскоупленных adb/simctl.",
+  "author": "AI-Kit",
+  "license": "Apache-2.0",
+
+  "targets": ["claude-code"],
+
+  "inputs": [
+    {
+      "id": "projectName",
+      "type": "string",
+      "title": "Имя проекта",
+      "description": "Подставляется в CLAUDE.md и описания скилов.",
+      "default": "${cwd.basename}",
+      "required": true
+    },
+    {
+      "id": "projectType",
+      "type": "select",
+      "title": "Тип проекта",
+      "description": "Определяет, какие команды и слои проверки релевантны при параллельной работе. compose-app / kmp-fullstack — есть UI: важна изоляция эмуляторов/симуляторов/портов и снапшот-тестирование. kmp-library — без UI: изоляция нужна только для build/ и тестов. ktor-server — backend: изолируются порты сервера и тестовой БД, UI-слой не применяется.",
+      "options": ["compose-app", "kmp-fullstack", "kmp-library", "ktor-server"],
+      "default": "kmp-fullstack"
+    },
+    {
+      "id": "maxParallelSessions",
+      "type": "int",
+      "title": "Сколько сессий планируется запускать параллельно?",
+      "description": "Сколько worktree-сессий реально будут собирать проект одновременно на этой машине. Используется для расчёта рекомендованного -Xmx Gradle-демона (общий бюджет RAM делится на это число) и диапазонов портов/серийников. Поставь реалистичное число под объём RAM, не максимум.",
+      "default": 3,
+      "min": 1,
+      "max": 12
+    },
+    {
+      "id": "snapshotTool",
+      "type": "select",
+      "title": "Инструмент снапшот-тестирования UI",
+      "description": "Основной слой UI-проверки, который параллелится без эмулятора (у каждого worktree свой build/). roborazzi — JVM-рендер Compose через Robolectric, кросс-платформенный (takahirom/roborazzi). compose-preview — официальный Google Compose Preview Screenshot Testing (требует AGP 8.5+, экспериментальный). none — без снапшотов (для kmp-library/ktor-server без UI). Ставит скил snapshot-testing, если не none.",
+      "options": ["roborazzi", "compose-preview", "none"],
+      "default": "roborazzi"
+    },
+    {
+      "id": "mobileMcp",
+      "type": "boolean",
+      "title": "Подключить claude-in-mobile MCP?",
+      "description": "MCP-сервер автоматизации UI (Android через ADB, iOS через simctl+WDA, desktop-Compose, браузер). Нужен для финальной проверки на устройстве. Включай для compose-app / kmp-fullstack. В параллельном режиме каждая сессия обязана адресовать своё устройство (ANDROID_SERIAL / UDID) — см. скил parallel-sessions. Требует npx (Node) и платформенных инструментов (adb/Xcode).",
+      "default": true
+    },
+    {
+      "id": "maestroMcp",
+      "type": "boolean",
+      "title": "Подключить Maestro MCP (E2E-флоу на устройстве)?",
+      "description": "Официальный MCP-сервер Maestro (mobile.dev) для декларативных YAML-флоу из .maestro/. Команда сервера — `maestro mcp`. Альтернатива/дополнение к claude-in-mobile для воспроизводимых E2E-сценариев. Каждая сессия передаёт своё устройство флагом --device. Требует установленного Maestro CLI.",
+      "default": false
+    },
+    {
+      "id": "direnv",
+      "type": "boolean",
+      "title": "Использовать direnv (.envrc) для лейна worktree?",
+      "description": "Если включено, скил parallel-sessions раздаёт .envrc, который при входе в каталог worktree сам выводит уникальный лейн (порты, ANDROID_SERIAL, суффикс applicationId) из имени каталога. Удобно на macOS/Linux (и git-bash). Требует установленного direnv и `direnv allow`. Если выключено — скил даёт портируемую ручную альтернативу (sourced-файл / PowerShell).",
+      "default": true
+    },
+    {
+      "id": "strict",
+      "type": "boolean",
+      "title": "Strict-режим?",
+      "description": "Включает PreToolUse-хуки. block-dangerous: блокирует rm -rf, force push, git reset --hard, git clean -f, ручную чистку gradle-кэша и опасные операции с worktree (git worktree remove --force / prune). guard-device: блокирует незаскоупленные команды устройств (adb shell/install/logcat, simctl boot/install/launch) без явного серийника/UDID — ключевая защита от кросс-сессионных коллизий.",
+      "default": true
+    }
+  ]
+}

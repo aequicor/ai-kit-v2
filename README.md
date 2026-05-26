@@ -48,6 +48,7 @@ the installation instructions for this project.
 | `simple-kit@0.0.1`    | Minimal starter: CLAUDE.md, skills, subagents, optional GitHub MCP, strict hooks.                         |
 | `modern-kit@0.0.1`    | Kotlin-flavored: ktlint / detekt hooks, `kotlin-specialist` & `gradle-troubleshooter` subagents, optional Serena & KnowledgeOS MCP. |
 | `flow-kit@0.0.1`      | Autonomous KMP + Ktor pipeline: `/pipeline` orchestrator (analyze → develop → security → interface test → commit), role subagents, `claude-in-mobile` MCP for UI autopilot, `maven-indexer` MCP for reading decompiled / source dependency code. Self-documenting: code is the source of truth. |
+| `parallel-work-kmp@0.0.1` | KMP across parallel Claude Code worktree sessions: lean operational CLAUDE.md (no architecture overview — per the ETH study on context-file bloat), `parallel-sessions` skill (native `claude --worktree`, `.worktreeinclude`, per-session device/port/`applicationId` lane, parallel-tuned `gradle.properties`), `snapshot-testing` skill (Roborazzi / Compose Preview as the emulator-free parallel UI layer), and a `guard-device` strict hook against unscoped `adb`/`simctl`. |
 
 Third-party bundles can be placed in `.aikit/bundles/<bundle-name>/` as a directory or `.zip` — see [docs](https://aequicor.github.io/ai-kit-v2).
 

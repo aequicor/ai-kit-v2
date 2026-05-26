@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "agent": "claude-code",
+  "minVersion": "1.0.0",
+  "scope": "project",
+
+  "settings": {
+    "includeCoAuthoredBy": false,
+    "permissions": {
+      "defaultMode": "acceptEdits",
+      "allow": [
+        { "value": "Read(./**)" },
+        { "value": "Bash(./gradlew:*)" },
+        { "value": "Bash(git status)" },
+        { "value": "Bash(git diff:*)" },
+        { "value": "Bash(git log:*)" },
+        { "value": "Bash(git branch:*)" },
+        { "value": "Bash(git worktree list:*)" },
+        { "value": "Bash(git add:*)" },
+        { "value": "Bash(git commit:*)" }
+      ],
+      "deny": [
+        { "value": "Read(./.env)" },
+        { "value": "Read(./secrets/**)" },
+        { "value": "Read(./local.properties)" },
+        { "value": "Read(./**/*.keystore)" },
+        { "value": "Read(./**/*.jks)" },
+        { "value": "Read(./**/google-services.json)" },
+        { "value": "Bash(rm -rf:*)", "when": "${bundle.input.strict}" },
+        { "value": "Bash(git push --force:*)", "when": "${bundle.input.strict}" },
+        { "value": "Bash(git reset --hard:*)", "when": "${bundle.input.strict}" }
+      ]
+    }
+  },
+
+  "memory": [
+    { "name": "CLAUDE.md", "source": "CLAUDE.md" }
+  ],
+
+  "mcpServers": [
+    {
+      "when": "${bundle.input.mobileMcp}",
+      "name": "mobile",
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "claude-in-mobile"]
+    },
+    {
+      "when": "${bundle.input.maestroMcp}",
+      "name": "maestro",
+      "transport": "stdio",
+      "command": "maestro",
+      "args": ["mcp"]
+    }
+  ],
+
+  "commands": [
+    {
+      "name": "merge",
+      "source": "commands/merge.md"
+    }
+  ],
+
+  "skills": [
+    {
+      "name": "parallel-sessions",
+      "source": "skills/parallel-sessions/"
+    },
+    {
+      "when": "${bundle.input.snapshotTool} != 'none'",
+      "name": "snapshot-testing",
+      "source": "skills/snapshot-testing/"
+    }
+  ],
+
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "command": ".claude/hooks/session-start.sh"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "when": "${bundle.input.strict}",
+        "matcher": "Bash",
+        "command": ".claude/strict/hooks/block-dangerous.sh"
+      },
+      {
+        "when": "${bundle.input.strict}",
+        "matcher": "Bash",
+        "command": ".claude/strict/hooks/guard-device.sh"
+      }
+    ]
+  }
+}
