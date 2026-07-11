@@ -4,6 +4,7 @@ import io.aequicor.aikit.akel.Akel
 import io.aequicor.aikit.akel.AkelContext
 import io.aequicor.aikit.akel.AkelValue
 import io.aequicor.aikit.core.domain.targets.ClaudeCode
+import io.aequicor.aikit.core.domain.targets.Codex
 import io.aequicor.aikit.core.domain.targets.OpenCode
 import io.aequicor.aikit.core.domain.targets.QwenCode
 import io.aequicor.aikit.core.domain.targets.Target
@@ -387,6 +388,7 @@ internal class DefaultBundleGenerator(
         is ClaudeCode -> "claude-code"
         is OpenCode -> "opencode"
         is QwenCode -> "qwen-code"
+        is Codex -> "codex"
     }
 
     private data class PlannedFile(val relPath: String, val bytes: ByteArray, val hash: String)

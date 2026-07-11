@@ -3,6 +3,7 @@ package io.aequicor.aikit.format.bundle.v1
 import io.aequicor.aikit.core.domain.bundle.BundleManifest
 import io.aequicor.aikit.core.domain.bundle.InputSpec
 import io.aequicor.aikit.core.domain.targets.ClaudeCode
+import io.aequicor.aikit.core.domain.targets.Codex
 import io.aequicor.aikit.core.domain.targets.OpenCode
 import io.aequicor.aikit.core.domain.targets.QwenCode
 import io.aequicor.aikit.core.domain.targets.Target
@@ -14,6 +15,7 @@ import io.aequicor.aikit.format.TargetPlan
 import io.aequicor.aikit.format.error.FormatError
 import io.aequicor.aikit.format.target.TargetConfigParser
 import io.aequicor.aikit.format.target.v1.ClaudeCodeConfigDtoV1
+import io.aequicor.aikit.format.target.v1.CodexConfigDtoV1
 import io.aequicor.aikit.format.target.v1.FileRefDtoV1
 import io.aequicor.aikit.format.target.v1.HookGroupDtoV1
 import io.aequicor.aikit.format.target.v1.OpenCodeConfigDtoV1
@@ -33,6 +35,7 @@ import kotlinx.serialization.json.jsonPrimitive
 private const val FOLDER_CLAUDE = "claude-code"
 private const val FOLDER_OPENCODE = "opencode"
 private const val FOLDER_QWEN = "qwen-code"
+private const val FOLDER_CODEX = "codex"
 private const val CLAUDE_PROJECT_PREFIX = ".claude/"
 private const val QWEN_PROJECT_PREFIX = ".qwen/"
 
@@ -77,10 +80,11 @@ internal class BundleManifestMapperV1(
             targetFolder == FOLDER_CLAUDE -> claudeRoutes(decodeClaudeConfig(configJsonText), sources)
             targetFolder == FOLDER_OPENCODE -> openCodeRoutes(decodeOpenCodeConfig(configJsonText), sources)
             targetFolder == FOLDER_QWEN -> qwenRoutes(decodeQwenConfig(configJsonText), sources)
+            targetFolder == FOLDER_CODEX -> codexRoutes(decodeCodexConfig(configJsonText), sources)
             else -> throw FormatError.UnknownEnum(
                 targetFolder,
                 "targets[]",
-                setOf(FOLDER_CLAUDE, FOLDER_OPENCODE, FOLDER_QWEN),
+                setOf(FOLDER_CLAUDE, FOLDER_OPENCODE, FOLDER_QWEN, FOLDER_CODEX),
             )
         }
 
@@ -110,6 +114,17 @@ internal class BundleManifestMapperV1(
             addAll(fileRefRoutes(dto.commands, RouteKind.COMMAND, byPath))
             addAll(skillRoutes(dto.skills, sources))
             addAll(hookRoutes(dto.hooks, byPath, QWEN_PROJECT_PREFIX))
+        }
+    }
+
+    private fun codexRoutes(dto: CodexConfigDtoV1, sources: List<TemplateSource>): List<FileRoute> {
+        // Codex has no skill directories and no hook scripts — only memory (AGENTS.md),
+        // subagent TOML files and custom prompts are routed.
+        val byPath = sources.associateBy { stripFolder(it.path) }
+        return buildList {
+            addAll(fileRefRoutes(dto.memory, RouteKind.MEMORY, byPath))
+            addAll(fileRefRoutes(dto.agents, RouteKind.SUBAGENT, byPath))
+            addAll(fileRefRoutes(dto.commands, RouteKind.COMMAND, byPath))
         }
     }
 
@@ -191,8 +206,14 @@ internal class BundleManifestMapperV1(
                 model = null, modelProviders = null, permissions = null, tools = null,
                 general = null, context = null, telemetry = null, hooks = emptyMap(),
             )
+            FOLDER_CODEX -> Codex(
+                schemaVersion = 1, minVersion = null, mcpServers = emptyList(),
+                commands = commands, skills = skills, subagents = subagents,
+                model = null, modelReasoningEffort = null, approvalPolicy = null,
+                sandboxMode = null, webSearch = null, features = null,
+            )
             else -> throw FormatError.UnknownEnum(
-                targetFolder, "targets[]", setOf(FOLDER_CLAUDE, FOLDER_OPENCODE, FOLDER_QWEN),
+                targetFolder, "targets[]", setOf(FOLDER_CLAUDE, FOLDER_OPENCODE, FOLDER_QWEN, FOLDER_CODEX),
             )
         }
     }
@@ -233,6 +254,14 @@ internal class BundleManifestMapperV1(
         throw FormatError.BadJson("cannot decode qwen config.json: ${e.message}", e)
     } catch (e: IllegalStateException) {
         throw FormatError.BadJson("cannot decode qwen config.json: ${e.message}", e)
+    }
+
+    private fun decodeCodexConfig(configJson: String): CodexConfigDtoV1 = try {
+        json.decodeFromString(configJson)
+    } catch (e: IllegalArgumentException) {
+        throw FormatError.BadJson("cannot decode codex config.json: ${e.message}", e)
+    } catch (e: IllegalStateException) {
+        throw FormatError.BadJson("cannot decode codex config.json: ${e.message}", e)
     }
 
     private fun loadTemplateSources(targetFolder: String, bundleSource: BundleSource): List<TemplateSource> =

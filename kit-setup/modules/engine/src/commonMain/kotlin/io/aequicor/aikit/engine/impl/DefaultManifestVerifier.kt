@@ -1,6 +1,7 @@
 package io.aequicor.aikit.engine.impl
 
 import io.aequicor.aikit.core.domain.targets.ClaudeCode
+import io.aequicor.aikit.core.domain.targets.Codex
 import io.aequicor.aikit.core.domain.targets.OpenCode
 import io.aequicor.aikit.core.domain.targets.QwenCode
 import io.aequicor.aikit.core.domain.targets.Target
@@ -82,4 +83,5 @@ internal fun Target.matchesFolder(folder: String): Boolean = when (this) {
     is ClaudeCode -> folder == "claude"
     is OpenCode -> folder == "opencode"
     is QwenCode -> folder == "qwen"
+    is Codex -> folder == "codex"
 }

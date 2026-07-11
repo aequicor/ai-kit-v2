@@ -2,6 +2,7 @@ package io.aequicor.aikit.engine.impl
 
 import io.aequicor.aikit.akel.AkelValue
 import io.aequicor.aikit.core.domain.targets.ClaudeCode
+import io.aequicor.aikit.core.domain.targets.Codex
 import io.aequicor.aikit.core.domain.targets.OpenCode
 import io.aequicor.aikit.core.domain.targets.QwenCode
 import io.aequicor.aikit.core.domain.targets.Target
@@ -40,6 +41,7 @@ internal class NativeConfigBuilder(private val jsonWriter: kotlinx.serialization
             is ClaudeCode -> buildClaude(processed, layout)
             is QwenCode -> buildQwen(processed, layout)
             is OpenCode -> buildOpenCode(processed, layout)
+            is Codex -> buildCodex(processed, layout)
         }
     }
 
@@ -117,6 +119,42 @@ internal class NativeConfigBuilder(private val jsonWriter: kotlinx.serialization
         if (out.isEmpty()) return emptyList()
         val path = layout.settingsFile() ?: return emptyList()
         return listOf(NativeConfigFile(path, encode(JsonObject(out))))
+    }
+
+    // ── Codex ────────────────────────────────────────────────────────────────
+
+    private fun buildCodex(root: JsonObject, layout: AgentLayout): List<NativeConfigFile> {
+        val out = linkedMapOf<String, JsonElement>()
+        (root["settings"] as? JsonObject)?.forEach { (key, value) ->
+            out[codexSettingsKey(key)] = value
+        }
+        buildMcpServersObject(root["mcpServers"])?.let { servers ->
+            out["mcp_servers"] = JsonObject(servers.mapValues { (_, body) -> codexMcpEntry(body) })
+        }
+        if (out.isEmpty()) return emptyList()
+        val path = layout.settingsFile() ?: return emptyList()
+        return listOf(NativeConfigFile(path, TomlWriter.write(JsonObject(out)).encodeToByteArray()))
+    }
+
+    /** Bundle configs use camelCase; Codex `config.toml` expects snake_case keys. */
+    private fun codexSettingsKey(key: String): String = when (key) {
+        "modelReasoningEffort" -> "model_reasoning_effort"
+        "approvalPolicy" -> "approval_policy"
+        "sandboxMode" -> "sandbox_mode"
+        "webSearch" -> "web_search"
+        else -> key
+    }
+
+    /** Keeps only the keys Codex understands in `[mcp_servers.<name>]`, renaming to snake_case. */
+    private fun codexMcpEntry(body: JsonElement): JsonElement {
+        val obj = body as? JsonObject ?: return body
+        val out = linkedMapOf<String, JsonElement>()
+        obj["command"]?.let { out["command"] = it }
+        obj["args"]?.let { out["args"] = it }
+        obj["env"]?.let { out["env"] = it }
+        (obj["url"] ?: obj["httpUrl"])?.let { out["url"] = it }
+        obj["timeout"]?.let { out["timeout_secs"] = it }
+        return JsonObject(out)
     }
 
     // ── OpenCode ─────────────────────────────────────────────────────────────
