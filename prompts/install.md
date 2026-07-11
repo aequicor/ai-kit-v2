@@ -4,6 +4,8 @@ You are an AI agent helping a developer install **AI-Kit** into the project at t
 
 Your job is to investigate the project, pick suitable bundles, decide reasonable input values, write the manifest, and apply it. Follow the steps below **in order**. Do not skip steps. Do not invent bundle names or input names — discover them from the CLI.
 
+This prompt is the entire installation procedure: if the user simply said "Install https://github.com/aequicor/ai-kit-v2" (in any language), this is what they meant — no other document is needed. If the user's original request explicitly asks to proceed without questions ("не задавай вопросов", "just install it"), skip the Step 0 question (answer in the language of their request) and apply the Step 4 proposal without waiting for confirmation, reporting the decisions afterwards; the confirmation rules for overwriting an existing manifest still apply.
+
 ---
 
 ## Anti-imitation invariants
@@ -110,7 +112,17 @@ Record the version — it will go into the manifest as `aikitVersion`.
 
 ## Step 2 — Discover available bundles
 
-Build a single list of candidate bundles from two sources.
+Build a single list of candidate bundles from three sources.
+
+**Remote (default choice — downloaded from GitHub by the CLI itself):**
+
+The universal starter bundle lives in the AI-Kit repository and is fetched by `kit-setup` on demand (requires `git` on PATH). Fetch its inputs schema:
+
+```bash
+kit-setup schema bundle remote:aequicor/ai-kit-v2/my-bundle@main
+```
+
+Prefer `my-bundle` as the default preset — it adapts to any stack via its `inputs` (`stack`, `buildCommand`, `testCommand`, …) and includes the `ai-kit` ops skill, which lets the agent manage the installation later ("install skill X", "update the kit", "remove the kit") without re-pasting prompts. In the manifest it is referenced as `"source": "remote"` — the CLI resolves this to the AI-Kit repository, tracks the `main` branch, caches downloads under `.aikit/cache/bundles/` and records the exact commit sha in the lock file.
 
 **Embedded (built into the CLI):**
 
@@ -172,7 +184,7 @@ If the user adjusts something, update the corresponding input values and show on
 
 Once the user confirms:
 
-1. **Write** `.aikit/manifest.json`. If the file already exists, show the user a unified diff between old and new content before saving and get explicit confirmation. Never silently overwrite.
+1. **Write** `.aikit/manifest.json`. If the file already exists, show the user a unified diff between old and new content before saving and get explicit confirmation. Never silently overwrite. If any target uses a `remote` source, make sure `.gitignore` covers `.aikit/cache/` (add the line if missing — this is the one permitted edit outside `.aikit/` and the generated outputs).
 2. **Verify**: `kit-setup verify .aikit/manifest.json`. If it fails, surface the error, fix the manifest (or ask the user), and re-verify. **Never run `generate` without a successful `verify`.**
 3. **Generate**: `kit-setup generate .aikit/manifest.json`.
 4. **Report results** in the chosen language: a short list of files created/modified (e.g. `.claude/CLAUDE.md`, `.claude/.aikit/config.json`, `.claude/skills/review/`), one sentence per file explaining its purpose. Mention how to re-run generation later (`kit-setup generate .aikit/manifest.json`) and where the manifest lives.
@@ -215,6 +227,8 @@ The user's project does not contain AI-Kit's spec docs, so use this short refere
 - `targets.<agent>` keys are the agent identifiers the bundle declares in its `targets` field (e.g. `claude`, `opencode`). One target per agent per application.
 - `bundle` is `<name>@<version>` — both required.
 - `source`:
+  - `"remote"` for the default remote bundle from the AI-Kit repository (`<name>/` folder, branch `main`; the CLI downloads it itself and records the commit sha in the lock file);
+  - `remote:<owner>/<repo>/<path>[@<branch>]` for a bundle in any other GitHub repository;
   - `"internal"` for embedded bundles (those listed by `kit-setup schema bundle --list`);
   - a path string (e.g. `./.aikit/bundles/my-bundle` or `./.aikit/bundles/my-bundle.zip`) for third-party bundles.
 - `inputs` is a flat object mapping input `id` → value. Types follow the bundle's inputs schema:

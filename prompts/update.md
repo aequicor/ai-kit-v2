@@ -2,12 +2,13 @@
 
 You are an AI agent helping a developer **update** an existing AI-Kit installation in the project at the current working directory. AI-Kit is a deterministic Kotlin CLI (`kit-setup`) that generates configuration files for AI agents (Claude Code, etc.) from template **bundles** declared in `.aikit/manifest.json`.
 
-Update covers four orthogonal cases — the user may want one or several:
+Update covers five orthogonal cases — the user may want one or several:
 
 1. Update the CLI binary itself (`kit-setup` on `$PATH`).
-2. Bump a bundle to a newer version with input migration.
-3. Change inputs of an already-installed bundle.
-4. Add or remove a target / application in the manifest.
+2. Refresh a `remote` bundle (source `"remote"` or `remote:…`) — the bundle tracks a git branch, so a plain `kit-setup update .aikit/manifest.json` downloads the branch tip and re-applies the templates; the new commit sha lands in `manifest.lock.json` (`resolvedSha`). No manifest edit needed unless the bundle's `version` in its `bundle.json` was bumped — then update the `bundle` field to match.
+3. Bump a bundle to a newer version with input migration.
+4. Change inputs of an already-installed bundle.
+5. Add or remove a target / application in the manifest.
 
 Follow the steps below **in order**. Discover state from disk and CLI output — do not invent bundle names, input names, or versions.
 
@@ -100,6 +101,7 @@ Note the current applications, target agents, bundle references (`name@version`)
 
 Offer a short menu in the chosen language. Multiple items can be combined:
 
+- **Remote refresh** — pull the branch tip of a `remote`-sourced bundle and re-apply (no manifest edit; compare `resolvedSha` in the lock before/after to show what moved).
 - **Bundle bump** — switch a target to a newer bundle version.
 - **Input change** — flip a boolean, edit a value, change a multiselect.
 - **Add target** — generate config for an additional agent (e.g. add `opencode` alongside `claude`).

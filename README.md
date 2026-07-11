@@ -26,12 +26,20 @@ AI-Kit generates ready-to-use configuration for AI coding agents from reusable p
 
 ## Quick Start
 
-The simplest way — copy and paste this prompt into any AI coding agent with tool use (Claude Code, Cursor, Codex, etc.) opened in your project:
+Tell any AI coding agent with tool use (Claude Code, Cursor, Codex, etc.) opened in your project:
+
+```
+Установи https://github.com/aequicor/ai-kit-v2
+```
+
+or, more explicitly:
 
 ```
 Read prompts/install.md from https://github.com/aequicor/ai-kit-v2 and follow
 the installation instructions for this project.
 ```
+
+The agent downloads the versioned CLI binary (verifying its SHA256 checksum), inspects your project, proposes a preset — by default the remote `my-bundle`, which the CLI fetches from this repository on demand — and generates the configuration. After installation the `ai-kit` skill keeps the setup manageable in natural language: "установи скилл X", "обнови кит", "удали кит".
 
 ## What the installer does
 
@@ -45,16 +53,17 @@ the installation instructions for this project.
 
 | Preset                | What you get                                                                                              |
 |-----------------------|-----------------------------------------------------------------------------------------------------------|
+| `my-bundle@0.1.0` *(remote)* | Universal starter served straight from this repository (`source: "remote"` — the CLI downloads the `main` branch tip itself, no binary release needed for bundle updates). Adapts to any stack via inputs (`stack`, `buildCommand`, `testCommand`), ships the `ai-kit` ops skill for natural-language installation management, `review` skill, `code-reviewer` subagent, strict hooks. |
 | `simple-kit@0.0.1`    | Minimal starter: CLAUDE.md, skills, subagents, optional GitHub MCP, strict hooks.                         |
 | `modern-kit@0.0.1`    | Kotlin-flavored: ktlint / detekt hooks, `kotlin-specialist` & `gradle-troubleshooter` subagents, optional Serena & KnowledgeOS MCP. |
 | `flow-kit@0.0.1`      | Autonomous KMP + Ktor pipeline: `/pipeline` orchestrator (analyze → develop → security → interface test → commit), role subagents, `claude-in-mobile` MCP for UI autopilot, `maven-indexer` MCP for reading decompiled / source dependency code. Self-documenting: code is the source of truth. |
 | `parallel-work-kmp@0.0.1` | KMP across parallel Claude Code worktree sessions: lean operational CLAUDE.md (no architecture overview — per the ETH study on context-file bloat), `parallel-sessions` skill (native `claude --worktree`, `.worktreeinclude`, per-session device/port/`applicationId` lane, parallel-tuned `gradle.properties`), `snapshot-testing` skill (Roborazzi / Compose Preview as the emulator-free parallel UI layer), and a `guard-device` strict hook against unscoped `adb`/`simctl`. |
 
-Third-party bundles can be placed in `.aikit/bundles/<bundle-name>/` as a directory or `.zip` — see [docs](https://aequicor.github.io/ai-kit-v2).
+Third-party bundles can be placed in `.aikit/bundles/<bundle-name>/` as a directory or `.zip`, or served from any GitHub repository via `source: "remote:<owner>/<repo>/<path>[@<branch>]"` — see [docs](https://aequicor.github.io/ai-kit-v2).
 
 ## Update, remove, rollback
 
-- `kit-setup update` — refresh the installation from the current manifest.
+- `kit-setup update` — refresh the installation from the current manifest. For `remote` bundles this also pulls the branch tip and records the new commit sha in the lock file.
 - `kit-setup update self` — show instructions for upgrading the CLI binary.
 - `kit-setup remove` — uninstall everything AI-Kit added. Combine with `git` to roll back to a clean state.
 

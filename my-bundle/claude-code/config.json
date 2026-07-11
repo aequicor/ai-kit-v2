@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "agent": "claude-code",
+  "minVersion": "1.0.0",
+  "scope": "project",
+
+  "settings": {
+    "includeCoAuthoredBy": false,
+    "permissions": {
+      "defaultMode": "acceptEdits",
+      "allow": [
+        { "value": "Read(./**)" },
+        { "value": "Bash(git status)" },
+        { "value": "Bash(git diff:*)" },
+        { "value": "Bash(git log:*)" },
+        { "value": "Bash(kit-setup --version)" },
+        { "value": "Bash(kit-setup schema:*)" },
+        { "value": "Bash(kit-setup verify:*)" }
+      ],
+      "deny": [
+        { "value": "Read(./.env)" },
+        { "value": "Read(./secrets/**)" },
+        { "value": "Bash(rm -rf:*)", "when": "${bundle.input.strict}" },
+        { "value": "Bash(git push --force:*)", "when": "${bundle.input.strict}" }
+      ]
+    }
+  },
+
+  "memory": [
+    { "name": "CLAUDE.md", "source": "CLAUDE.md" }
+  ],
+
+  "agents": [
+    {
+      "when": "'code-reviewer' in ${bundle.input.subagents}",
+      "name": "code-reviewer",
+      "source": "subagents/code-reviewer/code-reviewer.md"
+    }
+  ],
+
+  "skills": [
+    {
+      "when": "'ai-kit' in ${bundle.input.skills}",
+      "name": "ai-kit",
+      "source": "skills/ai-kit/"
+    },
+    {
+      "when": "'review' in ${bundle.input.skills}",
+      "name": "review",
+      "source": "skills/review/"
+    }
+  ],
+
+  "hooks": {
+    "PreToolUse": [
+      {
+        "when": "${bundle.input.strict}",
+        "matcher": "Bash",
+        "command": ".claude/strict/hooks/block-dangerous.sh"
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "command": ".claude/hooks/session-start.sh"
+      }
+    ]
+  }
+}
