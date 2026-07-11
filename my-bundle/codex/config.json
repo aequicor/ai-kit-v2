@@ -26,6 +26,14 @@
       "when": "'review' in ${bundle.input.skills}",
       "name": "review",
       "source": "prompts/review.md"
+    },
+    {
+      "name": "remember",
+      "source": "prompts/remember.md"
+    },
+    {
+      "name": "generate",
+      "source": "prompts/generate.md"
     }
   ]
 }

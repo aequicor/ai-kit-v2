@@ -142,7 +142,7 @@ the installation instructions for this project.`,
       "id": "root",
       "path": ".",
       "targets": {
-        "claude-code": {
+        "claude": {
           "bundle": "simple-kit@0.0.1",
           "source": "internal",
           "inputs": {
@@ -477,7 +477,7 @@ the installation instructions for this project.`,
         eyebrow: 'Bundles',
         title: 'Which bundle to start with',
         items: [
-          { title: 'my-bundle@0.2.0 (remote)', body: 'Universal starter fetched straight from the AI-Kit repository (source: "remote"). Targets Claude Code and Codex, adapts to any stack via inputs and ships the ai-kit ops skill — manage the installation in natural language.' },
+          { title: 'my-bundle@0.3.0 (remote)', body: 'Universal starter fetched straight from the AI-Kit repository (source: "remote"). Targets Claude Code and Codex, adapts to any stack via inputs and ships the ai-kit ops skill — manage the installation in natural language. Includes /remember (persist a project fact into the manifest so it survives regeneration) and /generate (re-study the project and refresh inputs + the structure map) commands.' },
           { title: 'simple-kit@0.0.1', body: 'Minimal: CLAUDE.md + optional skills, sub-agents, GitHub MCP, strict hooks. A clean baseline you can extend.' },
           { title: 'modern-kit@0.0.1', body: 'Kotlin-flavored: ktlint / detekt hooks, kotlin-specialist and gradle-troubleshooter sub-agents, optional Serena and KnowledgeOS MCP.' },
           { title: 'flow-kit@0.0.1', body: 'Autonomous KMP + Ktor dev pipeline: a /pipeline orchestrator (analyze → develop → security → interface test → commit) with role sub-agents, claude-in-mobile MCP for UI autopilot, and maven-indexer MCP for reading dependency sources.' },
@@ -630,7 +630,7 @@ the installation instructions for this project.`,
       "id": "root",
       "path": ".",
       "targets": {
-        "claude-code": {
+        "claude": {
           "bundle": "simple-kit@0.0.1",
           "source": "internal",
           "inputs": {
@@ -965,7 +965,7 @@ the installation instructions for this project.`,
         eyebrow: 'Бандлы',
         title: 'С чего начать',
         items: [
-          { title: 'my-bundle@0.2.0 (remote)', body: 'Универсальный стартер прямо из репозитория AI-Kit (source: "remote"). Таргеты Claude Code и Codex; подстраивается под любой стек через inputs и включает ops-скилл ai-kit — управление установкой на естественном языке.' },
+          { title: 'my-bundle@0.3.0 (remote)', body: 'Универсальный стартер прямо из репозитория AI-Kit (source: "remote"). Таргеты Claude Code и Codex; подстраивается под любой стек через inputs и включает ops-скилл ai-kit — управление установкой на естественном языке. Команды: /remember — запомнить проектный факт в манифесте (переживает регенерацию), /generate — переизучить проект и актуализировать inputs + карту структуры.' },
           { title: 'simple-kit@0.0.1', body: 'Минимальный: CLAUDE.md + опциональные скилы, субагенты, GitHub MCP, strict-хуки. Чистая база, которую легко расширять.' },
           { title: 'modern-kit@0.0.1', body: 'Kotlin-flavored: ktlint / detekt хуки, субагенты kotlin-specialist и gradle-troubleshooter, опциональные Serena и KnowledgeOS MCP.' },
           { title: 'flow-kit@0.0.1', body: 'Автономный KMP + Ktor пайплайн разработки: оркестратор /pipeline (аналитика → разработка → security → тест интерфейсов → коммит) с субагентами-ролями, claude-in-mobile MCP для UI-автопилота и maven-indexer MCP для чтения исходников зависимостей.' },
