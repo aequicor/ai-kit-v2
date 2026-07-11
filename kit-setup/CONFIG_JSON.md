@@ -243,6 +243,40 @@ identifier  = ( letter | "_" ) { letter | digit | "_" | "-" } ;
 }
 ```
 
+## Агент `codex` (OpenAI Codex CLI)
+
+Папка таргета — `codex/`, ключ в манифесте проекта — `"codex"`. Особенности:
+
+- **Нативный конфиг — TOML.** Секции `settings` и `mcpServers` из `config.json` транслируются генератором в `.codex/config.toml` (project-override, Codex подхватывает его для доверенных проектов). Ключи `settings` пишутся в camelCase и конвертируются в snake_case: `modelReasoningEffort` → `model_reasoning_effort`, `approvalPolicy` → `approval_policy`, `sandboxMode` → `sandbox_mode`, `webSearch` → `web_search`. Объект `features` становится таблицей `[features]`. Каждый MCP-сервер — таблицей `[mcp_servers.<name>]` (поля `command`, `args`, `env`, `url`, `timeout` → `timeout_secs`); per-entry `when` работает как у остальных агентов.
+- **Раскладка файлов:** `memory` → `AGENTS.md` в корне application; `agents` → `.codex/agents/<name>.toml` (сабагенты Codex — TOML-файлы с полями `name`, `description`, `developer_instructions`); `commands` → `.codex/prompts/<name>.md`.
+- **Нет `skills` и `hooks`** — у Codex нет скилов и lifecycle-хуков; эти секции в `codex/config.json` не поддерживаются.
+
+Минимальный пример `codex/config.json`:
+
+```json
+{
+  "schemaVersion": 1,
+  "agent": "codex",
+  "settings": {
+    "approvalPolicy": "on-request",
+    "sandboxMode": "workspace-write",
+    "features": { "multi_agent": true }
+  },
+  "memory": [ { "name": "AGENTS.md", "source": "AGENTS.md" } ],
+  "mcpServers": [
+    {
+      "when": "${bundle.input.githubMcp}",
+      "name": "github",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "timeout": 30
+    }
+  ],
+  "agents": [ { "name": "code-reviewer", "source": "agents/code-reviewer.toml" } ],
+  "commands": [ { "name": "review", "source": "prompts/review.md" } ]
+}
+```
+
 ## Чего намеренно нет
 
 | Не входит | Почему |

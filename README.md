@@ -18,7 +18,7 @@ AI-Kit generates ready-to-use configuration for AI coding agents from reusable p
 
 - **Portability**. Bundles are reusable across projects; connecting a preset to a new project takes a single command.
 - **Flexible configuration**. Every bundle accepts `inputs`, letting you tailor the generated config to each project's needs.
-- **Multi-agent support**. AI-Kit works with multiple AI coding agents simultaneously: Claude Code, Cursor, Codex, and more.
+- **Multi-agent support**. AI-Kit works with multiple AI coding agents simultaneously: Claude Code, OpenAI Codex (`AGENTS.md` + `.codex/config.toml`), OpenCode, Qwen Code.
 - **Security**. Secrets never live in the manifest directly; values can be referenced from environment variables.
 - **Multi-profile / multi-manifest**. Connect several manifests for different working modes, e.g. separate profiles for development and CI.
 - **Open**. Apache 2.0 licensed; third-party bundles from any source can be plugged in with no friction.
@@ -53,7 +53,7 @@ The agent downloads the versioned CLI binary (verifying its SHA256 checksum), in
 
 | Preset                | What you get                                                                                              |
 |-----------------------|-----------------------------------------------------------------------------------------------------------|
-| `my-bundle@0.1.0` *(remote)* | Universal starter served straight from this repository (`source: "remote"` — the CLI downloads the `main` branch tip itself, no binary release needed for bundle updates). Adapts to any stack via inputs (`stack`, `buildCommand`, `testCommand`), ships the `ai-kit` ops skill for natural-language installation management, `review` skill, `code-reviewer` subagent, strict hooks. |
+| `my-bundle@0.2.0` *(remote)* | Universal starter served straight from this repository (`source: "remote"` — the CLI downloads the `main` branch tip itself, no binary release needed for bundle updates). Targets **Claude Code and Codex**. Adapts to any stack via inputs (`stack`, `buildCommand`, `testCommand`), ships the `ai-kit` ops skill for natural-language installation management, `review` skill, `code-reviewer` subagent, strict hooks. |
 | `simple-kit@0.0.1`    | Minimal starter: CLAUDE.md, skills, subagents, optional GitHub MCP, strict hooks.                         |
 | `modern-kit@0.0.1`    | Kotlin-flavored: ktlint / detekt hooks, `kotlin-specialist` & `gradle-troubleshooter` subagents, optional Serena & KnowledgeOS MCP. |
 | `flow-kit@0.0.1`      | Autonomous KMP + Ktor pipeline: `/pipeline` orchestrator (analyze → develop → security → interface test → commit), role subagents, `claude-in-mobile` MCP for UI autopilot, `maven-indexer` MCP for reading decompiled / source dependency code. Self-documenting: code is the source of truth. |

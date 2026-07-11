@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "agent": "codex",
+  "minVersion": "1.0.0",
+  "scope": "project",
+
+  "settings": {
+    "approvalPolicy": "on-request",
+    "sandboxMode": "workspace-write"
+  },
+
+  "memory": [
+    { "name": "AGENTS.md", "source": "AGENTS.md" }
+  ],
+
+  "agents": [
+    {
+      "when": "'code-reviewer' in ${bundle.input.subagents}",
+      "name": "code-reviewer",
+      "source": "agents/code-reviewer.toml"
+    }
+  ],
+
+  "commands": [
+    {
+      "when": "'review' in ${bundle.input.skills}",
+      "name": "review",
+      "source": "prompts/review.md"
+    }
+  ]
+}
