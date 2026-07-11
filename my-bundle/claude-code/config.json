@@ -42,6 +42,17 @@
     }
   ],
 
+  "commands": [
+    {
+      "name": "remember",
+      "source": "commands/remember.md"
+    },
+    {
+      "name": "generate",
+      "source": "commands/generate.md"
+    }
+  ],
+
   "skills": [
     {
       "when": "'ai-kit' in ${bundle.input.skills}",

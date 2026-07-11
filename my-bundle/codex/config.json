@@ -31,6 +31,14 @@
       "when": "'security-audit' in ${bundle.input.skills}",
       "name": "security-audit",
       "source": "prompts/security-audit.md"
+    },
+    {
+      "name": "remember",
+      "source": "prompts/remember.md"
+    },
+    {
+      "name": "generate",
+      "source": "prompts/generate.md"
     }
   ]
 }
