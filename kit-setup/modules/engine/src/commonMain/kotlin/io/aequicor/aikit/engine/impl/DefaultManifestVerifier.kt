@@ -8,6 +8,7 @@ import io.aequicor.aikit.engine.api.ManifestVerifier
 import io.aequicor.aikit.engine.error.EngineError
 import io.aequicor.aikit.engine.pipeline.InputResolver
 import io.aequicor.aikit.format.AiKitFormat
+import io.aequicor.aikit.io.SourceRefs
 import io.aequicor.aikit.io.fs.FsProjectManifestSource
 import kotlinx.io.files.Path
 
@@ -27,7 +28,14 @@ internal class DefaultManifestVerifier(private val format: AiKitFormat) : Manife
 
         for (app in rawManifest.applications) {
             for ((targetName, rawTarget) in app.targets) {
-                val effectiveSource = if (rawTarget.source == "internal") "embedded:${rawTarget.bundle}" else rawTarget.source
+                val effectiveSource = SourceRefs.effective(rawTarget.source, rawTarget.bundle)
+                    .getOrElse {
+                        throw EngineError.BundleLoadError(
+                            rawTarget.source,
+                            "invalid bundle source '${rawTarget.source}': ${it.message}",
+                            it,
+                        )
+                    }
                 val bundleSource = manifestSource.resolveBundleSource(effectiveSource)
                     .getOrElse {
                         throw EngineError.BundleLoadError(

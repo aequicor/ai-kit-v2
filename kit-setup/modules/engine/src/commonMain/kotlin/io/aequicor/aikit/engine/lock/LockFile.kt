@@ -43,6 +43,12 @@ data class LockApplication(
 data class LockTarget(
     val bundle: String,
     val source: String,
+    /**
+     * Commit sha the bundle was downloaded at — recorded for `remote` sources only, so the
+     * exact content behind a branch-tracking installation stays auditable. Null for embedded,
+     * path and zip sources.
+     */
+    val resolvedSha: String? = null,
     val files: List<LockFileEntry>,
 )
 

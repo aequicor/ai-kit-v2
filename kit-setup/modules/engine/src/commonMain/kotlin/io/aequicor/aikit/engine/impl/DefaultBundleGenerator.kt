@@ -29,7 +29,9 @@ import io.aequicor.aikit.engine.write.FileWriter
 import io.aequicor.aikit.format.AiKitFormat
 import io.aequicor.aikit.format.FileRoute
 import io.aequicor.aikit.format.RouteKind
+import io.aequicor.aikit.io.SourceRefs
 import io.aequicor.aikit.io.fs.FsProjectManifestSource
+import io.aequicor.aikit.io.remote.RemoteBundleSource
 import io.aequicor.aikit.layout.AgentLayout
 import io.aequicor.aikit.layout.FileKind
 import io.aequicor.aikit.layout.layoutFor
@@ -213,7 +215,14 @@ internal class DefaultBundleGenerator(
         cwdBasename: String,
         valueSourceReader: io.aequicor.aikit.engine.pipeline.ValueSourceReader,
     ): PlannedTarget {
-        val effectiveSource = resolveSource(rawTarget.source, rawTarget.bundle)
+        val effectiveSource = SourceRefs.effective(rawTarget.source, rawTarget.bundle)
+            .getOrElse {
+                throw EngineError.BundleLoadError(
+                    rawTarget.source,
+                    "invalid bundle source '${rawTarget.source}': ${it.message}",
+                    it,
+                )
+            }
         val bundleSource = manifestSource.resolveBundleSource(effectiveSource)
             .getOrElse {
                 throw EngineError.BundleLoadError(
@@ -279,6 +288,7 @@ internal class DefaultBundleGenerator(
                 targetName = targetName,
                 bundle = actualRef,
                 source = rawTarget.source,
+                resolvedSha = (src as? RemoteBundleSource)?.resolvedSha,
                 files = files,
             )
         }
@@ -341,6 +351,7 @@ internal class DefaultBundleGenerator(
                 pt.targetName to LockTarget(
                     bundle = pt.bundle,
                     source = pt.source,
+                    resolvedSha = pt.resolvedSha,
                     files = pt.files.map { LockFileEntry(path = it.relPath, hash = it.hash) },
                 )
             }
@@ -378,9 +389,6 @@ internal class DefaultBundleGenerator(
         is QwenCode -> "qwen-code"
     }
 
-    private fun resolveSource(source: String, bundle: String): String =
-        if (source == "internal") "embedded:$bundle" else source
-
     private data class PlannedFile(val relPath: String, val bytes: ByteArray, val hash: String)
 
     private data class PlannedTarget(
@@ -389,6 +397,7 @@ internal class DefaultBundleGenerator(
         val targetName: String,
         val bundle: String,
         val source: String,
+        val resolvedSha: String?,
         val files: List<PlannedFile>,
     )
 }

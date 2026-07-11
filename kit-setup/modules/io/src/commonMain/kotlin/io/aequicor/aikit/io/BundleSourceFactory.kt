@@ -2,6 +2,10 @@ package io.aequicor.aikit.io
 
 import io.aequicor.aikit.io.embedded.EmbeddedBundleSource
 import io.aequicor.aikit.io.fs.FsBundleSource
+import io.aequicor.aikit.io.process.DefaultProcessRunner
+import io.aequicor.aikit.io.process.ProcessRunner
+import io.aequicor.aikit.io.remote.RemoteBundleRef
+import io.aequicor.aikit.io.remote.RemoteBundleSource
 import io.aequicor.aikit.io.zip.ZipBundleSource
 import kotlinx.io.files.Path
 
@@ -10,16 +14,23 @@ import kotlinx.io.files.Path
  *
  * Reference forms recognised:
  * - `embedded:<name>` or `embedded:<name>@<version>` — bundle compiled into the CLI binary.
+ * - `remote:<owner>/<repo>/<path>[@<branch>]` — bundle in a GitHub repository, downloaded
+ *   into `<baseDir>/.aikit/cache/bundles/` on first read (see [RemoteBundleSource]).
  * - `zip:<path>` or `<path>.zip` — packed bundle on disk.
  * - anything else — directory path on disk (resolved against [baseDir] if relative).
+ *
+ * @property processRunner launcher for the git commands behind `remote:`; injectable for tests.
  */
-class BundleSourceFactory {
+class BundleSourceFactory(
+    private val processRunner: ProcessRunner = DefaultProcessRunner(),
+) {
 
     /**
      * Resolve [ref] to a concrete source.
      *
      * @param ref reference string as it appears in `.aikit/manifest.json` or on the CLI.
-     * @param baseDir directory used to resolve relative paths.
+     * @param baseDir directory used to resolve relative paths; also the project root that
+     *   hosts the `.aikit/cache/` directory for remote bundles.
      */
     fun create(ref: String, baseDir: Path): Result<BundleSource> = runCatching {
         when {
@@ -27,6 +38,11 @@ class BundleSourceFactory {
                 val nameWithVersion = ref.removePrefix(EMBEDDED_SCHEME)
                 EmbeddedBundleSource(nameWithVersion.substringBefore('@'))
             }
+            RemoteBundleRef.matches(ref) -> RemoteBundleSource(
+                ref = RemoteBundleRef.parse(ref).getOrThrow(),
+                cacheRoot = Path(baseDir, CACHE_RELATIVE_DIR),
+                runner = processRunner,
+            )
             ref.startsWith(ZIP_SCHEME) -> ZipBundleSource(resolvePath(ref.removePrefix(ZIP_SCHEME), baseDir))
             ref.endsWith(ZIP_SUFFIX) -> ZipBundleSource(resolvePath(ref, baseDir))
             else -> FsBundleSource(resolvePath(ref, baseDir))
@@ -48,6 +64,7 @@ class BundleSourceFactory {
         const val EMBEDDED_SCHEME = "embedded:"
         const val ZIP_SCHEME = "zip:"
         const val ZIP_SUFFIX = ".zip"
+        const val CACHE_RELATIVE_DIR = ".aikit/cache/bundles"
         const val WINDOWS_DRIVE_PREFIX_LENGTH = 2
     }
 }
