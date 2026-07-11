@@ -26,6 +26,11 @@
       "when": "'review' in ${bundle.input.skills}",
       "name": "review",
       "source": "prompts/review.md"
+    },
+    {
+      "when": "'security-audit' in ${bundle.input.skills}",
+      "name": "security-audit",
+      "source": "prompts/security-audit.md"
     }
   ]
 }
