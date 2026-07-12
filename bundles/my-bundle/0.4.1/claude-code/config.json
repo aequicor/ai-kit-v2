@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "agent": "claude-code",
+  "minVersion": "1.0.0",
+  "scope": "project",
+
+  "settings": {
+    "includeCoAuthoredBy": false,
+    "permissions": {
+      "defaultMode": "acceptEdits",
+      "allow": [
+        { "value": "Read(./**)" },
+        { "value": "Bash(git status)" },
+        { "value": "Bash(git diff:*)" },
+        { "value": "Bash(git log:*)" },
+        { "value": "Bash(kit-setup --version)" },
+        { "value": "Bash(kit-setup schema:*)" },
+        { "value": "Bash(kit-setup verify:*)" }
+      ],
+      "deny": [
+        { "value": "Read(./.env)" },
+        { "value": "Read(./secrets/**)" },
+        { "value": "Read(./local.properties)" },
+        { "value": "Read(./**/*.keystore)" },
+        { "value": "Read(./**/*.jks)" },
+        { "value": "Read(./**/google-services.json)" },
+        { "value": "Bash(rm -rf:*)", "when": "${bundle.input.strict}" },
+        { "value": "Bash(git push --force:*)", "when": "${bundle.input.strict}" }
+      ]
+    }
+  },
+
+  "memory": [
+    { "name": "CLAUDE.md", "source": "CLAUDE.md" }
+  ],
+
+  "agents": [
+    {
+      "when": "'code-reviewer' in ${bundle.input.subagents}",
+      "name": "code-reviewer",
+      "source": "subagents/code-reviewer/code-reviewer.md"
+    }
+  ],
+
+  "commands": [
+    {
+      "name": "remember",
+      "source": "commands/remember.md"
+    },
+    {
+      "name": "generate",
+      "source": "commands/generate.md"
+    }
+  ],
+
+  "skills": [
+    {
+      "when": "'ai-kit' in ${bundle.input.skills}",
+      "name": "ai-kit",
+      "source": "skills/ai-kit/"
+    },
+    {
+      "when": "'review' in ${bundle.input.skills}",
+      "name": "review",
+      "source": "skills/review/"
+    },
+    {
+      "when": "'security-audit' in ${bundle.input.skills}",
+      "name": "security-audit",
+      "source": "skills/security-audit/"
+    },
+    {
+      "when": "'leak-hunt' in ${bundle.input.skills}",
+      "name": "leak-hunt",
+      "source": "skills/leak-hunt/"
+    },
+    {
+      "when": "'perf-optimize' in ${bundle.input.skills}",
+      "name": "perf-optimize",
+      "source": "skills/perf-optimize/"
+    },
+    {
+      "when": "'kotlin-build' in ${bundle.input.skills}",
+      "name": "kotlin-build",
+      "source": "skills/kotlin-build/"
+    },
+    {
+      "when": "'coroutines' in ${bundle.input.technologies}",
+      "name": "kotlin-coroutines",
+      "source": "skills/kotlin-coroutines/"
+    },
+    {
+      "when": "'compose' in ${bundle.input.technologies}",
+      "name": "compose-ui",
+      "source": "skills/compose-ui/"
+    },
+    {
+      "when": "'decompose' in ${bundle.input.technologies}",
+      "name": "decompose-navigation",
+      "source": "skills/decompose-navigation/"
+    },
+    {
+      "when": "'kmp' in ${bundle.input.technologies}",
+      "name": "kmp-architecture",
+      "source": "skills/kmp-architecture/"
+    },
+    {
+      "when": "'ktor' in ${bundle.input.technologies}",
+      "name": "ktor-security",
+      "source": "skills/ktor-security/"
+    },
+    {
+      "when": "'tests' in ${bundle.input.technologies}",
+      "name": "kotlin-testing",
+      "source": "skills/kotlin-testing/"
+    }
+  ],
+
+  "hooks": {
+    "PreToolUse": [
+      {
+        "when": "${bundle.input.strict}",
+        "matcher": "Bash",
+        "command": ".claude/strict/hooks/block-dangerous.sh"
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "command": ".claude/hooks/session-start.sh"
+      }
+    ]
+  }
+}
