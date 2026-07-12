@@ -136,7 +136,7 @@ the installation instructions for this project.`,
         lead: 'Renders the configs declared in .aikit/manifest.json into the locations the target agent expects. Writes only inside .aikit/ and the agent\'s own directories.',
         manifestLabel: 'Minimal .aikit/manifest.json',
         manifest: `{
-  "aikitVersion": "0.2.0",
+  "aikitVersion": "1.0.0",
   "applications": [
     {
       "id": "root",
@@ -144,7 +144,7 @@ the installation instructions for this project.`,
       "targets": {
         "claude": {
           "bundle": "simple-kit@0.0.1",
-          "source": "internal",
+          "source": "remote",
           "inputs": {
             "projectName": "my-app",
             "skills": [],
@@ -212,9 +212,9 @@ the installation instructions for this project.`,
         {
           group: 'Bundles',
           items: [
-            { title: 'Internal registry + remote + external sources', body: 'source: "internal" picks bundles compiled into the binary; "remote" downloads a bundle from GitHub (branch-tracking, sha recorded in the lock); a relative path points at your own .zip or folder. Reference format is name@version.' },
+            { title: 'Official catalog + remote + local sources', body: 'source: "remote" resolves an exact official bundles/<name>/<version> entry; an explicit remote: reference points to any GitHub repository; a path points at a separately downloaded directory or ZIP.' },
             { title: 'JSON Schema export', body: 'kit-setup schema manifest and kit-setup schema bundle <ref> emit valid JSON Schema for IDE autocomplete and validation.' },
-            { title: 'Bundle catalog', body: 'kit-setup schema bundle --list prints every bundle compiled into the binary, with its version.' },
+            { title: 'Bundle catalog', body: 'kit-setup schema bundle --list prints compatible official bundles; --all includes incompatibility reasons and --json is intended for agents.' },
           ],
         },
         {
@@ -312,11 +312,13 @@ the installation instructions for this project.`,
         },
         {
           name: 'schema bundle [REF]',
-          summary: 'Print the JSON Schema for a bundle (or list bundled ones).',
+          summary: 'Print the JSON Schema for a bundle or list the official catalog.',
           flags: [
-            ['REF', 'Bundle reference: directory path, .zip, zip:<path>, or embedded:<name>[@<version>].'],
+            ['REF', 'Bundle reference: directory path, .zip, zip:<path>, or remote:<owner>/<repo>/<path>[@<branch>].'],
             ['--base-dir <dir>', 'Base directory for resolving relative REF paths.'],
-            ['--list', 'List every bundle compiled into the binary.'],
+            ['--list', 'List compatible official bundles.'],
+            ['--all', 'Include incompatible versions and reasons.'],
+            ['--json', 'Machine-readable catalog for agents.'],
           ],
         },
       ],
@@ -370,13 +372,13 @@ the installation instructions for this project.`,
       sources: {
         title: 'Where bundles come from',
         items: [
-          { title: 'internal', body: 'Compiled into the kit-setup binary. List them with kit-setup schema bundle --list.' },
-          { title: 'remote', body: 'Served from a GitHub repository: source: "remote" pulls <name>/ from the AI-Kit repo (branch main); remote:<owner>/<repo>/<path>@<branch> points anywhere. The CLI downloads via git, caches under .aikit/cache/ and records the commit sha in the lock file.' },
+          { title: 'local', body: 'Download a bundle separately, keep its directory or ZIP in the project, and set source to that path.' },
+          { title: 'remote', body: 'Served from a GitHub repository: source: "remote" pulls bundles/<name>/<version>/ from the AI-Kit repo (branch main); remote:<owner>/<repo>/<path>@<branch> points anywhere. The CLI downloads via git, caches under .aikit/cache/ and records the commit sha in the lock file.' },
           { title: 'External path', body: 'A relative path to a folder or .zip in your repo. Use source: "<relative-path>" in the manifest and reference name@version.' },
         ],
       },
       shipped: {
-        title: 'Shipped with the binary',
+        title: 'Official remote catalog',
         items: [
           {
             name: 'simple-kit@0.0.1',
@@ -387,7 +389,7 @@ the installation instructions for this project.`,
           {
             name: 'modern-kit@0.0.1',
             desc: 'Kotlin-flavored: ktlint / detekt hooks, kotlin-specialist & gradle-troubleshooter sub-agents, optional Serena & KnowledgeOS MCP.',
-            inputs: 'see kit-setup schema bundle embedded:modern-kit',
+            inputs: 'see kit-setup schema bundle remote:aequicor/ai-kit-v2/bundles/modern-kit/0.0.1@main',
             targets: 'claude-code',
           },
           {
@@ -431,7 +433,7 @@ the installation instructions for this project.`,
         title: 'generate flow',
         steps: [
           'Load and parse .aikit/manifest.json.',
-          'Resolve every referenced bundle (internal registry or external path).',
+          'Resolve every referenced bundle (official remote, third-party remote, local directory, or ZIP) and enforce its kitSetup range.',
           'Validate inputs against each bundle\'s schema.',
           'Render templates: akel conditionals + ${bundle.input.*} substitution.',
           'Diff the rendered plan against .aikit/manifest.lock.json.',
@@ -624,7 +626,7 @@ the installation instructions for this project.`,
         lead: 'Рендерит конфиги, объявленные в .aikit/manifest.json, в места, ожидаемые целевым агентом. Пишет только в .aikit/ и в каталоги самого агента.',
         manifestLabel: 'Минимальный .aikit/manifest.json',
         manifest: `{
-  "aikitVersion": "0.2.0",
+  "aikitVersion": "1.0.0",
   "applications": [
     {
       "id": "root",
@@ -632,7 +634,7 @@ the installation instructions for this project.`,
       "targets": {
         "claude": {
           "bundle": "simple-kit@0.0.1",
-          "source": "internal",
+          "source": "remote",
           "inputs": {
             "projectName": "my-app",
             "skills": [],
@@ -700,9 +702,9 @@ the installation instructions for this project.`,
         {
           group: 'Бандлы',
           items: [
-            { title: 'Встроенный реестр + remote + внешние источники', body: 'source: "internal" — бандлы, вкомпиленные в бинарь; "remote" — бандл скачивается из GitHub (отслеживание ветки, sha фиксируется в lock); относительный путь — твой собственный .zip или папка. Ссылка в формате name@version.' },
+            { title: 'Официальный каталог + remote + локальные источники', body: 'source: "remote" разрешает точную официальную версию bundles/<name>/<version>; явный remote: указывает на любой GitHub-репозиторий; путь — на отдельно скачанную папку или ZIP.' },
             { title: 'JSON Schema export', body: 'kit-setup schema manifest и kit-setup schema bundle <ref> отдают валидные JSON Schema для автокомплита и валидации в IDE.' },
-            { title: 'Каталог бандлов', body: 'kit-setup schema bundle --list печатает все бандлы, вкомпиленные в бинарь, с их версиями.' },
+            { title: 'Каталог бандлов', body: 'kit-setup schema bundle --list печатает совместимые официальные бандлы; --all добавляет причины несовместимости, --json предназначен для агентов.' },
           ],
         },
         {
@@ -800,11 +802,13 @@ the installation instructions for this project.`,
         },
         {
           name: 'schema bundle [REF]',
-          summary: 'Печатает JSON Schema для бандла (или список встроенных).',
+          summary: 'Печатает JSON Schema для бандла или официальный каталог.',
           flags: [
-            ['REF', 'Ссылка на бандл: путь к папке, .zip, zip:<path> или embedded:<name>[@<version>].'],
+            ['REF', 'Ссылка на бандл: путь к папке, .zip, zip:<path> или remote:<owner>/<repo>/<path>[@<branch>].'],
             ['--base-dir <dir>', 'База для относительных REF-путей.'],
-            ['--list', 'Список всех встроенных бандлов.'],
+            ['--list', 'Список совместимых официальных бандлов.'],
+            ['--all', 'Добавить несовместимые версии и причины.'],
+            ['--json', 'Машиночитаемый каталог для агентов.'],
           ],
         },
       ],
@@ -858,13 +862,13 @@ the installation instructions for this project.`,
       sources: {
         title: 'Откуда берутся бандлы',
         items: [
-          { title: 'internal', body: 'Вкомпилены в kit-setup. Список — kit-setup schema bundle --list.' },
-          { title: 'remote', body: 'Из GitHub-репозитория: source: "remote" тянет <name>/ из репозитория AI-Kit (ветка main); remote:<owner>/<repo>/<path>@<branch> — из любого. CLI скачивает через git, кэширует в .aikit/cache/ и фиксирует commit sha в lock-файле.' },
+          { title: 'local', body: 'Скачай бандл отдельно, сохрани папку или ZIP в проекте и укажи этот путь в source.' },
+          { title: 'remote', body: 'Из GitHub-репозитория: source: "remote" тянет bundles/<name>/<version>/ из репозитория AI-Kit (ветка main); remote:<owner>/<repo>/<path>@<branch> — из любого. CLI скачивает через git, кэширует в .aikit/cache/ и фиксирует commit sha в lock-файле.' },
           { title: 'Внешний путь', body: 'Относительный путь к папке или .zip в репо. В манифесте указываешь source: "<relative-path>" и ссылку name@version.' },
         ],
       },
       shipped: {
-        title: 'Поставляются с бинарём',
+        title: 'Официальный remote-каталог',
         items: [
           {
             name: 'simple-kit@0.0.1',
@@ -875,7 +879,7 @@ the installation instructions for this project.`,
           {
             name: 'modern-kit@0.0.1',
             desc: 'Kotlin-flavored: ktlint / detekt хуки, kotlin-specialist и gradle-troubleshooter, опциональные Serena и KnowledgeOS MCP.',
-            inputs: 'см. kit-setup schema bundle embedded:modern-kit',
+            inputs: 'см. kit-setup schema bundle remote:aequicor/ai-kit-v2/bundles/modern-kit/0.0.1@main',
             targets: 'claude-code',
           },
           {

@@ -12,6 +12,10 @@ internal data class BundleManifestDtoV1(
     val description: String,
     val author: String? = null,
     val license: String? = null,
+    val kitSetup: String? = null,
+    val tags: List<String> = emptyList(),
+    val bestFor: List<String> = emptyList(),
+    val notFor: List<String> = emptyList(),
     val targets: List<String>,
     val inputs: List<InputSpecDtoV1> = emptyList(),
 )

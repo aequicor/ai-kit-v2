@@ -16,6 +16,7 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":modules:engine"))
             implementation(libs.clikt)
+            implementation(libs.kotlinx.serialization.json)
         }
     }
 }

@@ -21,15 +21,15 @@
 
 ```json
 {
-  "aikitVersion": "0.0.3",
+  "aikitVersion": "1.0.0",
   "applications": [
     {
       "id": "backend",
       "path": "./backend",
       "targets": {
         "claude": {
-          "bundle": "simple@0.1",
-          "source": "internal",
+          "bundle": "simple-kit@0.0.1",
+          "source": "remote",
           "inputs": {
             "projectName": "billing-service",
             "language": "kotlin",
@@ -52,8 +52,8 @@
       "path": ".",
       "targets": {
         "claude": {
-          "bundle": "simple@0.1",
-          "source": "internal",
+          "bundle": "simple-kit@0.0.1",
+          "source": "./.aikit/bundles/simple-kit/0.0.1",
           "inputs": { "projectName": "billing-service" }
         }
       }
@@ -82,7 +82,7 @@
 | Поле | Тип | Обязательное | Описание |
 |---|---|---|---|
 | `bundle` | string | да | Идентификатор бандла в формате `name@version`. Версия должна совпадать с версией, объявленной в манифесте самого бандла, иначе `apply` падает с ошибкой. |
-| `source` | string | да | Откуда брать бандл. Значения: `"internal"` (встроенный реестр CLI), `"remote"` (бандл `<name>/` из GitHub-репозитория AI-Kit, ветка `main`), явная ссылка `remote:<owner>/<repo>/<path>[@<branch>]` (бандл из произвольного GitHub-репозитория), либо путь относительно корня проекта к zip-файлу или папке бандла. |
+| `source` | string | да | Откуда брать бандл: `"remote"` для точной официальной версии `bundles/<name>/<version>/`, `remote:<owner>/<repo>/<path>[@<branch>]` для произвольного GitHub-репозитория либо путь к локальной директории/ZIP. |
 | `inputs` | object | да | Плоский объект со значениями входов бандла. Валидируется против `inputs.schema` внутри бандла (типы, required, enum). Значения по умолчанию из схемы бандла **не** дублируются в манифест — это позволяет апгрейду бандла безопасно подменять дефолты. |
 
 ## Ссылочные значения в `inputs`
@@ -120,7 +120,8 @@
 
 ### Резолвинг бандла
 
-1. Если `source == "internal"` — CLI ищет `name@version` во встроенном реестре исполняемого файла. Не найден → ошибка `bundle not found in internal registry: <name>@<version>`.
+1. Если `source == "remote"` — CLI разрешает `name@version` в `bundles/<name>/<version>/` официального репозитория.
+2. `internal` и `embedded:` отклоняются с инструкцией перейти на `remote` либо скачать бандл отдельно и указать локальный путь.
 2. Если `source == "remote"` — эквивалент явной ссылки `remote:aequicor/ai-kit-v2/<name>@main`, где `<name>` — имя из `bundle` без версии.
 3. Если `source` начинается с `remote:` — бандл скачивается из GitHub-репозитория (см. «Удалённые бандлы» ниже).
 4. Если `source` — путь, CLI читает бандл оттуда. Версия в манифесте бандла должна совпадать с версией в `bundle`. Несовпадение → ошибка `bundle version mismatch: expected <X>, found <Y>`.
@@ -191,7 +192,7 @@ manifest=.aikit/manifest.autonomous.json
       "targets": {
         "claude": {
           "bundle": "simple@0.1",
-          "source": "internal",
+          "source": "remote",
           "inputs": { "projectName": "my-app" }
         }
       }

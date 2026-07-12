@@ -244,6 +244,7 @@ internal class DefaultBundleGenerator(
                 }
 
             val actualRef = "${parsedBundle.manifest.name}@${parsedBundle.manifest.version}"
+            requireCompatible(parsedBundle.manifest, aikitVersion, actualRef)
             if (actualRef != rawTarget.bundle) {
                 throw EngineError.BundleLoadError(
                     rawTarget.bundle,

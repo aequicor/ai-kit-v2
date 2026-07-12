@@ -9,25 +9,33 @@ import io.aequicor.aikit.io.remote.RemoteBundleRef
  */
 object SourceRefs {
 
-    /** Sentinel: bundle baked into the CLI binary. */
+    /** Removed sentinel retained only to produce an actionable migration error. */
     const val INTERNAL = "internal"
 
     /**
      * Resolve [source] into a factory-ready reference.
      *
-     * - `"internal"` → `embedded:<bundle>`.
+     * - `"internal"` and `embedded:` → actionable migration error.
      * - `"remote"` → default-registry `remote:` reference for the bundle's name
      *   (version stripped — remote bundles track a branch, the version is verified
      *   against the downloaded `bundle.json`).
-     * - anything else (paths, `zip:`, `embedded:`, explicit `remote:`) → unchanged.
+     * - anything else (paths, `zip:`, explicit `remote:`) → unchanged.
      *
      * @param source raw `source` value from `.aikit/manifest.json`.
      * @param bundle `name@version` reference from the same target.
      */
     fun effective(source: String, bundle: String): Result<String> = when (source) {
-        INTERNAL -> Result.success("embedded:$bundle")
+        INTERNAL -> Result.failure(IllegalArgumentException(LEGACY_SOURCE_MESSAGE))
         RemoteBundleRef.SOURCE_SENTINEL ->
-            RemoteBundleRef.defaultFor(bundle.substringBefore('@')).map { it.toRefString() }
-        else -> Result.success(source)
+            RemoteBundleRef.defaultFor(bundle).map { it.toRefString() }
+        else -> if (source.startsWith("embedded:")) {
+            Result.failure(IllegalArgumentException(LEGACY_SOURCE_MESSAGE))
+        } else {
+            Result.success(source)
+        }
     }
+
+    const val LEGACY_SOURCE_MESSAGE =
+        "embedded bundles were removed in kit-setup 1.0.0; use source 'remote', " +
+            "or download the bundle into the project and set source to its local directory or ZIP path"
 }

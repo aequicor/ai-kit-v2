@@ -6,13 +6,17 @@
 
 ```json
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
 
   "name": "my-bundle",
   "version": "1.2.0",
   "description": "Полное описание бандла",
   "author": "Имя Автора <email@example.com>",
   "license": "MIT",
+  "kitSetup": ">=1.0.0 <2.0.0",
+  "tags": ["kotlin", "backend"],
+  "bestFor": ["Kotlin backend services"],
+  "notFor": ["Frontend-only projects"],
 
   "targets": ["claude-code", "opencode"],
 
@@ -69,12 +73,16 @@
 
 | Поле | Обяз. | Назначение |
 |---|---|---|
-| `schemaVersion` | да | Версия формата `bundle.json`. Увеличивается при breaking changes структуры манифеста |
+| `schemaVersion` | да | Версия формата `bundle.json`; для совместимых бандлов AI-Kit 1.x требуется `2` |
 | `name` | да | Уникальный идентификатор бандла (kebab-case) |
 | `version` | да | SemVer бандла |
 | `description` | да | Одна строка, что делает бандл |
 | `author` | нет | Автор |
 | `license` | нет | SPDX-идентификатор лицензии (`MIT`, `Apache-2.0`, …) |
+| `kitSetup` | да | SemVer-диапазон совместимых версий CLI, например `>=1.0.0 <2.0.0` |
+| `tags` | нет | Короткие машинно-читаемые признаки стека и назначения |
+| `bestFor` | нет | Сценарии, для которых агент должен рекомендовать бандл |
+| `notFor` | нет | Сценарии, в которых агент не должен рекомендовать бандл |
 | `targets` | да | Список поддерживаемых агентов: `claude-code`, `opencode`, `qwen-code`, `codex`. Для каждого id обязана существовать одноимённая папка в корне бандла |
 | `inputs` | нет | Параметры, которые CLI спрашивает у пользователя при установке. Отсутствие или пустой массив = бандл без параметров |
 
@@ -148,6 +156,9 @@ inputs: { "id": "temperature", "type": "double", "default": 0.7, "min": 0.0, "ma
 
 ## Валидация
 
+- `schemaVersion: 1` и отсутствие `kitSetup` считаются несовместимыми с kit-setup 1.x.
+- `kitSetup` состоит из одного или нескольких сравнений `>`, `>=`, `<`, `<=`, `=` над полными SemVer, разделённых пробелами; все сравнения объединяются по AND.
+- `schema`, `verify`, `generate` и `update` блокируют несовместимый бандл.
 - Все id из `targets` обязаны иметь одноимённую папку в корне бандла.
 - Все id из `inputs` уникальны.
 - Для `select` `default` (если задан) должен входить в `options`.

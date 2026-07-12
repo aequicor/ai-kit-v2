@@ -59,6 +59,10 @@ internal class BundleManifestMapperV1(
             description = dto.description,
             author = dto.author,
             license = dto.license,
+            kitSetup = dto.kitSetup,
+            tags = dto.tags,
+            bestFor = dto.bestFor,
+            notFor = dto.notFor,
             targets = targets,
             inputs = dto.inputs.map { mapInputSpec(it).getOrThrow() },
         )

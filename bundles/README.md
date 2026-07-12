@@ -6,35 +6,36 @@
 
 Спецификации формата — источник истины. Сначала читай их, потом этот README:
 
-- [`../BUNDLE_JSON.md`](../BUNDLE_JSON.md) — манифест `bundle.json`: метаданные, `targets`, `inputs`.
-- [`../CONFIG_JSON.md`](../CONFIG_JSON.md) — `config.json` агента + язык выражений AKEL для `when`.
-- [`../TEMPLATE_MD.md`](../TEMPLATE_MD.md) — шаблонизация `.md`: подстановки `${bundle.input.<id>}` и условные блоки `<!-- when: … --> … <!-- end -->`.
-- [`../MANIFEST_JSON.md`](../MANIFEST_JSON.md) — `.aikit/manifest.json` пользовательского проекта (контекст потребителя бандла).
+- [`../kit-setup/BUNDLE_JSON.md`](../kit-setup/BUNDLE_JSON.md) — манифест `bundle.json`: совместимость, метаданные, `targets`, `inputs`.
+- [`../kit-setup/CONFIG_JSON.md`](../kit-setup/CONFIG_JSON.md) — `config.json` агента + язык выражений AKEL для `when`.
+- [`../kit-setup/TEMPLATE_MD.md`](../kit-setup/TEMPLATE_MD.md) — шаблонизация `.md`.
+- [`../kit-setup/MANIFEST_JSON.md`](../kit-setup/MANIFEST_JSON.md) — `.aikit/manifest.json` пользовательского проекта.
 
 Этот README — навигатор и чек-лист, он не дублирует спецификации.
 
 ## Раскладка папки бандла
 
-Референс — [`simple_kit-0_0_1/`](simple_kit-0_0_1/).
+Референс — [`simple-kit/0.0.1/`](simple-kit/0.0.1/).
 
 ```
-<bundle-name>-<X_Y_Z>/
-  bundle.json                    # манифест бандла
-  <agent-id>/                    # одна папка на каждый id из targets
-    config.json                  # маппинг в конфигурацию агента
-    CLAUDE.md                    # или AGENTS.md и т.п. — по агенту
-    commands/  skills/  subagents/  hooks/
-    <component>/…                # папки под boolean/select/multiselect inputs
+<bundle-name>/
+  <X.Y.Z>/
+    bundle.json                  # schemaVersion 2 + kitSetup
+    <agent-id>/                  # одна папка на каждый id из targets
+      config.json
+      CLAUDE.md                  # или AGENTS.md и т.п. — по агенту
+      commands/  skills/  subagents/  hooks/
 ```
 
 Конвенции, которых нет в спецификациях:
 
-- **Имя папки бандла** — `<name>-<version с _ вместо .>` (например, `simple-kit` версии `0.0.1` → `simple_kit-0_0_1`).
+- Путь обязан совпадать с `name` и `version`: `bundles/<name>/<version>/`.
+- Каждый официальный бандл обязан объявить `schemaVersion: 2`, `kitSetup`, `tags`, `bestFor` и `notFor`.
 - Для каждого id из `targets` обязана существовать одноимённая папка в корне бандла.
 
 ## inputs → файлы (шпаргалка)
 
-Полные правила — в [`../BUNDLE_JSON.md`](../BUNDLE_JSON.md). Краткая связь между типом `input` и раскладкой:
+Полные правила — в [`../kit-setup/BUNDLE_JSON.md`](../kit-setup/BUNDLE_JSON.md). Краткая связь между типом `input` и раскладкой:
 
 | Тип | Раскладка | Применяется |
 |---|---|---|
@@ -45,18 +46,18 @@
 
 ## Шаблонизация и условия
 
-- В `.md`-шаблонах: подстановки `${bundle.input.<id>}` и блоки `<!-- when: <AKEL> --> … <!-- end -->`. Детали — [`../TEMPLATE_MD.md`](../TEMPLATE_MD.md).
-- В `config.json`: поле `when` с AKEL-выражением включает/исключает элемент массива. Детали — [`../CONFIG_JSON.md`](../CONFIG_JSON.md).
+- В `.md`-шаблонах: подстановки `${bundle.input.<id>}` и условные блоки. Детали — [`../kit-setup/TEMPLATE_MD.md`](../kit-setup/TEMPLATE_MD.md).
+- В `config.json`: поле `when` с AKEL-выражением включает/исключает элемент массива. Детали — [`../kit-setup/CONFIG_JSON.md`](../kit-setup/CONFIG_JSON.md).
 
 ## Способы распространения бандла
 
 | Способ | `source` в манифесте потребителя | Когда использовать |
 |---|---|---|
-| **Embedded** — папка здесь, в `kit-setup/bundles/` | `"internal"` | Стабильные пресеты; любое изменение требует релиза бинаря (бандлы пекутся в него таском `generateEmbeddedBundles`) |
-| **Remote** — папка бандла в GitHub-репозитории (например, `my-bundle/` в корне этого репо) | `"remote"` или `remote:<owner>/<repo>/<path>[@<branch>]` | Активно развиваемые бандлы: изменения доезжают до потребителей без релиза бинаря; CLI скачивает вершину ветки и фиксирует sha в lock |
+| **Official remote** — версия из этого каталога | `"remote"` | CLI разрешает `name@version` в `bundles/<name>/<version>/` и фиксирует commit sha |
+| **Third-party remote** — папка в GitHub-репозитории | `remote:<owner>/<repo>/<path>[@<branch>]` | Публичные сторонние бандлы |
 | **Локальный** — папка или `.zip` в `.aikit/bundles/` проекта | путь (`./.aikit/bundles/…`) | Приватные/экспериментальные бандлы |
 
-Детали резолвинга — в [`../MANIFEST_JSON.md`](../MANIFEST_JSON.md).
+`internal` и `embedded:` больше не поддерживаются. Скачанный отдельно официальный бандл можно установить как обычную локальную папку или ZIP. Детали — в [`../kit-setup/MANIFEST_JSON.md`](../kit-setup/MANIFEST_JSON.md).
 
 ## Версионирование бандла
 
@@ -68,7 +69,7 @@ SemVer `MAJOR.MINOR.PATCH` в поле `version` манифеста:
 | Добавлены опциональные поля/значения `enum`, новые `inputs` с дефолтами — без breaking changes | **MINOR** |
 | Изменился **только** контент шаблонов (`*.md`) | **PATCH** |
 
-После бампа: переименуй папку бандла под новую версию (`<name>-<X_Y_Z>`) и подними `version` в `bundle.json`.
+После бампа создай новую папку `<name>/<X.Y.Z>/`; опубликованные версии не изменяй задним числом.
 
 ## Чек-лист перед коммитом
 

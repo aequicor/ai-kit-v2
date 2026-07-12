@@ -19,7 +19,7 @@ description: Manage the AI-Kit installation in ${bundle.input.projectName} via n
 
 1. `kit-setup --version` — CLI есть? Если нет — проверь `.aikit/bin/kit-setup` и добавь в PATH сессии; иначе предложи пользователю сценарий установки из README AI-Kit.
 2. Прочитай `.aikit/manifest.json` и `.aikit/manifest.lock.json` — текущие бандлы, inputs, файлы.
-3. Схема inputs бандла: `kit-setup schema bundle <source>` (для embedded — `embedded:<name>@<version>`, для remote — `remote:<owner>/<repo>/<path>@<branch>`). Не выдумывай id и значения — только из схемы.
+3. Схема inputs бандла: `kit-setup schema bundle <source>` (официальный каталог — `kit-setup schema bundle --list --json`, сторонний remote — `remote:<owner>/<repo>/<path>@<branch>`, локальный — путь к директории/ZIP). Не выдумывай id и значения — только из схемы.
 
 ## Операции
 
@@ -38,7 +38,7 @@ description: Manage the AI-Kit installation in ${bundle.input.projectName} via n
 Уточни, что обновляем:
 
 - **Бандл (remote)** — источник `"remote"` отслеживает ветку: обычный `kit-setup update .aikit/manifest.json` скачает свежую вершину и переприменит шаблоны; новый commit sha попадёт в lock (`resolvedSha`).
-- **Бандл (embedded, смена версии)** — сверь схемы старой и новой версии (`kit-setup schema bundle …`), перенеси inputs, поменяй `bundle: name@version` в манифесте → `verify` → `update --dry-run` → `update`.
+- **Бандл (смена версии)** — получи совместимые версии через `schema bundle --list --json`, сверь схемы, перенеси inputs, поменяй `bundle: name@version` в манифесте → `verify` → `update --dry-run` → `update`.
 - **CLI** — `kit-setup update self --check`; если есть новее, покажи пользователю команду обновления и выполни её после подтверждения.
 
 ### «Поменяй input Y» (имя проекта, команда сборки, …)

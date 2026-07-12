@@ -6,7 +6,7 @@ import kotlinx.io.Source
  * Abstract source of a single AI-Kit bundle.
  *
  * Hides the difference between bundles laid out as a directory on disk, packed into a zip archive,
- * or embedded into the CLI binary. All read methods return a freshly opened [Source]; the caller is
+ * or downloaded from a remote repository. All read methods return a freshly opened [Source]; the caller is
  * responsible for closing it (use `.use { … }`). Implementations may keep underlying resources
  * (file handles, zip entries) open until [close] is invoked.
  *

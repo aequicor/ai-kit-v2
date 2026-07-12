@@ -8,6 +8,7 @@ import kotlinx.io.files.Path
 
 internal class DefaultBundleSchemaProvider(
     private val format: AiKitFormat,
+    private val currentVersion: String,
     private val sourceFactory: BundleSourceFactory = BundleSourceFactory(),
 ) : BundleSchemaProvider {
 
@@ -19,6 +20,7 @@ internal class DefaultBundleSchemaProvider(
         source.use { src ->
             val parsed = format.parseBundleManifest(src)
                 .getOrElse { throw EngineError.BundleLoadError(ref, "cannot parse bundle '$ref': ${it.message}", it) }
+            requireCompatible(parsed.manifest, currentVersion, ref)
             format.bundleInputsJsonSchema(parsed.manifest)
         }
     }

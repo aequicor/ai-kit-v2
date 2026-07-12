@@ -37,7 +37,7 @@ object Fixtures {
               "targets": {
                 "claude": {
                   "bundle": "simple-kit@$bundleVersion",
-                  "source": "internal",
+                  "source": "${Discovery.simpleKitPath.toJsonPath()}",
                   "inputs": {
                     "projectName": "$projectName",
                     "skills": ${skills.toJsonArray()},
@@ -65,7 +65,7 @@ object Fixtures {
               "targets": {
                 "claude": {
                   "bundle": "simple-kit@$bundleVersion",
-                  "source": "internal",
+                  "source": "${Discovery.simpleKitPath.toJsonPath()}",
                   "inputs": {
                     "projectName": "root-app",
                     "skills": ["review"],
@@ -82,7 +82,7 @@ object Fixtures {
               "targets": {
                 "claude": {
                   "bundle": "simple-kit@$bundleVersion",
-                  "source": "internal",
+                  "source": "${Discovery.simpleKitPath.toJsonPath()}",
                   "inputs": {
                     "projectName": "api-app",
                     "skills": ["review"],
@@ -99,4 +99,6 @@ object Fixtures {
 
     private fun List<String>.toJsonArray(): String =
         joinToString(prefix = "[", postfix = "]") { "\"$it\"" }
+
+    private fun Path.toJsonPath(): String = toAbsolutePath().toString().replace("\\", "\\\\")
 }

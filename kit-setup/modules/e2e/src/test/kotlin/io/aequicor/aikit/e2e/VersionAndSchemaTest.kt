@@ -2,6 +2,9 @@ package io.aequicor.aikit.e2e
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.assertTrue
+import java.nio.file.Files
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
 class VersionAndSchemaTest {
 
@@ -15,10 +18,11 @@ class VersionAndSchemaTest {
     }
 
     @Test
-    fun `schema bundle --list contains embedded simple-kit`() {
-        val result = KitRunner.run("schema", "bundle", "--list")
-        assertSuccess(result)
-        assertStdoutContains(result, "embedded:simple-kit@")
+    fun `legacy embedded source explains remote and local migration`() {
+        val result = KitRunner.run("schema", "bundle", "embedded:simple-kit@0.0.1")
+        assertTrue(result.exitCode != 0)
+        assertTrue(result.combined.contains("source 'remote'"))
+        assertTrue(result.combined.contains("local directory or ZIP"))
     }
 
     @Test
@@ -29,5 +33,25 @@ class VersionAndSchemaTest {
         for (field in listOf("projectName", "skills", "subagents", "githubMcp", "strict")) {
             assertStdoutContains(result, "\"$field\"")
         }
+    }
+
+    @Test
+    fun `schema bundle accepts a separately downloaded local ZIP`() {
+        val sandbox = Fixtures.newSandbox()
+        val archive = sandbox.resolve("simple-kit.zip")
+        ZipOutputStream(Files.newOutputStream(archive)).use { zip ->
+            Files.walk(Discovery.simpleKitPath).use { paths ->
+                paths.filter(Files::isRegularFile).forEach { file ->
+                    val relative = Discovery.simpleKitPath.relativize(file).toString().replace('\\', '/')
+                    zip.putNextEntry(ZipEntry(relative))
+                    Files.copy(file, zip)
+                    zip.closeEntry()
+                }
+            }
+        }
+
+        val result = KitRunner.run("schema", "bundle", archive.toString(), cwd = sandbox)
+        assertSuccess(result)
+        assertStdoutContains(result, "\"projectName\"")
     }
 }
