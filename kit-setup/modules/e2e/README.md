@@ -56,7 +56,7 @@ cd kit-setup
   `assertFailure`, `assertFileExists`, `assertFileContains`, `assertFileAbsent`,
   `assertStdoutContains`.
 - [`Discovery`](src/test/kotlin/io/aequicor/aikit/e2e/Discovery.kt) — кэшированное определение
-  версии бинаря и `embedded:simple-kit@<v>` через вызовы самого CLI.
+  версии бинаря через CLI и локального `bundles/simple-kit/<v>` из репозитория.
 
 ## Добавление сценария
 

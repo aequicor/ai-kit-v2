@@ -39,7 +39,7 @@ Read prompts/install.md from https://github.com/aequicor/ai-kit-v2 and follow
 the installation instructions for this project.
 ```
 
-The agent downloads the versioned CLI binary (verifying its SHA256 checksum), inspects your project, proposes a preset — by default the remote `my-bundle`, which the CLI fetches from this repository on demand — and generates the configuration. After installation the `ai-kit` skill keeps the setup manageable in natural language: "установи скилл X", "обнови кит", "удали кит".
+The agent downloads the versioned CLI binary (verifying its SHA256 checksum), inspects your project, obtains the compatible bundle catalog with `kit-setup schema bundle --list --json`, recommends up to three suitable presets, and generates the selected configuration. After installation the `ai-kit` skill keeps the setup manageable in natural language: "установи скилл X", "обнови кит", "удали кит".
 
 ## What the installer does
 
@@ -49,17 +49,19 @@ The agent downloads the versioned CLI binary (verifying its SHA256 checksum), in
 - Re-run to regenerate from the manifest; the update report shows what was created, updated, or left unchanged.
 - Can be fully removed at any time.
 
-## Built-in presets
+## Official bundle catalog
 
 | Preset                | What you get                                                                                              |
 |-----------------------|-----------------------------------------------------------------------------------------------------------|
-| `my-bundle@0.4.0` *(remote)* | Universal constructor served straight from this repository (`source: "remote"` — the CLI downloads the `main` branch tip itself, no binary release needed for bundle updates). Targets **Claude Code and Codex**. CLAUDE.md/AGENTS.md are assembled from per-technology toggles (`technologies`: kmp, android, coroutines, compose, decompose, ktor, tests) plus a manifest-backed project profile (`projectDescription`, `architecture`, `modules`, `designSystem`) that survives regeneration. Each selected technology also installs a deep SDK skill (kotlin-coroutines, compose-ui, decompose-navigation, kmp-architecture, ktor-security, kotlin-testing); cross-cutting skills cover `security-audit`, `leak-hunt`, `perf-optimize`, `kotlin-build`, plus the `ai-kit` ops skill, `review`, `code-reviewer` subagent and strict hooks. Ships `/remember` (persist a project fact into the manifest so it survives regeneration) and `/generate` (re-study the project and refresh the profile + inputs) commands. |
+| `my-bundle@0.4.0` | Universal constructor served from `bundles/my-bundle/0.4.0` (`source: "remote"`). Targets **Claude Code and Codex**. CLAUDE.md/AGENTS.md are assembled from per-technology toggles (`technologies`: kmp, android, coroutines, compose, decompose, ktor, tests) plus a manifest-backed project profile that survives regeneration. Ships `/remember` and `/generate` for maintaining that profile. |
 | `simple-kit@0.0.1`    | Minimal starter: CLAUDE.md, skills, subagents, optional GitHub MCP, strict hooks.                         |
 | `modern-kit@0.0.1`    | Kotlin-flavored: ktlint / detekt hooks, `kotlin-specialist` & `gradle-troubleshooter` subagents, optional Serena & KnowledgeOS MCP. |
 | `flow-kit@0.0.1`      | Autonomous KMP + Ktor pipeline: `/pipeline` orchestrator (analyze → develop → security → interface test → commit), role subagents, `claude-in-mobile` MCP for UI autopilot, `maven-indexer` MCP for reading decompiled / source dependency code. Self-documenting: code is the source of truth. |
 | `parallel-work-kmp@0.0.1` | KMP across parallel Claude Code worktree sessions: lean operational CLAUDE.md (no architecture overview — per the ETH study on context-file bloat), `parallel-sessions` skill (native `claude --worktree`, `.worktreeinclude`, per-session device/port/`applicationId` lane, parallel-tuned `gradle.properties`), `snapshot-testing` skill (Roborazzi / Compose Preview as the emulator-free parallel UI layer), and a `guard-device` strict hook against unscoped `adb`/`simctl`. |
 
-Third-party bundles can be placed in `.aikit/bundles/<bundle-name>/` as a directory or `.zip`, or served from any GitHub repository via `source: "remote:<owner>/<repo>/<path>[@<branch>]"` — see [docs](https://aequicor.github.io/ai-kit-v2).
+Bundles are never compiled into the executable. Every bundle declares a required `kitSetup` SemVer range. `schema bundle --list` shows compatible official versions; add `--all` for incompatibility reasons and `--json` for agents.
+
+Bundles can also be downloaded separately and stored in `.aikit/bundles/` as a directory or `.zip`, then referenced by a local path. Third-party GitHub bundles use `source: "remote:<owner>/<repo>/<path>[@<branch>]"`. Legacy `internal` and `embedded:` sources must migrate to either `remote` or a local path.
 
 ## Update, remove, rollback
 
@@ -126,7 +128,7 @@ If `-Pkit.binary` is omitted, the module looks for the binary in the standard bu
 
 Architecture overview: [`kit-setup/CLAUDE.md`](kit-setup/CLAUDE.md).
 
-**Adding or editing a bundle** — read [`kit-setup/bundles/README.md`](kit-setup/bundles/README.md) first; it has the conventions checklist and links to the format specs.
+**Adding or editing a bundle** — read [`bundles/README.md`](bundles/README.md) first; it has the conventions checklist and links to the format specs.
 
 ## License
 

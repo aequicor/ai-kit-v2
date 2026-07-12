@@ -116,8 +116,8 @@ Use the CLI to discover authoritative information; do not rely on memory:
 **For a bundle bump:**
 
 ```bash
-kit-setup schema bundle --list                        # see available embedded bundles
-kit-setup schema bundle embedded:<name>@<new-version> # get the new inputs schema
+kit-setup schema bundle --list --json                 # compatible official versions
+kit-setup schema bundle <source-from-catalog>         # get the new inputs schema
 ```
 
 Diff the old and new schemas:
@@ -127,7 +127,7 @@ Diff the old and new schemas:
 
 **For input changes:** read `kit-setup schema bundle …` for the *current* bundle and show only the fields the user wants to edit, with allowed values and defaults.
 
-**For adding a target:** check that the bundle declares that agent in its `targets` field (visible in the embedded bundle metadata or by inspecting the bundle directory).
+**For adding a target:** check that the bundle declares that agent in its catalog `targets` field or local `bundle.json`.
 
 **For removing a target / application:** simply delete that entry from `applications[]` or `targets`.
 

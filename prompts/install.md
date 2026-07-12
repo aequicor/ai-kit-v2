@@ -112,28 +112,20 @@ Record the version — it will go into the manifest as `aikitVersion`.
 
 ## Step 2 — Discover available bundles
 
-Build a single list of candidate bundles from three sources.
+If the user explicitly supplied a remote reference or local directory/ZIP, inspect only that bundle with `kit-setup schema bundle <ref>` and skip catalog ranking.
 
-**Remote (default choice — downloaded from GitHub by the CLI itself):**
-
-The universal starter bundle lives in the AI-Kit repository and is fetched by `kit-setup` on demand (requires `git` on PATH). Fetch its inputs schema:
+Otherwise fetch the compatible official catalog in machine-readable form:
 
 ```bash
-kit-setup schema bundle remote:aequicor/ai-kit-v2/my-bundle@main
+kit-setup schema bundle --list --json
 ```
 
-Prefer `my-bundle` as the default preset — it adapts to any stack via its `inputs` (`stack`, `buildCommand`, `testCommand`, …) and includes the `ai-kit` ops skill, which lets the agent manage the installation later ("install skill X", "update the kit", "remove the kit") without re-pasting prompts. In the manifest it is referenced as `"source": "remote"` — the CLI resolves this to the AI-Kit repository, tracks the `main` branch, caches downloads under `.aikit/cache/bundles/` and records the exact commit sha in the lock file.
+Inspect the project in Step 3, filter catalog entries by the requested target agent, then rank them using `tags`, `bestFor`, `notFor`, and `description`. Present no more than three suitable choices, clearly mark the best match, and explain the evidence from the project. Never recommend an entry where `compatible` is false. Use `--all --json` only when explaining why a known version is unavailable.
 
-**Embedded (built into the CLI):**
-
-```bash
-kit-setup schema bundle --list
-```
-
-Each line has the form `embedded:<name>@<version>  <description>`. For every entry, fetch its inputs schema:
+For each shortlisted entry, fetch the authoritative input schema from its `source` value:
 
 ```bash
-kit-setup schema bundle embedded:<name>@<version>
+kit-setup schema bundle <source-from-catalog>
 ```
 
 **Third-party (shipped with the user's repo):** look for `./.aikit/bundles/`. If it exists, list its entries (subdirectories and `*.zip` files). For each entry call:
@@ -164,7 +156,7 @@ The user does not need to see the manifest draft — they can open `.aikit/manif
 
 **Applied rules** — one line per non-trivial decision with the reason. Skip trivial defaults. Examples:
 
-- `bundle: simple-kit@0.0.1 (the only embedded bundle that fits a single-app repo)`
+- `bundle: simple-kit@0.0.1 (best match for a small single-app repo; compatible with this kit-setup)`
 - `projectName = "billing-service" (taken from package.json)`
 - `strict = true (production-grade repo: lockfile + GitHub Actions CI)`
 - `githubMcp = true (git origin points to github.com)`
@@ -214,7 +206,7 @@ The user's project does not contain AI-Kit's spec docs, so use this short refere
       "targets": {
         "<agent>": {
           "bundle": "<name>@<version>",
-          "source": "internal",
+          "source": "remote",
           "inputs": { "<id>": <value>, "...": "..." }
         }
       }
@@ -229,8 +221,8 @@ The user's project does not contain AI-Kit's spec docs, so use this short refere
 - `source`:
   - `"remote"` for the default remote bundle from the AI-Kit repository (`<name>/` folder, branch `main`; the CLI downloads it itself and records the commit sha in the lock file);
   - `remote:<owner>/<repo>/<path>[@<branch>]` for a bundle in any other GitHub repository;
-  - `"internal"` for embedded bundles (those listed by `kit-setup schema bundle --list`);
-  - a path string (e.g. `./.aikit/bundles/my-bundle` or `./.aikit/bundles/my-bundle.zip`) for third-party bundles.
+  - `"remote"` for an exact official `bundles/<name>/<version>/` entry;
+  - a path string (e.g. `./.aikit/bundles/my-bundle/0.4.0` or `./.aikit/bundles/my-bundle-0.4.0.zip`) for separately downloaded, private, or experimental bundles.
 - `inputs` is a flat object mapping input `id` → value. Types follow the bundle's inputs schema:
   - `boolean` → `true` / `false`
   - `select` → one allowed string
