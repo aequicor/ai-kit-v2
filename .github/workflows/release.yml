@@ -133,6 +133,15 @@ jobs:
           $VERSION = $env:GITHUB_REF_NAME -replace '^v', ''
           Copy-Item kit-setup/modules/cli/build/bin/mingwX64/releaseExecutable/cli.exe "kit-setup-${VERSION}-windows-amd64.exe"
 
+      - name: Verify Windows binary runs without elevation
+        shell: pwsh
+        run: |
+          $binary = Get-Item kit-setup-*-windows-amd64.exe
+          & $binary.FullName --version
+          if ($LASTEXITCODE -ne 0) {
+            throw "Windows binary exited with code $LASTEXITCODE"
+          }
+
       - uses: actions/upload-artifact@v6
         with:
           name: windows-amd64
