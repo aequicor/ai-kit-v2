@@ -4,6 +4,7 @@ import io.aequicor.aikit.io.BundleSource
 import io.aequicor.aikit.io.fs.FsBundleSource
 import io.aequicor.aikit.io.process.DefaultProcessRunner
 import io.aequicor.aikit.io.process.ProcessRunner
+import io.aequicor.aikit.io.process.processPath
 import kotlinx.io.Source
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
@@ -104,18 +105,28 @@ class RemoteBundleSource(
                 listOf(
                     "git", "clone",
                     "--depth", "1",
+                    "--filter=blob:none",
+                    "--sparse",
                     "--branch", ref.branch,
                     ref.repoUrl,
-                    staging.toString(),
+                    processPath(staging.toString()),
                 ),
             )
             .getOrThrow()
         check(result.exitCode == 0) {
             "git clone failed for ${ref.repoUrl} (branch '${ref.branch}'): ${result.output.trim()}"
         }
+        runGit(staging, listOf("config", "core.longpaths", "true"))
+        runGit(staging, listOf("sparse-checkout", "set", ref.path))
 
         deleteRecursively(repoDir)
         SystemFileSystem.atomicMove(staging, repoDir)
+    }
+
+    private fun runGit(repository: Path, arguments: List<String>) {
+        val result = runner.run(listOf("git", "-C", processPath(repository.toString())) + arguments)
+            .getOrThrow()
+        check(result.exitCode == 0) { "git ${arguments.first()} failed: ${result.output.trim()}" }
     }
 
     private fun isValidCacheEntry(bundleDir: Path): Boolean {
