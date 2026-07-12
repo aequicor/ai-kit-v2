@@ -2,14 +2,14 @@ package io.aequicor.aikit.engine
 
 import io.aequicor.aikit.engine.api.BundleGenerator
 import io.aequicor.aikit.engine.api.BundleSchemaProvider
-import io.aequicor.aikit.engine.api.EmbeddedBundleCatalog
+import io.aequicor.aikit.engine.api.BundleCatalog
 import io.aequicor.aikit.engine.api.ManifestResolver
 import io.aequicor.aikit.engine.api.ManifestVerifier
 import io.aequicor.aikit.engine.api.SchemaProvider
 import io.aequicor.aikit.engine.manifest.createFsManifestResolver // expect fun from nativeMain
 import io.aequicor.aikit.engine.impl.DefaultBundleGenerator
 import io.aequicor.aikit.engine.impl.DefaultBundleSchemaProvider
-import io.aequicor.aikit.engine.impl.DefaultEmbeddedBundleCatalog
+import io.aequicor.aikit.engine.impl.DefaultBundleCatalog
 import io.aequicor.aikit.engine.impl.DefaultManifestVerifier
 import io.aequicor.aikit.engine.impl.DefaultSchemaProvider
 import io.aequicor.aikit.engine.lock.DefaultLockStore
@@ -30,7 +30,7 @@ import io.aequicor.aikit.format.AiKitFormat
  *
  * @property schemaProvider Returns the JSON Schema for `.aikit/manifest.json`.
  * @property bundleSchemaProvider Returns the JSON Schema for the `inputs` of a specific bundle.
- * @property embeddedBundleCatalog Lists bundles compiled into the CLI binary.
+ * @property bundleCatalog Lists compatible versions from the official remote catalog.
  * @property verifier Validates a project manifest and its referenced bundles (no writes).
  * @property generator Generate pipeline — plans, diffs against the lock, writes output and lock.
  * @property remover Removes AI-Kit artifacts from a project using the lock file as the registry.
@@ -40,7 +40,7 @@ import io.aequicor.aikit.format.AiKitFormat
 class AiKitEngine private constructor(
     val schemaProvider: SchemaProvider,
     val bundleSchemaProvider: BundleSchemaProvider,
-    val embeddedBundleCatalog: EmbeddedBundleCatalog,
+    val bundleCatalog: BundleCatalog,
     val verifier: ManifestVerifier,
     val generator: BundleGenerator,
     val remover: ProjectRemover,
@@ -66,9 +66,9 @@ class AiKitEngine private constructor(
             )
             return AiKitEngine(
                 schemaProvider = DefaultSchemaProvider(format),
-                bundleSchemaProvider = DefaultBundleSchemaProvider(format),
-                embeddedBundleCatalog = DefaultEmbeddedBundleCatalog(),
-                verifier = DefaultManifestVerifier(format),
+                bundleSchemaProvider = DefaultBundleSchemaProvider(format, aikitVersion),
+                bundleCatalog = DefaultBundleCatalog(format, aikitVersion),
+                verifier = DefaultManifestVerifier(format, aikitVersion),
                 generator = DefaultBundleGenerator(
                     format = format,
                     fileWriter = fileWriter,

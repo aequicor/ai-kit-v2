@@ -61,8 +61,15 @@ data class RemoteBundleRef(
          * Default-registry coordinates for a bundle named [bundleName]: this repository,
          * branch `main`, bundle directory `<bundleName>/` at the repo root.
          */
-        fun defaultFor(bundleName: String): Result<RemoteBundleRef> =
-            parse("$SCHEME$DEFAULT_OWNER/$DEFAULT_REPO/$bundleName@$DEFAULT_BRANCH")
+        fun defaultFor(bundle: String): Result<RemoteBundleRef> {
+            val name = bundle.substringBefore('@')
+            val version = bundle.substringAfter('@', missingDelimiterValue = "")
+            return if (version.isEmpty()) {
+                Result.failure(IllegalArgumentException("official remote bundle must include a version: '$bundle'"))
+            } else {
+                parse("$SCHEME$DEFAULT_OWNER/$DEFAULT_REPO/bundles/$name/$version@$DEFAULT_BRANCH")
+            }
+        }
 
         /**
          * Parse and validate a `remote:` reference.

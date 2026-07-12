@@ -1,14 +1,13 @@
 {
-  "schemaVersion": 1,
-
+  "schemaVersion": 2,
   "name": "flow-kit",
   "version": "0.0.1",
   "description": "Автономный пайплайн разработки Claude Code под KMP + Ktor: оркестратор /pipeline (аналитика → разработка → security → тест интерфейсов → коммит), субагенты-роли, claude-in-mobile MCP для UI-автопилота, maven-indexer MCP для чтения исходников/декомпиляции зависимостей. Философия self-documenting code: код — источник истины, доки тянутся по запросу.",
   "author": "AI-Kit",
   "license": "Apache-2.0",
-
-  "targets": ["claude-code"],
-
+  "targets": [
+    "claude-code"
+  ],
   "inputs": [
     {
       "id": "projectName",
@@ -23,7 +22,12 @@
       "type": "select",
       "title": "Тип проекта",
       "description": "Определяет, что значит «тестирование интерфейсов» и какие конвенции включить. ktor-server — backend (HTTP API, testApplication). compose-app — клиент на Compose Multiplatform (UI-автопилот через claude-in-mobile). kmp-fullstack — общий KMP-модуль + Ktor-сервер + Compose-клиент. kmp-library — переиспользуемая multiplatform-библиотека без UI.",
-      "options": ["ktor-server", "compose-app", "kmp-fullstack", "kmp-library"],
+      "options": [
+        "ktor-server",
+        "compose-app",
+        "kmp-fullstack",
+        "kmp-library"
+      ],
       "default": "kmp-fullstack"
     },
     {
@@ -31,7 +35,10 @@
       "type": "select",
       "title": "Уровень автономности /pipeline",
       "description": "guided — оркестратор останавливается после стадии аналитики (план на утверждение) и перед коммитом. auto — проходит весь цикл сам, останавливается только на провале гейта (security/тесты) или для деструктивных действий.",
-      "options": ["guided", "auto"],
+      "options": [
+        "guided",
+        "auto"
+      ],
       "default": "guided"
     },
     {
@@ -39,24 +46,56 @@
       "type": "multiselect",
       "title": "Какие субагенты-роли установить?",
       "description": "Делегируемые стадии пайплайна в собственном контекстном окне. analyst — аналитика. kotlin-specialist / ktor-specialist — разработка. security-reviewer — проверка безопасности в свежем контексте. interface-tester — прогон UI/API. gradle-troubleshooter / test-runner — поддержка.",
-      "options": ["analyst", "kotlin-specialist", "ktor-specialist", "security-reviewer", "interface-tester", "gradle-troubleshooter", "test-runner"],
-      "default": ["analyst", "kotlin-specialist", "ktor-specialist", "security-reviewer", "interface-tester", "gradle-troubleshooter", "test-runner"]
+      "options": [
+        "analyst",
+        "kotlin-specialist",
+        "ktor-specialist",
+        "security-reviewer",
+        "interface-tester",
+        "gradle-troubleshooter",
+        "test-runner"
+      ],
+      "default": [
+        "analyst",
+        "kotlin-specialist",
+        "ktor-specialist",
+        "security-reviewer",
+        "interface-tester",
+        "gradle-troubleshooter",
+        "test-runner"
+      ]
     },
     {
       "id": "skills",
       "type": "multiselect",
       "title": "Какие скилы установить?",
       "description": "Каждый скил — SKILL.md, который агент подхватывает по описанию (progressive disclosure: тонкий триггер, детали в references/). docs-on-demand — порядок разрешения незнания (код → исходники зависимости → офиц. доки → знания модели).",
-      "options": ["security-review", "interface-testing", "docs-on-demand", "kotlin-build"],
-      "default": ["security-review", "interface-testing", "docs-on-demand", "kotlin-build"]
+      "options": [
+        "security-review",
+        "interface-testing",
+        "docs-on-demand",
+        "kotlin-build"
+      ],
+      "default": [
+        "security-review",
+        "interface-testing",
+        "docs-on-demand",
+        "kotlin-build"
+      ]
     },
     {
       "id": "qualityTools",
       "type": "multiselect",
       "title": "Инструменты качества кода",
       "description": "ktlint — PostToolUse-хук форматит .kt после каждого Edit/Write. detekt — входит в Stop-хук (статанализ + тесты перед завершением сессии).",
-      "options": ["ktlint", "detekt"],
-      "default": ["ktlint", "detekt"]
+      "options": [
+        "ktlint",
+        "detekt"
+      ],
+      "default": [
+        "ktlint",
+        "detekt"
+      ]
     },
     {
       "id": "mobileMcp",
@@ -93,5 +132,21 @@
       "description": "Включает PreToolUse-хуки: block-dangerous (rm -rf, force push, reset --hard) и guard-commit (блокирует git commit при секретах/ключах в staged-diff; предупреждает про оставленные TODO/FIXME и !!).",
       "default": true
     }
+  ],
+  "kitSetup": ">=1.0.0 <2.0.0",
+  "tags": [
+    "kotlin",
+    "kmp",
+    "ktor",
+    "claude-code",
+    "pipeline",
+    "multi-agent"
+  ],
+  "bestFor": [
+    "KMP and Ktor projects",
+    "Teams wanting an autonomous development pipeline"
+  ],
+  "notFor": [
+    "Small projects needing minimal configuration"
   ]
 }

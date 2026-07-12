@@ -26,9 +26,9 @@ class RemoteBundleRefTest {
 
     @Test
     fun defaultFor_pointsAtCanonicalRegistry() {
-        val ref = RemoteBundleRef.defaultFor("my-bundle").getOrThrow()
+        val ref = RemoteBundleRef.defaultFor("my-bundle@0.3.0").getOrThrow()
 
-        assertEquals("remote:aequicor/ai-kit-v2/my-bundle@main", ref.toRefString())
+        assertEquals("remote:aequicor/ai-kit-v2/bundles/my-bundle/0.3.0@main", ref.toRefString())
     }
 
     @Test

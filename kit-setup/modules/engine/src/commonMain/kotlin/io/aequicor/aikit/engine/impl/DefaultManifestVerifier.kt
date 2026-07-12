@@ -18,7 +18,10 @@ import kotlinx.io.files.Path
  *
  * Runs the load + resolve + validate stages of the pipeline but skips render and write.
  */
-internal class DefaultManifestVerifier(private val format: AiKitFormat) : ManifestVerifier {
+internal class DefaultManifestVerifier(
+    private val format: AiKitFormat,
+    private val currentVersion: String,
+) : ManifestVerifier {
 
     override fun verify(manifestPath: String): Result<Unit> = runCatching {
         val manifestSource = FsProjectManifestSource(Path(manifestPath))
@@ -57,6 +60,7 @@ internal class DefaultManifestVerifier(private val format: AiKitFormat) : Manife
                         }
 
                     val actualRef = "${parsedBundle.manifest.name}@${parsedBundle.manifest.version}"
+                    requireCompatible(parsedBundle.manifest, currentVersion, actualRef)
                     if (actualRef != rawTarget.bundle) {
                         throw EngineError.BundleLoadError(
                             rawTarget.bundle,

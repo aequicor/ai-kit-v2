@@ -10,7 +10,7 @@ fun main(args: Array<String>) {
     AiKitCli(
         schemaProvider = engine.schemaProvider,
         bundleSchemaProvider = engine.bundleSchemaProvider,
-        embeddedBundleCatalog = engine.embeddedBundleCatalog,
+        bundleCatalog = engine.bundleCatalog,
         verifier = engine.verifier,
         generator = engine.generator,
         remover = engine.remover,

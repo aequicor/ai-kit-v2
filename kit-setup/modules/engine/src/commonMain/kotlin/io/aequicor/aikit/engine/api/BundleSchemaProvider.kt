@@ -12,7 +12,7 @@ fun interface BundleSchemaProvider {
     /**
      * Load the bundle referenced by [ref] and return its `inputs` JSON Schema as a string.
      *
-     * @param ref bundle reference — directory path, `zip:<path>`, `<path>.zip`, or `embedded:<name>`.
+     * @param ref bundle reference — directory path, ZIP, or explicit `remote:` reference.
      *   Same syntax as `targets.<name>.source` in a project manifest.
      * @param baseDir directory used to resolve relative paths in [ref]. Ignored for embedded
      *   bundles. Empty string is treated as the current working directory.

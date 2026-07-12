@@ -1,14 +1,13 @@
 {
-  "schemaVersion": 1,
-
+  "schemaVersion": 2,
   "name": "parallel-work-kmp",
   "version": "0.0.1",
   "description": "Эффективная работа над KMP-проектом в параллельных сессиях Claude Code через git worktrees. Лёгкий операционный CLAUDE.md без архитектурных обзоров (по исследованию ETH Zurich о вреде раздутых context-файлов), скил parallel-sessions (нативный claude --worktree, .worktreeinclude, изоляция портов/серийников/AVD/applicationIdSuffix, тюнинг gradle.properties под N параллельных демонов), скил snapshot-testing (Roborazzi/Compose Preview как параллельный слой UI-проверки), хук-страж от незаскоупленных adb/simctl.",
   "author": "AI-Kit",
   "license": "Apache-2.0",
-
-  "targets": ["claude-code"],
-
+  "targets": [
+    "claude-code"
+  ],
   "inputs": [
     {
       "id": "projectName",
@@ -23,7 +22,12 @@
       "type": "select",
       "title": "Тип проекта",
       "description": "Определяет, какие команды и слои проверки релевантны при параллельной работе. compose-app / kmp-fullstack — есть UI: важна изоляция эмуляторов/симуляторов/портов и снапшот-тестирование. kmp-library — без UI: изоляция нужна только для build/ и тестов. ktor-server — backend: изолируются порты сервера и тестовой БД, UI-слой не применяется.",
-      "options": ["compose-app", "kmp-fullstack", "kmp-library", "ktor-server"],
+      "options": [
+        "compose-app",
+        "kmp-fullstack",
+        "kmp-library",
+        "ktor-server"
+      ],
       "default": "kmp-fullstack"
     },
     {
@@ -40,7 +44,11 @@
       "type": "select",
       "title": "Инструмент снапшот-тестирования UI",
       "description": "Основной слой UI-проверки, который параллелится без эмулятора (у каждого worktree свой build/). roborazzi — JVM-рендер Compose через Robolectric, кросс-платформенный (takahirom/roborazzi). compose-preview — официальный Google Compose Preview Screenshot Testing (требует AGP 8.5+, экспериментальный). none — без снапшотов (для kmp-library/ktor-server без UI). Ставит скил snapshot-testing, если не none.",
-      "options": ["roborazzi", "compose-preview", "none"],
+      "options": [
+        "roborazzi",
+        "compose-preview",
+        "none"
+      ],
       "default": "roborazzi"
     },
     {
@@ -71,5 +79,21 @@
       "description": "Включает PreToolUse-хуки. block-dangerous: блокирует rm -rf, force push, git reset --hard, git clean -f, ручную чистку gradle-кэша и опасные операции с worktree (git worktree remove --force / prune). guard-device: блокирует незаскоупленные команды устройств (adb shell/install/logcat, simctl boot/install/launch) без явного серийника/UDID — ключевая защита от кросс-сессионных коллизий.",
       "default": true
     }
+  ],
+  "kitSetup": ">=1.0.0 <2.0.0",
+  "tags": [
+    "kotlin",
+    "kmp",
+    "claude-code",
+    "worktrees",
+    "parallel"
+  ],
+  "bestFor": [
+    "KMP projects developed in parallel Claude Code sessions",
+    "Projects using git worktrees"
+  ],
+  "notFor": [
+    "Single-session workflows",
+    "Non-KMP projects"
   ]
 }

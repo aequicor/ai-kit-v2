@@ -11,7 +11,7 @@ import io.aequicor.aikit.cli.commands.UpdateSelfSubcommand
 import io.aequicor.aikit.cli.commands.VerifyCommand
 import io.aequicor.aikit.engine.api.BundleGenerator
 import io.aequicor.aikit.engine.api.BundleSchemaProvider
-import io.aequicor.aikit.engine.api.EmbeddedBundleCatalog
+import io.aequicor.aikit.engine.api.BundleCatalog
 import io.aequicor.aikit.engine.api.ManifestResolver
 import io.aequicor.aikit.engine.api.ManifestVerifier
 import io.aequicor.aikit.engine.api.SchemaProvider
@@ -22,7 +22,7 @@ import io.aequicor.aikit.engine.remove.ProjectRemover
 class AiKitCli(
     schemaProvider: SchemaProvider,
     bundleSchemaProvider: BundleSchemaProvider,
-    embeddedBundleCatalog: EmbeddedBundleCatalog,
+    bundleCatalog: BundleCatalog,
     verifier: ManifestVerifier,
     generator: BundleGenerator,
     remover: ProjectRemover,
@@ -32,7 +32,7 @@ class AiKitCli(
     init {
         versionOption(currentVersion)
         subcommands(
-            SchemaCommand(schemaProvider, bundleSchemaProvider, embeddedBundleCatalog),
+            SchemaCommand(schemaProvider, bundleSchemaProvider, bundleCatalog),
             VerifyCommand(verifier, manifestResolver),
             GenerateCommand(generator, manifestResolver),
             RemoveCommand(remover, manifestResolver),

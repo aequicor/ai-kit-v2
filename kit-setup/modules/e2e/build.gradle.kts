@@ -35,7 +35,7 @@ tasks.test {
         .orElse(providers.systemProperty("kit.binary"))
         .orElse(provider { defaultBinaryPath() })
     systemProperty("kit.binary", binary.get())
-    systemProperty("kit.bundlesDir", rootDir.resolve("bundles").absolutePath)
+    systemProperty("kit.bundlesDir", rootDir.parentFile.resolve("bundles").absolutePath)
     testLogging {
         events("passed", "failed", "skipped")
         showStandardStreams = false

@@ -19,6 +19,27 @@ class BundleManifestParserTest {
     private val format = AiKitFormat.create()
 
     @Test
+    fun parse_schema_v2_compatibility_and_recommendation_metadata() {
+        val json = """{
+          "schemaVersion": 2,
+          "name": "recommended",
+          "version": "1.2.3",
+          "description": "A recommended bundle",
+          "kitSetup": ">=1.0.0 <2.0.0",
+          "tags": ["kotlin"],
+          "bestFor": ["Kotlin projects"],
+          "notFor": ["JavaScript projects"],
+          "targets": []
+        }"""
+
+        val manifest = format.parseBundleManifest(MemoryBundleSource(json)).getOrThrow().manifest
+        assertEquals(">=1.0.0 <2.0.0", manifest.kitSetup)
+        assertEquals(listOf("kotlin"), manifest.tags)
+        assertEquals(listOf("Kotlin projects"), manifest.bestFor)
+        assertEquals(listOf("JavaScript projects"), manifest.notFor)
+    }
+
+    @Test
     fun parse_minimal_bundle() {
         val json = """
             {

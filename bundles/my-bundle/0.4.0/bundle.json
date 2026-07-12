@@ -1,14 +1,14 @@
 {
-  "schemaVersion": 1,
-
+  "schemaVersion": 2,
   "name": "my-bundle",
   "version": "0.4.0",
   "description": "Универсальный персональный бандл-конструктор: CLAUDE.md/AGENTS.md собираются из тумблеров по технологиям (KMP, Android, корутины, Compose, Decompose, Ktor, тесты) + библиотека глубоких скилов — SDK-плейбуки, security-audit, охота на утечки, оптимизация, сборка. Профиль проекта (описание, архитектура, модули, дизайн-система) живёт в манифесте и переживает перегенерацию. Таргеты: Claude Code и Codex. Включает ops-скилл ai-kit — управление установкой AI-Kit на естественном языке — и команды /remember (запомнить проектный факт в манифесте) и /generate (переизучить проект и актуализировать профиль + inputs).",
   "author": "AI-Kit",
   "license": "Apache-2.0",
-
-  "targets": ["claude-code", "codex"],
-
+  "targets": [
+    "claude-code",
+    "codex"
+  ],
   "inputs": [
     {
       "id": "projectName",
@@ -58,7 +58,12 @@
       "type": "select",
       "title": "Основной стек проекта",
       "description": "Включает стеко-специфичные секции в CLAUDE.md",
-      "options": ["kotlin", "web", "python", "other"],
+      "options": [
+        "kotlin",
+        "web",
+        "python",
+        "other"
+      ],
       "default": "other"
     },
     {
@@ -66,7 +71,15 @@
       "type": "multiselect",
       "title": "Технологии проекта (для stack=kotlin)",
       "description": "Каждый пункт добавляет секцию с гайдлайнами в CLAUDE.md/AGENTS.md и включает соответствующий глубокий скил (Claude Code). Выбирай по факту: kmp — есть commonMain/таргеты KMP; android — androidMain или Android-модуль; coroutines — kotlinx-coroutines в зависимостях; compose — Compose/Compose Multiplatform; decompose — библиотека Decompose; ktor — Ktor server/client; tests — в проекте пишутся тесты",
-      "options": ["kmp", "android", "coroutines", "compose", "decompose", "ktor", "tests"],
+      "options": [
+        "kmp",
+        "android",
+        "coroutines",
+        "compose",
+        "decompose",
+        "ktor",
+        "tests"
+      ],
       "default": []
     },
     {
@@ -88,16 +101,30 @@
       "type": "multiselect",
       "title": "Какие скилы установить?",
       "description": "ai-kit — управление установкой AI-Kit на естественном языке; review — код-ревью текущей ветки; security-audit — diff-aware ревью безопасности по таблице угроз; leak-hunt — поиск утечек (корутины, ресурсы, Compose/Decompose); perf-optimize — оптимизация (recomposition, фазы, аллокации); kotlin-build — работа с Gradle (для Kotlin-проектов)",
-      "options": ["ai-kit", "review", "security-audit", "leak-hunt", "perf-optimize", "kotlin-build"],
-      "default": ["ai-kit", "review"]
+      "options": [
+        "ai-kit",
+        "review",
+        "security-audit",
+        "leak-hunt",
+        "perf-optimize",
+        "kotlin-build"
+      ],
+      "default": [
+        "ai-kit",
+        "review"
+      ]
     },
     {
       "id": "subagents",
       "type": "multiselect",
       "title": "Какие субагенты установить?",
       "description": "Делегируемые задачи в собственном контекстном окне",
-      "options": ["code-reviewer"],
-      "default": ["code-reviewer"]
+      "options": [
+        "code-reviewer"
+      ],
+      "default": [
+        "code-reviewer"
+      ]
     },
     {
       "id": "strict",
@@ -106,5 +133,23 @@
       "description": "PreToolUse-хук, блокирующий опасные команды (rm -rf, force push, git reset --hard)",
       "default": true
     }
+  ],
+  "kitSetup": ">=1.0.0 <2.0.0",
+  "tags": [
+    "general",
+    "kotlin",
+    "kmp",
+    "android",
+    "compose",
+    "ktor",
+    "claude-code",
+    "codex"
+  ],
+  "bestFor": [
+    "Projects needing a configurable technology-aware setup",
+    "Projects targeting Claude Code or Codex"
+  ],
+  "notFor": [
+    "Projects wanting a fixed minimal preset"
   ]
 }

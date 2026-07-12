@@ -1,6 +1,5 @@
 package io.aequicor.aikit.io
 
-import io.aequicor.aikit.io.embedded.EmbeddedBundleSource
 import io.aequicor.aikit.io.fs.FsBundleSource
 import io.aequicor.aikit.io.process.DefaultProcessRunner
 import io.aequicor.aikit.io.process.ProcessRunner
@@ -13,7 +12,7 @@ import kotlinx.io.files.Path
  * Chooses the right [BundleSource] implementation for a bundle reference string.
  *
  * Reference forms recognised:
- * - `embedded:<name>` or `embedded:<name>@<version>` — bundle compiled into the CLI binary.
+ * - `embedded:<name>` — rejected with migration instructions.
  * - `remote:<owner>/<repo>/<path>[@<branch>]` — bundle in a GitHub repository, downloaded
  *   into `<baseDir>/.aikit/cache/bundles/` on first read (see [RemoteBundleSource]).
  * - `zip:<path>` or `<path>.zip` — packed bundle on disk.
@@ -34,10 +33,7 @@ class BundleSourceFactory(
      */
     fun create(ref: String, baseDir: Path): Result<BundleSource> = runCatching {
         when {
-            ref.startsWith(EMBEDDED_SCHEME) -> {
-                val nameWithVersion = ref.removePrefix(EMBEDDED_SCHEME)
-                EmbeddedBundleSource(nameWithVersion.substringBefore('@'))
-            }
+            ref.startsWith(EMBEDDED_SCHEME) -> throw IllegalArgumentException(SourceRefs.LEGACY_SOURCE_MESSAGE)
             RemoteBundleRef.matches(ref) -> RemoteBundleSource(
                 ref = RemoteBundleRef.parse(ref).getOrThrow(),
                 cacheRoot = Path(baseDir, CACHE_RELATIVE_DIR),

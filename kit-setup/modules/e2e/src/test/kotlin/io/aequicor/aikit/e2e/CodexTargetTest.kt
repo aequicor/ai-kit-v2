@@ -24,10 +24,11 @@ class CodexTargetTest {
         bundle.resolve("bundle.json").writeText(
             """
             {
-              "schemaVersion": 1,
+              "schemaVersion": 2,
               "name": "codex-kit",
               "version": "0.0.1",
               "description": "e2e codex bundle",
+              "kitSetup": ">=1.0.0 <2.0.0",
               "targets": ["codex"],
               "inputs": [
                 { "id": "projectName", "type": "string", "title": "Name", "required": true },

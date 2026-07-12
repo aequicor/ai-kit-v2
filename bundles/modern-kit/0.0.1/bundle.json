@@ -1,14 +1,13 @@
 {
-  "schemaVersion": 1,
-
+  "schemaVersion": 2,
   "name": "modern-kit",
   "version": "0.0.1",
   "description": "AI-Kit для Kotlin-проектов: CLAUDE.md с Kotlin-конвенциями, kotlin-specialist / gradle-troubleshooter субагенты, автоформат через ktlint-хук, detekt на завершении сессии",
   "author": "AI-Kit",
   "license": "MIT",
-
-  "targets": ["claude-code"],
-
+  "targets": [
+    "claude-code"
+  ],
   "inputs": [
     {
       "id": "projectName",
@@ -23,7 +22,11 @@
       "type": "select",
       "title": "Тип Kotlin-проекта",
       "description": "Влияет на конвенции в CLAUDE.md и рекомендации скила kotlin-build",
-      "options": ["jvm", "multiplatform", "android"],
+      "options": [
+        "jvm",
+        "multiplatform",
+        "android"
+      ],
       "default": "jvm"
     },
     {
@@ -31,24 +34,46 @@
       "type": "multiselect",
       "title": "Инструменты качества кода",
       "description": "ktlint — PostToolUse-хук форматит .kt после каждого Edit/Write. detekt — Stop-хук проверяет проект перед завершением сессии",
-      "options": ["ktlint", "detekt"],
-      "default": ["ktlint", "detekt"]
+      "options": [
+        "ktlint",
+        "detekt"
+      ],
+      "default": [
+        "ktlint",
+        "detekt"
+      ]
     },
     {
       "id": "subagents",
       "type": "multiselect",
       "title": "Какие субагенты установить?",
       "description": "Делегируемые задачи в собственном контекстном окне",
-      "options": ["kotlin-specialist", "gradle-troubleshooter", "code-reviewer", "test-runner"],
-      "default": ["kotlin-specialist", "gradle-troubleshooter", "code-reviewer"]
+      "options": [
+        "kotlin-specialist",
+        "gradle-troubleshooter",
+        "code-reviewer",
+        "test-runner"
+      ],
+      "default": [
+        "kotlin-specialist",
+        "gradle-troubleshooter",
+        "code-reviewer"
+      ]
     },
     {
       "id": "skills",
       "type": "multiselect",
       "title": "Какие скилы установить?",
       "description": "Каждый скил — отдельный SKILL.md, который агент подхватывает по описанию",
-      "options": ["review", "security-review", "kotlin-build"],
-      "default": ["review", "kotlin-build"]
+      "options": [
+        "review",
+        "security-review",
+        "kotlin-build"
+      ],
+      "default": [
+        "review",
+        "kotlin-build"
+      ]
     },
     {
       "id": "githubMcp",
@@ -85,5 +110,19 @@
       "description": "Включает PreToolUse-хук, блокирующий опасные команды (rm -rf, force push)",
       "default": true
     }
+  ],
+  "kitSetup": ">=1.0.0 <2.0.0",
+  "tags": [
+    "kotlin",
+    "gradle",
+    "claude-code",
+    "quality"
+  ],
+  "bestFor": [
+    "Kotlin and Gradle projects",
+    "Projects using ktlint and detekt"
+  ],
+  "notFor": [
+    "Non-Kotlin projects"
   ]
 }

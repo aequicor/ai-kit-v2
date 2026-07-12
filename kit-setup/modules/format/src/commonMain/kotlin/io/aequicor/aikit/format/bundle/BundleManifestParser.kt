@@ -31,7 +31,7 @@ internal class BundleManifestParser(private val json: Json) {
             ?: throw FormatError.MissingField("schemaVersion", "bundle.json")
 
         when (version) {
-            1 -> {
+            1, BUNDLE_SCHEMA_V2 -> {
                 val dto = try {
                     json.decodeFromString(BundleManifestDtoV1.serializer(), manifestText)
                 } catch (e: IllegalArgumentException) {
@@ -46,6 +46,7 @@ internal class BundleManifestParser(private val json: Json) {
     }
 
     private companion object {
-        val SUPPORTED_VERSIONS = 1..1
+        const val BUNDLE_SCHEMA_V2 = 2
+        val SUPPORTED_VERSIONS = 1..BUNDLE_SCHEMA_V2
     }
 }

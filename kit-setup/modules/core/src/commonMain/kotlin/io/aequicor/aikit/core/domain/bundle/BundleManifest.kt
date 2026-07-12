@@ -23,6 +23,10 @@ data class BundleManifest(
     val description: String,
     val author: String?,
     val license: String?,
+    val kitSetup: String?,
+    val tags: List<String>,
+    val bestFor: List<String>,
+    val notFor: List<String>,
     val targets: List<Target>,
     val inputs: List<InputSpec>,
 )
