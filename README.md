@@ -1,3 +1,7 @@
+```
+Install https://github.com/aequicor/ai-kit-v2
+```
+
 <div align="center">
 
 <img src="assets/banner.svg" alt="AI-Kit v2 — Configure any AI coding agent in one command" width="100%"/>
@@ -26,13 +30,9 @@ AI-Kit generates ready-to-use configuration for AI coding agents from reusable p
 
 ## Quick Start
 
-Tell any AI coding agent with tool use (Claude Code, Cursor, Codex, etc.) opened in your project:
+Tell any AI coding agent with tool use (Claude Code, Cursor, Codex, etc.) opened in your project to run the install command at the top of this README.
 
-```
-Установи https://github.com/aequicor/ai-kit-v2
-```
-
-or, more explicitly:
+For more explicit instructions:
 
 ```
 Read prompts/install.md from https://github.com/aequicor/ai-kit-v2 and follow
