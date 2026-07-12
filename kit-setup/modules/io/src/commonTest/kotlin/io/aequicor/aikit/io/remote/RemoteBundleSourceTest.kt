@@ -58,6 +58,7 @@ class RemoteBundleSourceTest {
                     )
                     ProcessResult(0, "")
                 }
+                "-C" -> ProcessResult(0, "")
                 else -> error("unexpected command: $command")
             }
         }

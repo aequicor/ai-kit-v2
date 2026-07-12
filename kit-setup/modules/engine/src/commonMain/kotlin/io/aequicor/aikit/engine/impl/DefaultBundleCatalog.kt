@@ -12,6 +12,7 @@ import io.aequicor.aikit.format.AiKitFormat
 import io.aequicor.aikit.io.fs.FsBundleSource
 import io.aequicor.aikit.io.process.DefaultProcessRunner
 import io.aequicor.aikit.io.process.ProcessRunner
+import io.aequicor.aikit.io.process.processPath
 import io.aequicor.aikit.io.remote.RemoteBundleRef
 import kotlinx.io.buffered
 import kotlinx.io.files.Path
@@ -89,9 +90,15 @@ internal class DefaultBundleCatalog(
                 val staging = Path(cacheRoot, "$sha-tmp")
                 deleteRecursively(staging)
                 val clone = runner.run(
-                    listOf("git", "clone", "--depth", "1", "--branch", "main", REPO_URL, staging.toString())
+                    listOf(
+                        "git", "clone", "--depth", "1", "--filter=blob:none", "--sparse",
+                        "--branch", "main", REPO_URL,
+                        processPath(staging.toString()),
+                    )
                 ).getOrThrow()
                 check(clone.exitCode == 0) { "cannot download official bundle catalog: ${clone.output.trim()}" }
+                runGit(staging, listOf("config", "core.longpaths", "true"))
+                runGit(staging, listOf("sparse-checkout", "set", "bundles"))
                 SystemFileSystem.atomicMove(staging, repoRoot)
             }
             SystemFileSystem.sink(Path(cacheRoot, POINTER)).buffered().use { it.writeString(sha) }
@@ -113,6 +120,12 @@ internal class DefaultBundleCatalog(
         val metadata = SystemFileSystem.metadataOrNull(path) ?: return
         if (metadata.isDirectory) SystemFileSystem.list(path).forEach(::deleteRecursively)
         SystemFileSystem.delete(path, mustExist = false)
+    }
+
+    private fun runGit(repository: Path, arguments: List<String>) {
+        val result = runner.run(listOf("git", "-C", processPath(repository.toString())) + arguments)
+            .getOrThrow()
+        check(result.exitCode == 0) { "git ${arguments.first()} failed: ${result.output.trim()}" }
     }
 
     private data class Materialized(val root: Path, val stale: Boolean)
